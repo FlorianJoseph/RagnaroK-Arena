@@ -15,4 +15,7 @@ async function signOut() {
   <div v-if="!user">
     <router-link to='/login' class="btn btn-danger">Connexion</router-link>
   </div>
+  <div>
+    <router-link to='/register' class="btn btn-danger">Créer un compte</router-link>
+  </div>
 </template>

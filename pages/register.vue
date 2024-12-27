@@ -1,3 +1,3 @@
 <template>
-    <Sidebar />
+    <Navbar />
 </template>

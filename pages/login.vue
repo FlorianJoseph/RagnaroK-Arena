@@ -21,7 +21,7 @@ export default defineComponent({
 </script>
 
 <template>
-    <Sidebar />
+    <Navbar />
     <!-- Bouton pour se connecter avec Twitch -->
     <div class="mt-4 text-center">
         <button @click="signInWithTwitch"

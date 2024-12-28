@@ -1,40 +1,23 @@
-<script lang="ts">
-export default defineComponent({
-    setup() {
-        const supabase = useSupabaseClient();
-        const email = ref('');
-        const password = ref('');
+<script setup lang="ts">
+const supabase = useSupabaseClient();
+const email = ref('');
+const password = ref('');
 
-        const signInWithTwitch = async () => {
-            await supabase.auth.signInWithOAuth({
-                provider: 'twitch',
-                options: {
-                    redirectTo: `https://qgpfftkjoktjzylwtvbx.supabase.co/auth/v1/callback`,
-                },
-            });
-        };
+async function signInWithTwitch() {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitch',
+        options: {
+            redirectTo: `https://qgpfftkjoktjzylwtvbx.supabase.co/auth/v1/callback`,
+        },
+    });
+}
 
-        const signInWithEmail = async () => {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email.value,
-                password: password.value,
-            });
-
-            if (error) {
-                console.error('Erreur de connexion:', error.message);
-            } else {
-                console.log('Connexion réussie:', data);
-            }
-        };
-
-        return {
-            email,
-            password,
-            signInWithTwitch,
-            signInWithEmail
-        };
-    },
-});
+async function signInWithEmail() {
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.value,
+        password: password.value,
+    });
+}
 
 </script>
 
@@ -43,8 +26,6 @@ export default defineComponent({
 
     <!-- Formulaire de connexion par e-mail et mot de passe -->
     <div class="max-w-md mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
-        <h2 class="text-2xl font-semibold text-center mb-4">Connexion</h2>
-
         <!-- Formulaire -->
         <form @submit.prevent="signInWithEmail">
             <!-- Email -->

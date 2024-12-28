@@ -2,6 +2,7 @@
 const email = ref('');
 const password = ref('');
 const supabase = useSupabaseClient();
+const router = useRouter();
 const errorMessage = ref('');
 const successMessage = ref('');
 
@@ -16,13 +17,13 @@ async function signUpNewUser() {
     });
 
     if (error) {
-        errorMessage.value = `Erreur lors de l'inscription: Pour des raisons de sécurité, vous ne pouvez le demander qu'après 1 minute.`;
+        errorMessage.value = `Erreur lors de l'inscription : Pour des raisons de sécurité, vous ne pouvez le demander qu'après 1 minute.`;
         successMessage.value = '';
     } else {
         successMessage.value = 'Utilisateur inscrit avec succès. Veuillez vérifier votre email pour confirmer votre inscription.';
         errorMessage.value = '';
         // Optionally redirect the user after successful sign-up
-        // router.push('/login');
+        router.push('/');
     }
 }
 </script>

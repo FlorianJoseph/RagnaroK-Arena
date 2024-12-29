@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class', // Utilise une classe pour activer le mode sombre
   content: [
     "./components/**/*.{js,vue,ts}",
     "./layouts/**/*.vue",
@@ -9,7 +10,12 @@ export default {
     "./error.vue",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        darkBg: '#1a202c',
+        lightBg: '#f7fafc',
+      },
+    },
   },
   plugins: [],
 }

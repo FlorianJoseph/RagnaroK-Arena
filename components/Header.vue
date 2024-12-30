@@ -3,72 +3,24 @@ const user = useSupabaseUser();
 </script>
 
 <template>
-    <div class="header">
-        <div class="header-left">
+    <div class="flex justify-between items-center w-full px-6 py-4">
+        <!-- Section gauche -->
+        <div class="flex items-center">
             <span>Logo</span>
-            <p class="header-name">RagnaröK Arena</p>
+            <p class="ml-8 text-2xl font-bold">RagnaröK Arena</p>
         </div>
-        <div class="header-right">
+        <!-- Section droite -->
+        <div class="flex items-center">
             <ToggleTheme />
-            <div v-if="!user">
-                <Modal />
+            <div v-if="!user" class="ml-4">
+                <router-link to='/login' class="text-blue-600 hover:underline">Connexion</router-link>
             </div>
-            <div v-if="user">
-                <button class="profile-btn">
-                    <span>Aybüke C.</span>
+            <div v-if="user" class="ml-4">
+                <button
+                    class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 focus:ring-2 focus:ring-blue-500">
+                    <span>{{ user.email }}</span>
                 </button>
             </div>
         </div>
     </div>
 </template>
-
-<style lang="scss" scoped>
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 16px 24px;
-    position: relative;
-
-    &-left,
-    &-right {
-        display: flex;
-        align-items: center;
-    }
-
-    &-left {
-        flex-grow: 1;
-    }
-
-    &-right button {
-        margin-left: 10px;
-    }
-
-    &-name {
-        color: #1f1c2e;
-        margin: 0;
-        font-size: 20px;
-        line-height: 24px;
-        font-weight: 700;
-        margin: 0 32px;
-    }
-}
-
-.profile-btn {
-    padding: 0;
-    border: 0;
-    background-color: transparent;
-    display: flex;
-    align-items: center;
-    padding-left: 12px;
-    border-left: 2px solid #ddd;
-
-
-    span {
-        font-size: 16px;
-        line-height: 24px;
-        font-weight: 700;
-    }
-}
-</style>

@@ -12,8 +12,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        darkBg: '#1a202c',
-        lightBg: '#f7fafc',
+        lightText: '#1f1f1e',
+        lightBg: '#e1e1e0',
+        lightPrimary: '#47616c',
+        lightSecondary: '#72aac0',
+        lightAccent: '#628470',
+        darkText: '#e1e1e0',
+        darkBg: '#1f1f1e',
+        darkPrimary: '#93adb8',
+        darkSecondary: '#3f778d',
+        darkAccent: '#7b9d89',
       },
     },
   },

@@ -1,5 +1,5 @@
 <script setup>
-const title = ref('Menu');
+const title = ref('Classement');
 </script>
 
 <template>
@@ -8,7 +8,7 @@ const title = ref('Menu');
         <div class="flex h-full overflow-hidden">
             <Sidebar />
             <div class="flex h-full overflow-hidden p-8 pb-0 rounded-3xl flex-col flex-grow">
-                <HeaderMain :title="title"/>
+                <HeaderMain :title="title" />
                 <div class="flex flex-wrap -mx-2 overflow-y-auto">Page content
                 </div>
             </div>

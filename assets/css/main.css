@@ -1,19 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Germania+One&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* app.css */
+:root {
+    --lightText: #1f1f1e;
+    --lightBg: #e1e1e0;
+    --lightPrimary: #47616c;
+    --lightSecondary: #72aac0;
+    --lightAccent: #628470;
+    --darkText: #e1e1e0;
+    --darkBg: #1f1f1e;
+    --darkPrimary: #93adb8;
+    --darkSecondary: #3f778d;
+    --darkAccent: #7b9d89;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 html {
     color-scheme: light;
+}
+
+body {
+    font-family: "Germania One", sans-serif;
+    overflow: hidden;
 }
 
 .dark {
     color-scheme: dark;
     background-color: var(--darkBg);
-    color: white;
+    color: var(--darkText);
 }
 
 .light {
     background-color: var(--lightBg);
-    color: black;
+    color: var(--lightText);
+
+}
+
+button,
+a {
+    cursor: pointer;
 }

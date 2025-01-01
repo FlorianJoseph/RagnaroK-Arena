@@ -16,29 +16,33 @@ const sidebarItems = [
 </script>
 
 <template>
-  <!-- Affichage de la sidebar -->
-  <div class="flex-shrink-0 w-40 ml-4 my-8">
+  <div
+    class="flex-shrink-0 w-56 bg-lightBg text-lightText dark:bg-darkBg dark:text-darkText px-6 py-8">
+    <!-- Liste des éléments de la sidebar -->
     <div v-for="(item, index) in sidebarItems" :key="index"
-      class="flex flex-row justify-start items-center w-full py-2 hover:bg-darkBg hover:rounded dark:hover:bg-lightBg hover:text-darkText dark:hover:text-lightText">
+      class="flex items-center py-3 px-4 rounded hover:bg-lightPrimary hover:text-lightBg dark:hover:bg-darkPrimary dark:hover:text-darkBg transition-all">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-        class="size-6 mx-1.5">
+        class="h-6 w-6 mr-3">
         <path :d="item.icon" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
-      <router-link :to="item.link">
+      <router-link :to="item.link" class="text-sm font-medium">
         {{ item.label }}
       </router-link>
     </div>
 
-    <!-- Affichage du bouton de déconnexion si l'utilisateur est connecté -->
-    <div v-if="user">
-      <div
-        class="flex flex-row justify-start items-center w-full py-2 hover:bg-darkBg hover:rounded dark:hover:bg-lightBg hover:text-darkText dark:hover:text-lightText">
-        <svg xmlns="http://www.w3.org/2000/svg" class="size-6 mx-1.5" viewBox="0 0 24 24">
-          <path fill="currentColor"
-            d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h6q.425 0 .713.288T12 4t-.288.713T11 5H5v14h6q.425 0 .713.288T12 20t-.288.713T11 21zm12.175-8H10q-.425 0-.712-.288T9 12t.288-.712T10 11h7.175L15.3 9.125q-.275-.275-.275-.675t.275-.7t.7-.313t.725.288L20.3 11.3q.3.3.3.7t-.3.7l-3.575 3.575q-.3.3-.712.288t-.713-.313q-.275-.3-.262-.712t.287-.688z" />
-        </svg>
-        <button @click="signOut">Déconnexion</button>
-      </div>
+    <!-- Ligne de séparation -->
+    <div class="border-t my-6 border-lightSecondary dark:border-darkSecondary"></div>
+
+    <!-- Bouton de déconnexion -->
+    <div v-if="user"
+      class="flex items-center py-3 px-4 rounded hover:bg-lightAccent hover:text-lightBg dark:hover:bg-darkAccent dark:hover:text-darkBg transition-all">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" viewBox="0 0 24 24">
+        <path fill="currentColor"
+          d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h6q.425 0 .713.288T12 4t-.288.713T11 5H5v14h6q.425 0 .713.288T12 20t-.288.713T11 21zm12.175-8H10q-.425 0-.712-.288T9 12t.288-.712T10 11h7.175L15.3 9.125q-.275-.275-.275-.675t.275-.7t.7-.313t.725.288L20.3 11.3q.3.3.3.7t-.3.7l-3.575 3.575q-.3.3-.712.288t-.713-.313q-.275-.3-.262-.712t.287-.688z" />
+      </svg>
+      <button @click="signOut" class="text-sm font-medium">
+        Déconnexion
+      </button>
     </div>
   </div>
 </template>

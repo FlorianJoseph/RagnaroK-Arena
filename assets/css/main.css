@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Germania+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;600&display=swap');
+
 
 @tailwind base;
 @tailwind components;
@@ -21,25 +23,19 @@
     box-sizing: border-box;
 }
 
-html {
-    color-scheme: light;
-}
+/* h1,h2,h3,h4,h5,h6 {
+    font-family: "Cinzel", serif;
+} */
 
 body {
-    font-family: "Germania One", sans-serif;
+    /* font-family: "Germania One", sans-serif; */
+    font-family: "Inter", sans-serif;
     overflow: hidden;
 }
 
 .dark {
-    color-scheme: dark;
     background-color: var(--darkBg);
     color: var(--darkText);
-}
-
-.light {
-    background-color: var(--lightBg);
-    color: var(--lightText);
-
 }
 
 button,

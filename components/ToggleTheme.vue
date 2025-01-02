@@ -1,5 +1,19 @@
 <script setup>
-import { useTheme } from '~/composables/theme';
+const useTheme = () => {
+    const theme = useState('theme', () => 'light');
+
+    const toggleTheme = () => {
+        theme.value = theme.value === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', theme.value);
+        document.documentElement.classList.toggle('dark', theme.value === 'dark');
+    };
+
+    onMounted(() => {
+        document.documentElement.classList.toggle('dark', theme.value === 'dark');
+    });
+
+    return { theme, toggleTheme };
+};
 
 const { theme, toggleTheme } = useTheme();
 </script>
@@ -7,7 +21,7 @@ const { theme, toggleTheme } = useTheme();
 <template>
     <!-- Bouton de bascule -->
     <button @click="toggleTheme"
-        class="p-2 rounded hover:bg-lightPrimary hover:rounded dark:hover:bg-darkPrimary hover:text-darkText dark:hover:text-lightText">
+        class="p-2 rounded hover:bg-lightPrimary hover:rounded dark:hover:bg-darkPrimary hover:text-darkText">
         <div v-if="theme === 'light'">
             <!-- Icône de lune -->
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"

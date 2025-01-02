@@ -15,7 +15,7 @@ export default {
         //Textes
         lightText: '#333333',
         lightTextMuted: '#555555', // Texte secondaire ou désactivé
-        darkText: '#d1d1d1',
+        darkText: '#f4f4f4',
         darkTextMuted: '#b0b0af', // Texte secondaire ou désactivé
 
         //Backgrounds
@@ -24,9 +24,9 @@ export default {
 
         //Primaires
         lightPrimary: '#4C7C58',
-        lightPrimaryHover: '#4a6a73', // Survol du primaire
+        lightPrimaryHover: '#3b5c4a', // Survol du primaire
         darkPrimary: '#B8860B',
-        darkPrimaryHover: '#4d6774', // Survol du primaire
+        darkPrimaryHover: '#9e7e20', // Survol du primaire
 
         //Secondaires
         lightSecondary: '#a0c4d4',
@@ -39,12 +39,6 @@ export default {
         lightAccentHover: '#6a8b6d', // Survol de l'accent
         darkAccent: '#718f7c',
         darkAccentHover: '#5d7b6a', // Survol de l'accent
-
-        //Jaunes
-        lightHighlight: '#eab308', // Jaune accent pour hover ou actifs
-        darkHighlight: '#facc15', // Jaune accent pour hover ou actifs
-        lightYellowHover: '#d0a327', // Survol du jaune clair
-        darkYellowHover: '#b58920', // Survol du jaune doré
 
         //Erreur et succès
         lightSuccess: '#5cb85c', // Vert pour les succès

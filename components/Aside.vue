@@ -1,9 +1,25 @@
 <template>
-    <div
-        class="flex flex-col flex-1 w-full overflow-auto pb-8 mx-6 shadow-md rounded-lg flex-shrink-0 bg-white dark:dark:bg-stone-500">
-        <div class="sticky top-0 z-10 p-8 pb-0 mb-6">
-            <p class="text-2xl font-bold opacity-90 m-0">Aside</p>
-        </div>
-        <div class="mx-6">Aside content</div>
+    <div class="p-4 bg-lightBgAlt dark:bg-darkBgAlt rounded-lg shadow">
+        <h3 class="text-lg font-semibold text-lightPrimary dark:text-darkPrimary mb-3">
+            Classement
+        </h3>
+        <ul class="space-y-2">
+            <li class="flex justify-between border-b pb-2">
+                <span class="font-medium text-lightText dark:text-darkText">1. Ragnar le Rouge</span>
+                <span class="text-lightPrimary dark:text-darkPrimary">12,350 pts</span>
+            </li>
+            <li class="flex justify-between border-b pb-2">
+                <span class="font-medium text-lightText dark:text-darkText">2. Lagertha la Fierce</span>
+                <span class="text-lightPrimary dark:text-darkPrimary">10,870 pts</span>
+            </li>
+            <li class="flex justify-between">
+                <span class="font-medium text-lightText dark:text-darkText">3. Bjorn l'Implacable</span>
+                <span class="text-lightPrimary dark:text-darkPrimary">9,560 pts</span>
+            </li>
+        </ul>
+        <p class="text-sm mt-3 text-lightTextMuted dark:text-darkTextMuted italic">
+            Le classement sera mis à jour après le tournoi.
+        </p>
     </div>
+
 </template>

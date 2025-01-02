@@ -1,13 +1,12 @@
 <script setup lang="ts">
 // Crée une variable pour la date actuelle
 const today = ref(new Date());
+const route = useRoute();
 
-// Définir la prop title passée du parent
-const props = defineProps({
-  title: {
-    type: String,
-    required: true,
-  }
+const pathAfterSlash = computed(() => {
+  const path = route.path.split('/')[1]; // Récupère la première partie après '/'
+  // Met la première lettre en majuscule et concatène avec le reste de la chaîne
+  return path.charAt(0).toUpperCase() + path.slice(1);
 });
 
 // Formatage de la date
@@ -22,7 +21,7 @@ const formattedDate = ref(
 
 <template>
     <div class="flex justify-between items-center mb-6">
-        <p class="text-2xl font-bold opacity-90 m-0">{{ title }}</p>
+        <p class="text-2xl font-bold opacity-90 m-0 text-lightPrimary dark:text-darkPrimary">{{ pathAfterSlash }}</p>
         <p class="text-xl m-0">{{ formattedDate }}</p>
     </div>
 </template>

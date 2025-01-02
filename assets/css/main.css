@@ -1,41 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Germania+One&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;600&display=swap');
-
-
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Germania+One&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Ruslan+Display&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-:root {
-    --lightText: #1f1f1e;
-    --lightBg: #e1e1e0;
-    --lightPrimary: #47616c;
-    --lightSecondary: #72aac0;
-    --lightAccent: #628470;
-    --darkText: #e1e1e0;
-    --darkBg: #1f1f1e;
-    --darkPrimary: #93adb8;
-    --darkSecondary: #3f778d;
-    --darkAccent: #7b9d89;
-}
 
 * {
     box-sizing: border-box;
 }
 
-/* h1,h2,h3,h4,h5,h6 {
-    font-family: "Cinzel", serif;
+/* h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Germania One", serif;
 } */
 
 body {
     /* font-family: "Germania One", sans-serif; */
     font-family: "Inter", sans-serif;
     overflow: hidden;
-}
-
-.dark {
-    background-color: var(--darkBg);
-    color: var(--darkText);
 }
 
 button,

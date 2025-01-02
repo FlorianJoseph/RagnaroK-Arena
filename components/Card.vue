@@ -3,14 +3,12 @@
         class="p-6 border rounded-lg shadow-md bg-lightBgAlt text-lightText border-lightPrimary dark:bg-darkBg dark:text-darkText dark:border-darkPrimary hover:shadow-xl transition-shadow duration-300">
         <!-- En-tête avec le nom du tournoi et une icône -->
         <div class="flex items-center justify-between mb-4">
-            <h3 class="font-title text-2xl text-lightPrimary dark:text-darkPrimary">
-                Tournoi : Gloire des Jarls
-            </h3>
+            <h2 class="text-lg font-bold text-lightPrimary dark:text-darkPrimary">Tournoi : Gloire des Jarls</h2>
             <!-- Icône Viking -->
         </div>
 
         <!-- Description du tournoi -->
-        <p class="text-sm text-darkBg dark:text-lightBg leading-relaxed">
+        <p class="text-sm text-darkBg dark:text-darkText leading-relaxed">
             Rejoignez les plus valeureux guerriers pour un affrontement épique. Montrez votre force et votre stratégie
             pour
             conquérir la gloire !
@@ -32,17 +30,17 @@
             </li>
             <li class="flex items-center">
                 <span class="font-semibold text-lightPrimary dark:text-darkPrimary">Prix d'entrée :</span>
-                <span class="ml-2 text-yellow-500 dark:text-yellow-400">50 Or</span>
+                <span class="ml-2 text-darkBg dark:text-lightBg">50 Or</span>
             </li>
         </ul>
         <!-- Boutons d'action -->
         <div class="mt-6 flex justify-between">
             <button
-                class="px-4 py-2 text-sm font-medium text-white bg-lightPrimary rounded-lg hover:bg-lightPrimaryHover dark:bg-darkPrimary dark:hover:bg-darkPrimaryHover">
-                S'inscrire
+                class="px-4 py-2 text-sm font-medium text-white bg-lightPrimary rounded hover:bg-lightPrimaryHover dark:bg-darkPrimary dark:hover:bg-darkPrimaryHover">
+                Participer
             </button>
             <button
-                class="px-4 py-2 text-sm font-medium text-lightPrimary dark:text-darkPrimary border border-lightPrimary dark:border-darkPrimary rounded-lg hover:bg-lightPrimary hover:text-white dark:hover:bg-darkPrimary dark:hover:text-white">
+                class="px-4 py-2 text-sm font-medium text-lightPrimary dark:text-darkPrimary border border-lightPrimary dark:border-darkPrimary rounded hover:bg-lightPrimary hover:text-white dark:hover:bg-darkPrimary dark:hover:text-white">
                 Voir les résultats
             </button>
         </div>

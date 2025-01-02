@@ -1,5 +1,3 @@
 <template>
-    <div>
-        Tournoi content
-    </div>
+    <Card />
 </template>

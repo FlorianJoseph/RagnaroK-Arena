@@ -25,6 +25,15 @@ async function signUpNewUser() {
     }
 }
 
+async function signUpWithTwitch() {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitch',
+        options: {
+            redirectTo: `https://qgpfftkjoktjzylwtvbx.supabase.co/auth/v1/callback`,
+        },
+    });
+}
+
 definePageMeta({
     layout: 'auth' // Utilise le layout "auth.vue"
 })
@@ -33,48 +42,74 @@ definePageMeta({
 
 <template>
     <!-- Conteneur principal avec Flexbox pour centrer le formulaire -->
-    <div class="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
-        <h2 class="text-2xl font-semibold text-center mb-4 text-lightText dark:text-darkText">Créer un compte</h2>
+    <div
+        class="max-w-lg mx-auto mt-12 p-8 bg-lightBg dark:bg-darkBg border border-lightPrimary dark:border-darkPrimary shadow-lg rounded-lg">
+        <h2 class="text-3xl font-semibold text-center mb-6 text-lightPrimary dark:text-darkPrimary">
+            Créer un compte
+        </h2>
 
         <!-- Formulaire -->
         <form @submit.prevent="signUpNewUser">
             <!-- Email -->
-            <div class="mb-4">
-                <label for="email" class="block text-sm font-medium text-lightText dark:text-darkText">Adresse
-                    e-mail</label>
+            <div class="mb-6">
+                <label for="email" class="block text-sm font-medium text-lightText dark:text-darkText">
+                    Adresse e-mail
+                </label>
                 <input v-model="email" type="email" id="email"
-                    class="mt-1 block w-full px-4 py-2 border border-lightText dark:border-darkText rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-lightAccent dark:focus:ring-darkAccent focus:border-lightAccent dark:focus:border-darkAccent"
+                    class="mt-2 block w-full px-4 py-2 border border-lightText dark:border-darkText rounded-md bg-white dark:bg-stone-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-lightAccent dark:focus:ring-darkAccent focus:border-lightAccent dark:focus:border-darkAccent"
                     placeholder="Entrez votre e-mail" required />
             </div>
 
             <!-- Mot de passe -->
             <div class="mb-6">
-                <label for="password" class="block text-sm font-medium text-lightText dark:text-darkText">Mot de
-                    passe</label>
+                <label for="password" class="block text-sm font-medium text-lightText dark:text-darkText">
+                    Mot de passe
+                </label>
                 <input v-model="password" type="password" id="password"
-                    class="mt-1 block w-full px-4 py-2 border border-lightText dark:border-darkText rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-lightAccent dark:focus:ring-darkAccent focus:border-lightAccent dark:focus:border-darkAccent"
+                    class="mt-2 block w-full px-4 py-2 border border-lightText dark:border-darkText rounded-md bg-white dark:bg-stone-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-lightAccent dark:focus:ring-darkAccent focus:border-lightAccent dark:focus:border-darkAccent"
                     placeholder="Créez un mot de passe" required />
             </div>
 
             <!-- Messages de succès et d'erreur -->
-            <div v-if="errorMessage" class="mb-4 text-red-600">{{ errorMessage }}</div>
-            <div v-if="successMessage" class="mb-4 text-green-600">{{ successMessage }}</div>
+            <div v-if="errorMessage" class="text-red-600 text-sm mt-2 mb-4">
+                {{ errorMessage }}
+            </div>
+            <div v-if="successMessage" class="text-green-600 text-sm mt-2 mb-4">
+                {{ successMessage }}
+            </div>
 
             <!-- Bouton d'inscription -->
-            <div class="mb-4">
+            <div class="mb-6">
                 <button type="submit"
-                    class="w-full py-2 px-4 bg-lightPrimary dark:bg-darkPrimary text-lightBg dark:text-darkText rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-lightAccent dark:focus:ring-darkAccent">
+                    class="w-full py-3 px-4 bg-lightPrimary hover:bg-lightPrimaryHover dark:bg-darkPrimary dark:hover:bg-darkPrimaryHover text-lightBg dark:text-darkText font-medium rounded-md shadow-lg transition-colors duration-300">
                     S'inscrire
                 </button>
             </div>
         </form>
 
-        <!-- Bouton de connexion si l'utilisateur a déjà un compte -->
-        <div class="mt-4 text-center">
-            <p class="text-sm text-lightText dark:text-darkText">Vous avez déjà un compte ?
-                <router-link to="/login" class="text-lightAccent dark:text-darkAccent hover:underline">Connectez-vous
-                    ici</router-link>
+        <!-- Lien vers la page de connexion -->
+        <div class="mt-6 text-center">
+            <p class="text-sm text-lightText dark:text-darkText">
+                Vous avez déjà un compte ?
+                <router-link to="/login" class="text-lightAccent dark:text-darkAccent hover:underline">
+                    Connectez-vous ici
+                </router-link>
             </p>
+        </div>
+
+        <!-- Ligne de séparation -->
+        <div class="flex items-center my-6">
+            <div class="flex-grow border-t border-lightText dark:border-darkText"></div>
+            <span class="mx-4 text-sm text-lightText dark:text-darkText">OU</span>
+            <div class="flex-grow border-t border-lightText dark:border-darkText"></div>
+        </div>
+
+        <!-- Bouton de connexion avec Twitch -->
+        <div class="mt-6">
+            <button @click="signUpWithTwitch"
+                class="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md shadow-lg transition-colors duration-300">
+                Se connecter avec Twitch
+            </button>
         </div>
     </div>
 </template>

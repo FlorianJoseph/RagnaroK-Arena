@@ -1,15 +1,13 @@
 <script setup lang="ts">
-
+const supabase = useSupabaseClient();
 const email = ref('');
 const password = ref('');
-const supabase = useSupabaseClient();
-const router = useRouter();
 const errorMessage = ref('');
 const successMessage = ref('');
 
 // Fonction d'inscription
 async function signUpNewUser() {
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
         email: email.value,
         password: password.value,
         options: {
@@ -17,18 +15,13 @@ async function signUpNewUser() {
         },
     });
 
-    if (signUpError) {
+    if (error) {
         errorMessage.value = `Erreur lors de l'inscription : Pour des raisons de sécurité, vous ne pouvez le demander qu'après 1 minute.`;
         return;
+    } else {
+        successMessage.value = 'Utilisateur inscrit avec succès. Veuillez vérifier votre email pour confirmer votre inscription.';
     }
-
-    successMessage.value = 'Utilisateur inscrit avec succès. Veuillez vérifier votre email pour confirmer votre inscription.';
-
-    // Redirection après inscription réussie
-    router.push('/');
 }
-
-
 
 async function signUpWithTwitch() {
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -55,15 +48,6 @@ definePageMeta({
 
         <!-- Formulaire -->
         <form @submit.prevent="signUpNewUser">
-            <!-- Pseudo -->
-            <!-- <div class="mb-6">
-                <label for="pseudo" class="block text-sm font-medium text-lightText dark:text-darkText">
-                    Pseudo
-                </label>
-                <input v-model="pseudo" type="text" id="pseudo"
-                    class="mt-2 block w-full px-4 py-2 border border-lightText dark:border-darkText rounded-md bg-white dark:bg-stone-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-lightAccent dark:focus:ring-darkAccent focus:border-lightAccent dark:focus:border-darkAccent"
-                    placeholder="Entrez votre pseudo" required />
-            </div> -->
             <!-- Email -->
             <div class="mb-6">
                 <label for="email" class="block text-sm font-medium text-lightText dark:text-darkText">

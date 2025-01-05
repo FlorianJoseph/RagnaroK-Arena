@@ -13,9 +13,6 @@ model User {
   id          String        @id @default(uuid()) // UUID généré par Supabase
   email       String?       @unique
   pseudo      String?
-  avatarUrl   String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
   tournaments Tournament[]  @relation("OrganizerRelation") // Relation avec Tournament (en tant qu'organisateur)
   Participant Participant[]
 }

@@ -9,29 +9,25 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model User {
-  id          String        @id @default(uuid()) // UUID généré par Supabase
-  email       String?       @unique
-  pseudo      String?
-  tournaments Tournament[]  @relation("OrganizerRelation") // Relation avec Tournament (en tant qu'organisateur)
-  Participant Participant[]
+model tournament {
+  id           Int      @id @default(autoincrement())
+  title        String
+  organizer_id String
+  prix_entree  Int
+  date         DateTime
+  jeuId        Int // Un tournoi est associé à un seul jeu, d'où la référence à l'ID du jeu
+  jeu          jeu      @relation(fields: [jeuId], references: [id]) // Relation avec le jeu
 }
 
-model Tournament {
-  id           Int           @id @default(autoincrement())
-  name         String
-  description  String?
-  organizer    User          @relation(fields: [organizerId], references: [id], name: "OrganizerRelation")
-  organizerId  String
-  participants Participant[]
-  createdAt    DateTime      @default(now())
+model jeu {
+  id         Int          @id @default(autoincrement())
+  nom        String
+  categories categorie[]  @relation("CategorieJeu") // Relation many-to-many avec les catégories
+  tournament tournament[]
 }
 
-model Participant {
-  id           Int        @id @default(autoincrement())
-  user         User       @relation(fields: [userId], references: [id])
-  userId       String
-  tournament   Tournament @relation(fields: [tournamentId], references: [id])
-  tournamentId Int
-  joinedAt     DateTime   @default(now())
+model categorie {
+  id   Int    @id @default(autoincrement())
+  nom  String
+  jeux jeu[]  @relation("CategorieJeu") // Relation many-to-many avec les jeux
 }

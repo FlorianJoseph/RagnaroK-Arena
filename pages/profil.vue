@@ -27,11 +27,12 @@ async function uploadAvatar(event: Event) {
     }
 
     showOverlay.value = true; // Afficher l'overlay de chargement
+    const filePath = `private/${avatarFile.name}`; // Chemin du fichier dans le bucket
 
     const { data: uploadData, error: uploadError } = await supabase
         .storage
         .from('avatars')
-        .upload(`private/${avatarFile.name}`, avatarFile, {
+        .upload(filePath, avatarFile, {
             cacheControl: '3600',
             upsert: false
         });
@@ -44,7 +45,7 @@ async function uploadAvatar(event: Event) {
     const { data: publicUrlData } = supabase
         .storage
         .from('avatars')
-        .getPublicUrl(`private/${avatarFile.name}`);
+        .getPublicUrl(filePath);
 
     const avatarUrl = publicUrlData.publicUrl;
 
@@ -118,7 +119,7 @@ definePageMeta({
                         <label
                             class="w-full h-full rounded-full border-2 border-gray-300 cursor-pointer flex items-center justify-center bg-gray-100 overflow-hidden hover:border-gray-500 relative">
                             <input type="file" ref="fileInput" @change="uploadAvatar" class="hidden" />
-                            <img :src="user.user_metadata.avatar || 'https://qgpfftkjoktjzylwtvbx.supabase.co/storage/v1/object/public/avatars/private/default.jpg'"
+                            <img :src="user.user_metadata.avatar || 'https://qgpfftkjoktjzylwtvbx.supabase.co/storage/v1/object/public/avatars/default/avatar.jpg?t=2025-01-07T10%3A35%3A56.796Z'"
                                 alt="Avatar" class="w-full h-full object-cover" />
 
                             <!-- Texte "Changer l'avatar" au survol -->
@@ -138,7 +139,8 @@ definePageMeta({
                     <!-- Infos utilisateurs -->
                     <div class="ml-6">
                         <h3 class="text-xl font-bold text-lightText dark:text-darkText">{{
-                            user.user_metadata.display_name || "Choisissez un pseudo" }}</h3>
+                            user.user_metadata.display_name || user.user_metadata.nickname || "Choisissez un pseudo" }}
+                        </h3>
                         <p class="text-sm text-lightText dark:text-darkText">Utilisateur depuis le {{ format(new
                             Date(user.created_at), 'd MMMM yyyy', { locale: fr }) }}
                         </p>
@@ -147,34 +149,31 @@ definePageMeta({
 
                 <!-- Détails du profil -->
                 <div class="grid grid-cols-1 gap-6">
-                    <div class="flex items-center justify-between p-4 bg-lightBg dark:bg-darkBg rounded-md shadow-sm">
-                        <span class="text-sm text-lightText dark:text-darkText">Nom d'utilisateur : {{
-                            user.user_metadata.display_name
-                            }}</span>
 
-                        <!-- Affichage ou édition -->
-                        <div v-if="!editing">
-                            <button @click="toggleEdit"
-                                class="ml-4 px-4 py-2 bg-lightPrimary dark:bg-darkPrimary text-lightBg dark:text-darkText rounded-md shadow-sm hover:bg-lightPrimaryHover dark:hover:bg-darkPrimaryHover">
-                                Modifier
+                    <!-- Affichage ou édition -->
+                    <div v-if="!editing">
+                        <button @click="toggleEdit"
+                            class="ml-4 px-4 py-2 bg-lightPrimary dark:bg-darkPrimary text-lightBg dark:text-darkText rounded-md shadow-sm hover:bg-lightPrimaryHover dark:hover:bg-darkPrimaryHover">
+                            Modifier le profil
+                        </button>
+                    </div>
+
+                    <!-- Formulaire d'édition -->
+                    <div v-else>
+                        <label for="displayName" class="block text-sm font-medium text-lightText dark:text-darkText">Nom
+                            d'utilisateur</label>
+                        <input v-model="displayName" type="text" placeholder="Nom d'utilisateur"
+                            class="px-2 py-1 border rounded-md dark:bg-stone-700 dark:text-lightText w-full" />
+                        <div class="mt-4">
+                            <button @click="saveChanges"
+                                class="px-4 py-2 bg-green-600 text-white rounded-md shadow-sm hover:bg-green-700">
+                                Enregistrer
                             </button>
-                        </div>
 
-                        <!-- Formulaire d'édition -->
-                        <div v-else>
-                            <input v-model="displayName" type="text"
-                                class="px-2 py-1 border rounded-md dark:bg-stone-700 dark:text-lightText w-full" />
-                            <div class="mt-4">
-                                <button @click="saveChanges"
-                                    class="px-4 py-2 bg-green-600 text-white rounded-md shadow-sm hover:bg-green-700">
-                                    Enregistrer
-                                </button>
-
-                                <button @click="toggleEdit"
-                                    class="ml-2 px-4 py-2 bg-gray-500 text-white rounded-md shadow-sm hover:bg-gray-600">
-                                    Annuler
-                                </button>
-                            </div>
+                            <button @click="toggleEdit"
+                                class="ml-2 px-4 py-2 bg-gray-500 text-white rounded-md shadow-sm hover:bg-gray-600">
+                                Annuler
+                            </button>
                         </div>
                     </div>
                 </div>

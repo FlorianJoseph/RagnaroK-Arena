@@ -3,7 +3,7 @@ import { Twitch, Youtube } from 'lucide-vue-next';
 </script>
 
 <template>
-    <div class="w-full bg-white dark:bg-stone-500 px-6 py-4 mt-4">
+    <div class="w-full bg-white dark:bg-dcardbg px-6 py-4 mt-8">
         <footer class="flex flex-col md:flex-row justify-between items-center text-sm text-darkBg dark:text-darkText">
             <!-- Section gauche -->
             <div>

@@ -10,7 +10,7 @@ import { Swords, Trophy, Crown, Store, ChevronDown, User } from 'lucide-vue-next
 const sidebarItems = [
     { label: 'Tournois', icon: Swords, link: '/tournois' },
     { label: 'Classement', icon: Trophy, link: '/classement' },
-    { label: 'Clans', icon: Crown, link: '/clans' },
+    { label: 'Clan', icon: Crown, link: '/clan' },
     { label: 'Boutique', icon: Store, link: '/boutique' }
 ];
 
@@ -22,7 +22,7 @@ async function signOut() {
 </script>
 
 <template>
-    <div class="flex justify-between items-center w-full px-6 py-4">
+    <div class="flex justify-between items-center w-full px-6 py-4 bg-white dark:bg-dcardbg mb-8">
         <!-- Section gauche -->
         <div class="flex items-center">
             <router-link to='/'>
@@ -33,7 +33,7 @@ async function signOut() {
         <!-- Section milieu -->
         <div class="flex items-center">
             <div v-for="(item, index) in sidebarItems" :key="index"
-                class="flex items-center py-3 px-4 rounded hover:bg-lightPrimary hover:text-lightBg dark:hover:bg-darkPrimary dark:hover:text-darkBg transition-all">
+                class="flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray">
                 <!-- Utilisation de l'icône Lucide -->
                 <component :is="item.icon" class="h-6 w-6 mr-3" />
                 <router-link :to="item.link" class="text-sm font-medium">
@@ -46,14 +46,14 @@ async function signOut() {
         <div class="flex items-center">
             <ToggleTheme />
             <button v-if="!user"
-                class="ml-4 p-2 rounded w-28 flex justify-center font-medium text-white dark:text-darkText bg-lightPrimary hover:bg-lightPrimaryHover dark:bg-darkPrimary dark:hover:bg-darkPrimaryHover">
+                class="ml-4 p-2 rounded w-28 flex justify-center font-medium btn">
                 <router-link to='/login'>Connexion</router-link>
             </button>
 
             <!-- Menu déroulant pour le profil et la déconnexion -->
             <div v-if="user" class="relative">
                 <button @click="isDropdownOpen = !isDropdownOpen"
-                    class="flex items-center space-x-2 px-4 py-2 text-lightText dark:text-darkText rounded hover:bg-lightPrimary hover:text-darkText dark:hover:bg-darkPrimary">
+                    class="btn">
                     <span>{{ user.email }}</span>
                     <ChevronDown />
                 </button>
@@ -65,7 +65,7 @@ async function signOut() {
                         <li>
                             <User />
                             <router-link to="/profil"
-                                class="block px-4 py-2 text-sm text-lightText dark:text-darkText hover:bg-lightPrimary dark:hover:bg-darkPrimary hover:text-darkText">
+                                class="block px-4 py-2 text-sm text-ltext dark:text-dtext hover:bg-lgray dark:hover:bg-dgray hover:text-dtext">
                                 Profil
                             </router-link>
                         </li>

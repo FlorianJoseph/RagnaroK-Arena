@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 
 export default {
-  darkMode: 'class', // Utilise une classe pour activer le mode sombre
+  darkMode: 'selector', // Utilise une classe pour activer le mode sombre
   content: [
     "./components/**/*.{js,vue,ts}",
     "./layouts/**/*.vue",
@@ -14,38 +14,40 @@ export default {
     extend: {
       colors: {
         //Textes
-        lightText: '#202020',
-        darkText: '#EEE',
+        ltext: '#202020',
+        dtext: '#EEE',
+        ltextbold: '#446169',
+        dtextbold: '#A1B9C6',
 
         //Backgrounds
-        lightBg: '#f7f7f7', // Arrière-plan
-        darkBg: '#121212', // Gris foncé pour l'arrière-plan sombre
+        lbg: '#f7f7f7',
+        dbg: '#121212',
 
         //Accent
-        lightAccent: '#5B7982',
-        lightAccentHover: '#4E6C75',
-        darkAccent: '#5F7987',
-        darkAccentHover: '#556B78',
+        laccent: '#5B7982',
+        laccenthover: '#4E6C75',
+        daccent: '#5F7987',
+        daccenthover: '#556B78',
 
         // Gray
-        lightGray: '#B0B0B0',
-        darkGray: '#7A7A7A',
+        lgray: '#E6E6E6',
+        dgray: '#313131',
 
+        // Borders
+        lborder: '#CDCDCD',
+        dborder: '#606060',
 
+        // Input
+        linputbg: '#606060',
+        dinputbg: '#AFAFAF',
+        linputborder: '#606060',
+        dinputborder: '#AFAFAF',
+        linputfocus: '#ACC1C8',
+        dinputfocus: '#3E4F59',
 
-
-
-        //Primaires
-        lightPrimary: '#5B7982',
-        lightPrimaryHover: '#3b5c4a', // Survol du primaire
-        darkPrimary: '#5F7987',
-        darkPrimaryHover: '#9e7e20', // Survol du primaire
-
-        //Secondaires
-        lightSecondary: '#a0c4d4',
-        lightSecondaryHover: '#77a6b3', // Survol du secondaire
-        darkSecondary: '#5a8b99',
-        darkSecondaryHover: '#38687a', // Survol du secondaire
+        // Cards 
+        lcardbg: '#EFEFEF',
+        dcardbg: '#191919',
       },
     },
   },

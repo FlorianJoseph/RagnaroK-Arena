@@ -1,5 +1,5 @@
 <template>
-    <div class="p-4 bg-lightBgAlt dark:bg-darkBgAlt rounded-lg shadow">
+    <div class="p-4 bg-white dark:bg-dcardbg rounded-lg shadow">
         <h3 class="text-lg font-semibold text-lightPrimary dark:text-darkPrimary mb-3">
             Classement
         </h3>

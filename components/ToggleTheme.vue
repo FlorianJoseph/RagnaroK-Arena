@@ -18,12 +18,27 @@ const useTheme = () => {
 };
 
 const { theme, toggleTheme } = useTheme();
+
+// // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+// document.documentElement.classList.toggle(
+//   'dark',
+//   localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+// )
+
+// // Whenever the user explicitly chooses light mode
+// localStorage.theme = 'light'
+
+// // Whenever the user explicitly chooses dark mode
+// localStorage.theme = 'dark'
+
+// // Whenever the user explicitly chooses to respect the OS preference
+// localStorage.removeItem('theme')
 </script>
 
 <template>
     <!-- Bouton de bascule -->
     <button @click="toggleTheme"
-        class="p-2 rounded hover:bg-lightPrimary hover:rounded dark:hover:bg-darkPrimary hover:text-darkText">
+        class="p-2 rounded hover:bg-lgray dark:hover:bg-dgray">
         <div v-if="theme === 'light'">
             <Moon />
         </div>

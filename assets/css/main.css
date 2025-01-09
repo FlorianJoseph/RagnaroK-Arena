@@ -8,17 +8,7 @@
     box-sizing: border-box;
 }
 
-/* h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    font-family: "Germania One", serif;
-} */
-
 body {
-    /* font-family: "Germania One", sans-serif; */
     font-family: "Inter", sans-serif;
     overflow: hidden;
 }
@@ -26,4 +16,22 @@ body {
 button,
 a {
     cursor: pointer;
+}
+
+@layer components {
+    .input {
+        @apply block text-sm font-medium mt-2 w-full px-4 py-2 border shadow-sm focus:outline-none focus:ring-1 rounded-md text-ltext border-linputborder bg-white focus:ring-linputfocus dark:text-dtext dark:border-dinputborder dark:bg-dbg dark:focus:ring-dinputfocus;
+    }
+
+    .btn{
+        @apply flex items-center space-x-2 px-6 py-3 text-white rounded shadow-sm bg-laccent dark:bg-daccent hover:bg-laccenthover dark:hover:bg-daccenthover
+    }
+
+    .btnvariant{
+        @apply flex items-center space-x-2 px-6 py-3 text-laccent border-2 border-laccent dark:text-daccent rounded shadow-sm bg-lbg dark:bg-dbg hover:bg-laccenthover hover:text-white
+    }
+
+    .btn-form{
+        @apply w-full py-3 px-4 bg-laccent hover:bg-laccenthover dark:bg-daccent dark:hover:bg-daccenthover text-white font-medium rounded-md shadow-lg
+    }
 }

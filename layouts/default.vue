@@ -1,13 +1,10 @@
 <template>
-    <div class="flex flex-col min-h-screen bg-var(--custom-1) dark:bg-darkBg">
+    <div class="flex flex-col min-h-screen bg-lbg dark:bg-dbg">
         <Navbar />
-        <div class="flex-1 grid grid-cols-3 gap-6 px-6">
-            <main class="ml-6 p-6 bg-white dark:bg-stone-500 shadow-md rounded col-span-2 flex flex-col">
-                <HeaderMain />
-                <NuxtPage />
-            </main>
-            <Aside />
-        </div>
+        <main class="flex-1 mx-8 p-6 bg-white dark:bg-dcardbg shadow-md rounded">
+            <HeaderMain />
+            <NuxtPage />
+        </main>
         <Footer />
     </div>
 </template>

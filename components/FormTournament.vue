@@ -58,14 +58,53 @@ async function createTournament() {
 onMounted(() => {
   fetchGames();
 });
-
-definePageMeta({
-    layout: 'tournoi' // Utilise le layout "tournoi.vue"
-})
-
 </script>
 
 <template>
-  <Card />
-  <!-- <FormTournament/> -->
+<form @submit.prevent="createTournament">
+    <!-- Nom du tournoi -->
+    <div class="mb-4 mt-10">
+      <label for="tournamentName" class="block text-lg font-medium">Nom du tournoi</label>
+      <input id="tournamentName" v-model="tournamentName" type="text"
+        class="w-full p-3 border rounded-md focus:outline-none focus:ring-1 input"
+        placeholder="Nom du tournoi" required />
+    </div>
+
+    <!-- Sélection du jeu -->
+    <div class="mb-4">
+      <label for="gameSelect" class="block text-lg font-medium">Choisir un jeu</label>
+      <select id="gameSelect" v-model="selectedGameId"
+        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required>
+        <option value="" disabled>Sélectionnez un jeu</option>
+        <option v-for="game in games" :key="game.id" :value="game.id">
+          {{ game.nom }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Prix d'entrée -->
+    <div class="mb-4">
+      <label for="prixEntree" class="block text-lg font-medium">Prix d'entrée</label>
+      <input id="prixEntree" v-model="prixEntree" type="number" min="1"
+        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Prix d'entrée" required />
+    </div>
+
+    <!-- Date du tournoi -->
+    <div class="mb-4">
+      <label for="tournamentDate" class="block text-lg font-medium">Date du tournoi</label>
+      <input id="tournamentDate" v-model="tournamentDate" type="datetime-local"
+        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required />
+    </div>
+
+    <!-- Bouton de soumission -->
+    <div class="flex justify-center">
+      <button type="submit"
+        class="btn">
+        Créer le tournoi
+      </button>
+    </div>
+  </form>
 </template>

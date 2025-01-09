@@ -20,9 +20,9 @@ onMounted(() => {
     <!-- Affichage des tournois -->
     <div v-if="tournaments && tournaments.length > 0" class="space-y-4">
         <div v-for="tournament in tournaments" :key="tournament.id"
-            class="bg-lightBg border-2 border-lightPrimary p-6 rounded shadow-sm hover:shadow-md transition-all">
+            class="bg-white dark:bg-dbg border-2 border-lborder p-6 rounded shadow-sm hover:shadow-md">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-bold text-lightPrimary">{{ tournament.title }}</h3>
+                <h3 class="text-2xl font-bold text-ltextbold dark:text-dtextbold">{{ tournament.title }}</h3>
                 <p class="text-sm text-lightSecondary">Prix d'entrée: {{ tournament.prix_entree }}€</p>
             </div>
             <div class="mt-4">
@@ -37,7 +37,7 @@ onMounted(() => {
                     </span>
                 </p>
             </div>
-            <p class="text-sm text-gray-500 mt-4">
+            <p class="text-sm text-dgray dark:text-lgray mt-4">
                 Date : {{ new Date(tournament.date).toLocaleString('fr-FR', {
                     weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
                 }) }}

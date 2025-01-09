@@ -1,8 +1,8 @@
 <template>
     <div class="min-h-screen bg-lightBg dark:bg-darkBg">
-        <Header />
+        <Navbar />
         <main>
-            <NuxtPage></NuxtPage>
+            <NuxtPage />
         </main>
         <Footer />
     </div>

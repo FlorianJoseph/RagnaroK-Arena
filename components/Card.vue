@@ -5,7 +5,7 @@ const tournaments = ref<any[] | null>(null);
 async function fetchTournaments() {
     const { data, error: fetchError } = await supabase
         .from('tournament')
-        .select()
+        .select(`*,jeu(*,categorie(*))`);
 
     tournaments.value = data;
 }
@@ -26,10 +26,16 @@ onMounted(() => {
                 <p class="text-sm text-lightSecondary">Prix d'entrée: {{ tournament.prix_entree }}€</p>
             </div>
             <div class="mt-4">
-                <!-- <p class="text-sm text-lightSecondary">Jeu : <span class="font-semibold">{{ tournament.jeu.nom }}</span>
-                </p> -->
-                <!-- <p class="text-sm text-lightSecondary">Catégorie : <span class="font-semibold">{{
-                    tournament.jeu }}</span></p> -->
+                <p class="text-sm text-lightSecondary">Jeu : <span class="font-semibold">{{ tournament.jeu.nom }}</span>
+                </p>
+                <p class="text-sm text-lightSecondary">Catégorie :
+                    <span class="font-semibold">
+                        <span v-for="(categorie, index) in tournament.jeu.categorie" :key="categorie.A">
+                            {{ categorie.nom }}<span v-if="index < tournament.jeu.categorie.length - 1">,
+                            </span>
+                        </span>
+                    </span>
+                </p>
             </div>
             <p class="text-sm text-gray-500 mt-4">
                 Date : {{ new Date(tournament.date).toLocaleString('fr-FR', {

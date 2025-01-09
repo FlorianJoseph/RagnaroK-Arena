@@ -1,7 +1,5 @@
 <template>
-    <!-- Header -->
-    <Header />
-    <!-- Main Content -->
+    <Navbar />
     <main>
         <NuxtPage />
     </main>

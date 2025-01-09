@@ -103,23 +103,23 @@ definePageMeta({
 </script>
 
 <template>
-    <div class="min-h-screen bg-lightBg dark:bg-darkBg">
+    <div class="min-h-screen bg-lbg dark:bg-dbg">
         <div class="container mx-auto py-10 px-6">
             <!-- Section du profil -->
-            <div v-if="user" class="bg-white dark:bg-stone-800 p-8 rounded-lg shadow-lg">
-                <h2 class="text-3xl font-semibold text-center text-lightText dark:text-darkText mb-6">
+            <div v-if="user" class="bg-white dark:bg-dcardbg p-8 rounded-lg shadow-lg">
+                <h2 class="text-3xl font-semibold text-center text-ltext dark:text-dtext mb-6">
                     Mon Profil
                 </h2>
 
                 <!-- Informations Utilisateur -->
-                <div class="flex justify-center items-center mb-6">
+                <div class="flex justify-center items-center mb-10">
                     <div class="relative inline-block w-24 h-24">
 
                         <!-- Cercle cliquable pour uploader l'avatar -->
                         <label
-                            class="w-full h-full rounded-full border-2 border-gray-300 cursor-pointer flex items-center justify-center bg-gray-100 overflow-hidden hover:border-gray-500 relative">
+                            class="w-full h-full rounded-full border-2 border-lgray dark:border-dgray cursor-pointer flex items-center justify-center overflow-hidden hover:border-gray-500 relative">
                             <input type="file" ref="fileInput" @change="uploadAvatar" class="hidden" />
-                            <img :src="user.user_metadata.avatar || 'https://qgpfftkjoktjzylwtvbx.supabase.co/storage/v1/object/public/avatars/default/avatar.jpg?t=2025-01-07T10%3A35%3A56.796Z'"
+                            <img :src="user.user_metadata.avatar || user.user_metadata.avatar_url || 'https://qgpfftkjoktjzylwtvbx.supabase.co/storage/v1/object/public/avatars/default/avatar.jpg?t=2025-01-07T10%3A35%3A56.796Z'"
                                 alt="Avatar" class="w-full h-full object-cover" />
 
                             <!-- Texte "Changer l'avatar" au survol -->
@@ -148,12 +148,12 @@ definePageMeta({
                 </div>
 
                 <!-- Détails du profil -->
-                <div class="grid grid-cols-1 gap-6">
+                <div class="flex justify-center">
 
                     <!-- Affichage ou édition -->
                     <div v-if="!editing">
                         <button @click="toggleEdit"
-                            class="ml-4 px-4 py-2 bg-lightPrimary dark:bg-darkPrimary text-lightBg dark:text-darkText rounded-md shadow-sm hover:bg-lightPrimaryHover dark:hover:bg-darkPrimaryHover">
+                            class="btn">
                             Modifier le profil
                         </button>
                     </div>
@@ -163,15 +163,15 @@ definePageMeta({
                         <label for="displayName" class="block text-sm font-medium text-lightText dark:text-darkText">Nom
                             d'utilisateur</label>
                         <input v-model="displayName" type="text" placeholder="Nom d'utilisateur"
-                            class="px-2 py-1 border rounded-md dark:bg-stone-700 dark:text-lightText w-full" />
-                        <div class="mt-4">
+                            class="input" />
+                        <div class="flex gap-4 mt-4">
                             <button @click="saveChanges"
-                                class="px-4 py-2 bg-green-600 text-white rounded-md shadow-sm hover:bg-green-700">
+                                class="btn">
                                 Enregistrer
                             </button>
 
                             <button @click="toggleEdit"
-                                class="ml-2 px-4 py-2 bg-gray-500 text-white rounded-md shadow-sm hover:bg-gray-600">
+                                class="btnvariant">
                                 Annuler
                             </button>
                         </div>

@@ -26,7 +26,7 @@ definePageMeta({
 
 <template>
   <!-- Section principale -->
-  <div class="flex flex-col items-center justify-center text-center py-16 px-6">
+  <div class="flex flex-col items-center justify-center text-center py-16 px-6 mt-10">
     <h1 class="text-4xl font-extrabold text-ltextbold dark:text-dtextbold mb-4">
       Bienvenue dans RagnaröK Arena
     </h1>

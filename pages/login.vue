@@ -46,7 +46,7 @@ definePageMeta({
 <template>
     <!-- Formulaire de connexion par e-mail et mot de passe -->
     <div
-        class="max-w-lg w-96 mx-auto mt-12 p-8 bg-lcardbg dark:bg-dcardbg border border-lborder dark:border-dborder shadow-lg rounded-lg">
+        class="max-w-lg w-96 mx-auto mt-12 p-8 bg-white dark:bg-dcardbg border border-lborder dark:border-dborder shadow-lg rounded-lg">
         <h2 class="text-3xl font-semibold text-center mb-6 text-ltextbold dark:text-dtextbold">
             Connexion
         </h2>
@@ -55,7 +55,7 @@ definePageMeta({
             <!-- Email -->
             <div class="mb-6">
                 <label for="email" class="block text-sm font-medium text-ltext dark:text-dtext">
-                    Adresse e-mail
+                    Adresse email
                 </label>
                 <input v-model="email" type="email" id="email" class="input" placeholder="Entrez votre email"
                     required />

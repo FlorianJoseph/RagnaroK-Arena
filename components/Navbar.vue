@@ -3,7 +3,7 @@ const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 const isDropdownOpen = ref(false);
 
-import { Swords, Trophy, Crown, Store, ChevronDown, User } from 'lucide-vue-next'; // Importer les icônes Lucide
+import { Swords, Trophy, Crown, Store, ChevronDown, User, Power } from 'lucide-vue-next'; // Importer les icônes Lucide
 
 
 // Déclaration de la liste des éléments de la sidebar
@@ -22,7 +22,7 @@ async function signOut() {
 </script>
 
 <template>
-    <div class="flex justify-between items-center w-full px-6 py-4 bg-white dark:bg-dcardbg mb-8">
+    <div class="flex justify-between items-center w-full px-6 py-3.5 bg-white dark:bg-dcardbg">
         <!-- Section gauche -->
         <div class="flex items-center">
             <router-link to='/'>
@@ -45,34 +45,35 @@ async function signOut() {
         <!-- Section droite -->
         <div class="flex items-center">
             <ToggleTheme />
-            <button v-if="!user"
-                class="ml-4 p-2 rounded w-28 flex justify-center font-medium btn">
+            <button v-if="!user" class="btn">
                 <router-link to='/login'>Connexion</router-link>
             </button>
 
             <!-- Menu déroulant pour le profil et la déconnexion -->
             <div v-if="user" class="relative">
-                <button @click="isDropdownOpen = !isDropdownOpen"
-                    class="btn">
-                    <span>{{ user.email }}</span>
+                <button @click="isDropdownOpen = !isDropdownOpen" class="btn-profil">
+                    <img :src="user.user_metadata.avatar || user.user_metadata.avatar_url || 'https://qgpfftkjoktjzylwtvbx.supabase.co/storage/v1/object/public/avatars/default/avatar.jpg?t=2025-01-07T10%3A35%3A56.796Z'"
+                        alt="Avatar" class="w-7 h-7 rounded-full object-cover" />
+                    <span>
+                        {{ user.user_metadata.display_name || user.user_metadata.nickname || "Choisissez un pseudo" }}
+                    </span>
                     <ChevronDown />
                 </button>
 
                 <!-- Menu déroulant -->
                 <div v-if="isDropdownOpen"
-                    class="absolute right-0 mt-2 w-48 bg-white dark:bg-darkBg border border-lightPrimary dark:border-darkPrimary rounded shadow-lg">
+                    class="absolute right-0 mt-2-2 w-48 bg-white dark:bg-dcardbg border border-lborder dark:border-dborder rounded shadow-lg">
                     <ul>
                         <li>
-                            <User />
                             <router-link to="/profil"
-                                class="block px-4 py-2 text-sm text-ltext dark:text-dtext hover:bg-lgray dark:hover:bg-dgray hover:text-dtext">
-                                Profil
+                                class="flex items-center gap-2 px-4 py-2 text-ltext dark:text-dtext hover:bg-lgray dark:hover:bg-dgray">
+                                <User /> Profil
                             </router-link>
                         </li>
                         <li>
                             <button @click="signOut"
-                                class="block px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-500 dark:hover:bg-red-700 hover:text-white dark:hover:text-lightBg focus:outline-none dark:focus:ring-red-700 w-full">
-                                Déconnexion
+                                class="flex items-center gap-2 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-500 dark:hover:bg-red-700 hover:text-white dark:hover:text-lightBg focus:outline-none dark:focus:ring-red-700 w-full">
+                                <Power /> Déconnexion
                             </button>
                         </li>
                     </ul>

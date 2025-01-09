@@ -43,7 +43,7 @@ definePageMeta({
 <template>
     <!-- Conteneur principal avec Flexbox pour centrer le formulaire -->
     <div
-        class="max-w-lg w-96 mx-auto mt-12 p-8 bg-lcardbg dark:bg-dcardbg border border-lborder dark:border-dborder shadow-lg rounded-lg">
+        class="max-w-lg w-96 mx-auto mt-12 p-8 bg-white dark:bg-dcardbg border border-lborder dark:border-dborder shadow-lg rounded-lg">
         <h2 class="text-3xl font-semibold text-center mb-6 text-ltextbold dark:text-dtextbold">
             Créer un compte
         </h2>

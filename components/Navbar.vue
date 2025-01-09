@@ -22,7 +22,7 @@ async function signOut() {
 </script>
 
 <template>
-    <div class="flex justify-between items-center w-full px-6 py-3.5 bg-white dark:bg-dcardbg">
+    <div class="flex justify-between items-center w-full px-6 py-3.5 bg-white dark:bg-dcardbg border-b border-lborder dark:border-dborder">
         <!-- Section gauche -->
         <div class="flex items-center">
             <router-link to='/'>

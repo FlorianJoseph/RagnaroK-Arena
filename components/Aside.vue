@@ -1,5 +1,5 @@
 <template>
-    <div class="p-4 bg-white dark:bg-dcardbg rounded-lg shadow">
+    <div class="p-4 bg-white dark:bg-dcardbg rounded-lg shadow border border-lborder dark:border-dborder">
         <h3 class="text-lg font-semibold text-lightPrimary dark:text-darkPrimary mb-3">
             Classement
         </h3>
@@ -21,5 +21,4 @@
             Le classement sera mis à jour après le tournoi.
         </p>
     </div>
-
 </template>

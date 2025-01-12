@@ -1,5 +1,34 @@
+<script lang="ts">
+import { useToast } from 'vue-toastification';
+
+const supabase = useSupabaseClient();
+// const users = ref<any[]>([]); // Déclare une liste vide de type any[] comme ref
+const toast = useToast(); // Initialisation du toast
+
+// Récupérer les users disponibles depuis Supabase
+async function fetchUsers() {
+    const { data: { users }, error } = await supabase.auth.admin.listUsers()
+    if (error) {
+        toast.error('Erreur lors de la récupération des utilisateurs : ' + error.message);
+    }
+}
+
+// Appeler fetchUsers lorsque le composant est monté
+onMounted(() => {
+    fetchUsers();
+});
+</script>
+
 <template>
-        <ul class="space-y-2">
+    <!-- <div v-if="users && users.length > 0">
+        <span v-for="(user, index) in users" :key="user.id" class="block font-medium text-lightText dark:text-darkText">
+            {{ index + 1 }}. {{ user.user_metadata.display_name || user.user_metadata.nickname || "Sans pseudo" }}
+        </span>
+    </div>
+    <div v-else>
+        <span class="font-medium text-lightText dark:text-darkText">Aucun utilisateur trouvé</span>
+    </div> -->
+    <ul class="space-y-2">
             <li class="flex justify-between border-b pb-2">
                 <span class="font-medium text-lightText dark:text-darkText">1. Ragnar le Rouge</span>
                 <span class="text-lightPrimary dark:text-darkPrimary">12,350 pts</span>

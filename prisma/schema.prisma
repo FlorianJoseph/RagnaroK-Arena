@@ -9,73 +9,90 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model tournament {
-  id            Int           @id @default(autoincrement())
-  title         String
-  organizer_id  String
-  prix_entree   Int
-  date          DateTime
-  jeuId         Int // Un tournoi est associé à un seul jeu, d'où la référence à l'ID du jeu
-  jeu           jeu           @relation(fields: [jeuId], references: [id]) // Relation avec le jeu
-  participants  participant[] // Relation avec les participants
-  reward_type   reward_type // Type de récompense (coins, tickets, etc.)
-  reward_amount Int // Montant de la récompense
-}
-
-model jeu {
-  id           Int          @id @default(autoincrement())
-  nom          String
-  categorie_id Int
-  categorie    categorie    @relation(fields: [categorie_id], references: [id]) // Relation many-to-one avec catégorie
-  tournament   tournament[]
-}
-
-model categorie {
-  id   Int    @id @default(autoincrement())
-  nom  String
-  jeux jeu[]
-}
-
-model participant {
-  id            Int        @id @default(autoincrement())
-  user_id       String // UUID de l'utilisateur provenant de Supabase Auth
-  tournament_id Int
-  tournament    tournament @relation(fields: [tournament_id], references: [id])
-  score         Int        @default(0)
-  created_at    DateTime   @default(now())
-  clan_id       Int? // Référence au clan auquel appartient le participant
-  clan          clan?      @relation(fields: [clan_id], references: [id])
-}
-
-model clan {
-  id         Int           @id @default(autoincrement())
-  name       String
-  members    participant[]
-  created_at DateTime      @default(now())
+model profile {
+  id          Int           @id @default(autoincrement())
+  user_id     String        @unique @default(uuid()) @db.Uuid // UUID au lieu de String
+  email       String        @unique
+  username    String?
+  full_name   String?
+  website     String?
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+  wallet      wallet[]
+  participant participant[]
+  members     members[]
+  tournament  tournament[]
 }
 
 model wallet {
   id           Int           @id @default(autoincrement())
-  user_id      String // UUID de l'utilisateur provenant de Supabase Auth
+  user_id      String        @unique @db.Uuid // UUID au lieu de String
+  user         profile       @relation(fields: [user_id], references: [user_id], onDelete: Cascade) // Utilisation de profile ici
   coins        Int           @default(0) // Monnaie virtuelle
   tickets      Int           @default(0) // Nombre de tickets d'entrée disponibles
-  balance      Float         @default(0.0) // Solde en vraie monnaie (en euros, dollars, etc.)
+  balance      Decimal       @default(0.0) // Solde en vraie monnaie (en euros, dollars, etc.)
   transactions transaction[] // Historique des transactions
 }
 
 model transaction {
-  id         Int              @id @default(autoincrement())
+  id         Int           @id @default(autoincrement())
   wallet_id  Int
-  wallet     wallet           @relation(fields: [wallet_id], references: [id])
-  type       transaction_type
-  amount     Int // Montant de Vikings Coin ou de tickets
+  wallet     wallet        @relation(fields: [wallet_id], references: [id])
+  amount     Decimal // Montant de Vikings Coin ou de tickets
   currency   currency_type // Type de monnaie utilisé (coins, tickets ou argent réel)
-  created_at DateTime         @default(now())
+  created_at DateTime      @default(now())
 }
 
-enum transaction_type {
-  credit // Ajout de Vikings Coin ou de tickets
-  debit // Dépense de Vikings Coin ou de tickets
+model clan {
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(100)
+  members    members[] @relation("ClanMembers")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+}
+
+model members {
+  id      Int     @id @default(autoincrement())
+  clan_id Int
+  clan    clan    @relation("ClanMembers", fields: [clan_id], references: [id])
+  user_id String  @db.Uuid
+  user    profile @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@unique([user_id, clan_id])
+  @@index([clan_id])
+}
+
+model game {
+  id         Int            @id @default(autoincrement())
+  nom        String
+  categorie  categorie_type
+  tournament tournament[]
+}
+
+model tournament {
+  id            Int           @id @default(autoincrement())
+  title         String
+  organizer_id  String        @db.Uuid
+  organizer     profile       @relation(fields: [organizer_id], references: [user_id], onDelete: Cascade)
+  prix_entree   Int
+  date          DateTime
+  jeu_id        Int // Un tournoi est associé à un seul jeu, d'où la référence à l'ID du jeu
+  jeu           game          @relation(fields: [jeu_id], references: [id]) // Relation avec le jeu
+  participants  participant[] // Relation avec les participants
+  reward_type   reward_type // Type de récompense (coins, tickets, etc.)
+  reward_amount Int // Montant de la récompense
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+}
+
+model participant {
+  id            Int        @id @default(autoincrement())
+  user_id       String     @db.Uuid // UUID au lieu de String
+  user          profile    @relation(fields: [user_id], references: [user_id], onDelete: Cascade) // Utilisation de profile ici
+  tournament_id Int
+  tournament    tournament @relation(fields: [tournament_id], references: [id])
+  score         Int        @default(0)
+  created_at    DateTime   @default(now())
 }
 
 enum currency_type {
@@ -88,4 +105,16 @@ enum reward_type {
   coins
   tickets
   real_money
+}
+
+enum categorie_type {
+  action
+  aventure
+  fps
+  rpg
+  strategie
+  sport
+  party_games
+  simulation
+  autre
 }

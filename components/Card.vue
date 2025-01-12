@@ -3,7 +3,7 @@ const supabase = useSupabaseClient();
 const tournaments = ref<any[] | null>(null);
 
 async function fetchTournaments() {
-    const { data, error: fetchError } = await supabase
+    const { data, error } = await supabase
         .from('tournament')
         .select(`*,jeu(*,categorie(*))`);
 

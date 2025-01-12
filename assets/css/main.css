@@ -36,6 +36,6 @@ a {
     }
 
     .btn-profil {
-        @apply flex items-center space-x-2 px-4 py-3 text-ltext dark:text-dtext rounded shadow-sm hover:bg-lgray dark:hover:bg-dgray
+        @apply flex items-center space-x-2 px-4 py-3 text-ltext border-l border-lgray dark:border-dgray dark:text-dtext rounded shadow-sm hover:bg-lgray dark:hover:bg-dgray
     }
 }

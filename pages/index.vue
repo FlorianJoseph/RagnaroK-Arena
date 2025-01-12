@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { useToast } from 'vue-toastification';
+
+const supabase = useSupabaseClient();
+const user = useSupabaseUser();
+const toast = useToast(); // Initialisation du toast
 
 const features = [
   {

@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { Twitch } from 'lucide-vue-next';
+import { useToast } from 'vue-toastification';
 
 const supabase = useSupabaseClient();
 const email = ref('');
 const password = ref('');
-const confirmPassword = ref('');
 const router = useRouter();
-const errorMessage = ref('');
-const successMessage = ref('');
+const toast = useToast(); // Initialisation du toast
 
 async function signInWithTwitch() {
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -16,23 +15,20 @@ async function signInWithTwitch() {
             redirectTo: `https://qgpfftkjoktjzylwtvbx.supabase.co/auth/v1/callback`,
         },
     });
+    if (error) {
+        toast.error("Erreur lors de la connexion : " + error.message);
+    }
 }
 
 async function signInWithEmail() {
-
-    // if (password.value !== confirmPassword.value) {
-    //     errorMessage.value = `Les mots de passe ne correspondent pas.`;
-    //     return;
-    // }
-
     const { data, error } = await supabase.auth.signInWithPassword({
         email: email.value,
         password: password.value,
     });
-
     if (error) {
-        errorMessage.value = `Erreur lors de la connexion`;
+        toast.error("Erreur lors de la connexion : " + error.message);
     } else {
+        toast.success("Connexion réussie.");
         router.push('/');
     }
 }

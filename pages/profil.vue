@@ -99,7 +99,6 @@ async function signOut() {
 definePageMeta({
     layout: 'profile' // Utilise le layout "profile.vue"
 })
-
 </script>
 
 <template>

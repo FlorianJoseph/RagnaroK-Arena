@@ -2,16 +2,17 @@
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from 'vue-toastification';
-import { Check, CircleX } from 'lucide-vue-next';
-import { useUserStore } from '@/stores/user'; // Importer le store utilisateur
-const userStore = useUserStore(); // Initialiser le store
+import { CircleX, Check } from 'lucide-vue-next';
 
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
-const fileInput = ref(null);
-const imageUrl = ref<string | null>(null);
-const showOverlay = ref(false);
 const toast = useToast();
+const authStore = useAuthStore();
+const userStore = useUserStore();
+const imageUrl = ref<string | null>(null);
+
+const fileInput = ref(null);
+const showOverlay = ref(false);
 
 // Fonction pour uploader l'avatar
 async function uploadAvatar(event: Event) {
@@ -70,31 +71,28 @@ async function uploadAvatar(event: Event) {
     toast.success('Avatar téléchargé et mis à jour avec succès !', { icon: Check });
 }
 
-const handleSignOut = async () => {
-    await signOut();
+// Récupérer le profil via le store
+onMounted(async () => {
+    await userStore.fetchUser();
+    await userStore.fetchProfile();
+});
+
+// Sauvegarde du profil avec l'utilisateur connecté
+const updateProfile = async () => {
+    if (!userStore.profile) {
+        toast.error("Le profil n'est pas encore chargé", { icon: CircleX });
+        return;
+    }
+    await userStore.updateProfile(userStore.profile);
+};
+
+const logout = async () => {
+    await authStore.logout();
 };
 
 definePageMeta({
     layout: 'profile'
 })
-
-const profile = ref(null);
-
-// Sauvegarde du profil avec l'utilisateur connecté
-const updateProfile = async () => {
-    if (!userStore.profile) {
-        toast.error("Le profil n'est pas encore chargé.");
-        return;
-    }
-
-    await userStore.updateProfile(userStore.profile); // Sauvegarde du profil si validé
-};
-// Récupérer le profil via le store
-onMounted(async () => {
-    await userStore.fetchUser();  // Récupérer les données de l'utilisateur
-    await userStore.fetchProfile(); // Récupérer les informations du profil
-});
-
 </script>
 
 <template>
@@ -191,7 +189,7 @@ onMounted(async () => {
 
                 <!-- Déconnexion -->
                 <div class="mt-8 text-center">
-                    <button @click="handleSignOut"
+                    <button @click="logout"
                         class="px-6 py-2 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
                         Déconnexion
                     </button>

@@ -1,4 +1,3 @@
-// stores/user.ts
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { CircleX, Check } from 'lucide-vue-next';
@@ -22,9 +21,9 @@ export const useUserStore = defineStore('user', {
 
     actions: {
         // Fonction pour récupérer l'utilisateur
-        async fetchUser() {
+        async fetchUser(): Promise<void> {
             const user = useSupabaseUser();
-            this.user = user.value;  // Utilisation de .value pour accéder à l'utilisateur
+            this.user = user.value;
         },
 
         // Fonction pour récupérer le profil
@@ -90,8 +89,6 @@ export const useUserStore = defineStore('user', {
                 toast.error('Erreur lors de la mise à jour : ' + error.message, { icon: CircleX });
             } else {
                 toast.success('Profil mis à jour avec succès !', { icon: Check });
-                // Optionnel : recharger le profil après mise à jour
-                await this.fetchProfile();
             }
         },
     }

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useUserStore } from '@/stores/user'; // Importer le store
 
 const user = useSupabaseUser();
 const isDropdownOpen = ref(false);
@@ -14,8 +13,10 @@ const sidebarItems = [
     { label: 'Boutique', icon: Store, link: '/boutique' }
 ];
 
-const handleSignOut = async () => {
-    await signOut();
+const authStore = useAuthStore();
+
+const logout = async () => {
+    await authStore.logout();
 };
 
 // Utilisation du store Pinia
@@ -59,7 +60,7 @@ onMounted(async () => {
             </button>
 
             <!-- Menu déroulant pour le profil et la déconnexion -->
-            <div v-if="userStore.user" class="relative">
+            <div v-if="userStore.user && user" class="relative">
                 <button @click="isDropdownOpen = !isDropdownOpen" class="btn-profil">
                     <img :src="user.user_metadata.avatar || user.user_metadata.avatar_url || 'https://qgpfftkjoktjzylwtvbx.supabase.co/storage/v1/object/public/avatars/default/avatar.jpg?t=2025-01-07T10%3A35%3A56.796Z'"
                         alt="Avatar" class="w-7 h-7 rounded-full object-cover" />
@@ -79,7 +80,7 @@ onMounted(async () => {
                             </router-link>
                         </li>
                         <li>
-                            <button @click="handleSignOut"
+                            <button @click="logout"
                                 class="flex items-center gap-2 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-500 dark:hover:bg-red-700 hover:text-white dark:hover:text-lightBg focus:outline-none dark:focus:ring-red-700 w-full">
                                 <Power /> Déconnexion
                             </button>

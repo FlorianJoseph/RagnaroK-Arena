@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useToast } from 'vue-toastification';
-import { Twitch } from 'lucide-vue-next';
+import { Twitch,Check, CircleX, Info } from 'lucide-vue-next';
 
 const supabase = useSupabaseClient();
 const email = ref('');
@@ -19,7 +19,7 @@ async function signUpNewUser() {
     });
 
     if (error) {
-        toast.error("Erreur lors de l'inscription : " + error.message);
+        toast.error("Erreur lors de l'inscription : " + error.message, { icon: CircleX });
         return;
     }
 
@@ -38,17 +38,15 @@ async function signUpNewUser() {
                 },
             ]);
         if (profileError) {
-            toast.error('Impossible de créer un profil : ' + profileError.message);
+            toast.error('Impossible de créer un profil : ' + profileError.message, { icon: CircleX });
         }
         else {
-            toast.info("Utilisateur inscrit avec succès. Veuillez vérifier votre email pour confirmer votre inscription.");
+            toast.info("Utilisateur inscrit avec succès. Veuillez vérifier votre email pour confirmer votre inscription.", { icon: Info });
             router.push('/login')
         }
     }
     else {
-        toast.error(
-            "Erreur : utilisateur non créé."
-        );
+        toast.error("Erreur : utilisateur non créé.", { icon: CircleX });
     }
 }
 
@@ -61,9 +59,9 @@ async function signUpWithTwitch() {
     });
 
     if (error) {
-        toast.error("Erreur lors de la connexion Twitch : " + error.message);
+        toast.error("Erreur lors de la connexion Twitch : " + error.message, { icon: CircleX });
     } else {
-        toast.success("Connexion avec Twitch réussie.");
+        toast.success("Connexion avec Twitch réussie.", { icon: Check });
     }
 }
 

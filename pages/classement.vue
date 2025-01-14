@@ -1,5 +1,6 @@
 <script lang="ts">
 import { useToast } from 'vue-toastification';
+import { Check, CircleX } from 'lucide-vue-next';
 
 const supabase = useSupabaseClient();
 // const users = ref<any[]>([]); // Déclare une liste vide de type any[] comme ref
@@ -9,7 +10,7 @@ const toast = useToast(); // Initialisation du toast
 async function fetchUsers() {
     const { data: { users }, error } = await supabase.auth.admin.listUsers()
     if (error) {
-        toast.error('Erreur lors de la récupération des utilisateurs : ' + error.message);
+        toast.error('Erreur lors de la récupération des utilisateurs : ' + error.message, { icon: CircleX });
     }
 }
 

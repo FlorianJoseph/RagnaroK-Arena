@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useToast } from 'vue-toastification';
+import { Check, CircleX } from 'lucide-vue-next';
 
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
@@ -21,31 +22,43 @@ async function fetchGames() {
 
   if (error) {
     console.error('Error fetching games:', error);
-    toast.error('Erreur lors de la récupération des jeux : ' + error.message);
+    toast.error('Erreur lors de la récupération des jeux : ' + error.message, { icon: CircleX });
   } else {
     console.log('Jeux récupérés:', data);  // Vérifie les jeux récupérés
     games.value = data || [];
   }
 };
 
+type Tournament = {
+  title: string;            // 'text'
+  organizer_id: string;     // 'uuid'
+  prix_entree: number;      // 'int4'
+  date: string;             // 'timestamp' (chaîne ISO 8601)
+  jeu_id: number;           // 'int4'
+  reward_type: string;      // 'text' ou un type spécifique comme 'cash', 'items', etc.
+  reward_amount: number;    // 'int4'
+  created_at: string;       // 'timestamp' (chaîne ISO 8601)
+  updated_at: string;       // 'timestamp' (chaîne ISO 8601)
+};
+
 async function createTournament() {
 
   const { error } = await supabase
-    .from('tournament')
+    .from<Tournament>('tournament')
     .insert([
       {
         title: tournamentName.value,
         organizer_id: organizerId, // ID de l'organisateur
         prix_entree: prixEntree.value,
-        date: new Date(tournamentDate.value), // Utiliser la date du tournoi
-        jeuId: selectedGameId.value, // Associer le tournoi au jeu sélectionné
+        date: new Date(tournamentDate.value).toISOString(), // Utiliser la date du tournoi
+        jeu_id: selectedGameId.value, // Associer le tournoi au jeu sélectionné
       }
     ]);
 
   if (error) {
-    toast.error('Impossible de créer le tournoi :' + error.message);
+    toast.error('Impossible de créer le tournoi :' + error.message, { icon: CircleX });
   } else {
-    toast.success('Tournoi créé avec succès !');
+    toast.success('Tournoi créé avec succès !', { icon: Check });
     tournamentName.value = '';
     tournamentDescription.value = '';
     prixEntree.value = '';

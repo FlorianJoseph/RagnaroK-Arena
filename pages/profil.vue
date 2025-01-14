@@ -2,32 +2,29 @@
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from 'vue-toastification';
+import { Check, CircleX } from 'lucide-vue-next';
 
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
-const router = useRouter();
-const displayName = ref('');
-const editing = ref(false); // État pour savoir si on est en mode édition
 const fileInput = ref(null);
 const imageUrl = ref<string | null>(null);
 const showOverlay = ref(false);
-const toast = useToast(); // Initialisation du toast
+const toast = useToast();
 
-// Fonction pour gérer le changement de fichier
 async function uploadAvatar(event: Event) {
     const target = event.target as HTMLInputElement;
     if (!target || !target.files || target.files.length === 0) {
-        toast.error('Aucun fichier sélectionné.');
+        toast.error('Aucun fichier sélectionné.', { icon: CircleX });
         return;
     }
     const avatarFile = target.files[0];
     if (!avatarFile) {
-        toast.error('Aucun fichier sélectionné.');
+        toast.error('Aucun fichier sélectionné.', { icon: CircleX });
         return;
     }
 
-    showOverlay.value = true; // Afficher l'overlay de chargement
-    const filePath = `private/${avatarFile.name}`; // Chemin du fichier dans le bucket
+    showOverlay.value = true;
+    const filePath = `private/${avatarFile.name}`;
 
     const { data: uploadData, error: uploadError } = await supabase
         .storage
@@ -36,9 +33,9 @@ async function uploadAvatar(event: Event) {
             cacheControl: '3600',
             upsert: false
         });
-    showOverlay.value = false; // Masquer l'overlay de chargement
+    showOverlay.value = false;
     if (uploadError) {
-        toast.error('Erreur lors du téléchargement de l\'avatar : ' + uploadError.message);
+        toast.error('Erreur lors du téléchargement de l\'avatar : ' + uploadError.message, { icon: CircleX });
         return;
     }
 
@@ -49,56 +46,45 @@ async function uploadAvatar(event: Event) {
 
     const avatarUrl = publicUrlData.publicUrl;
 
-    // Mettre à jour les métadonnées de l'utilisateur
     const { data, error: updateError } = await supabase.auth.updateUser({
-        data: { avatar: avatarUrl } // Mettre à jour l'avatar dans les métadonnées
+        data: { avatar: avatarUrl }
     })
 
     if (updateError) {
-        toast.error('Erreur lors de la mise à jour des métadonnées de l\'utilisateur ' + updateError.message);
+        toast.error('Erreur lors de la mise à jour des métadonnées de l\'utilisateur ' + updateError.message, { icon: CircleX });
         return;
     }
 
     imageUrl.value = avatarUrl;
-    toast.success('Avatar téléchargé et mis à jour avec succès !');
+    toast.success('Avatar téléchargé et mis à jour avec succès !', { icon: Check });
 }
 
-// Fonction pour basculer entre mode édition et affichage
-function toggleEdit() {
-    editing.value = !editing.value;
-}
-
-// Fonction pour enregistrer les modifications
-async function saveChanges() {
-
-    if (!displayName.value) {
-        toast.success('Le nom d\'utilisateur ne peut pas être vide.');
-        return;
-    }
-
-    const { error } = await supabase.auth.updateUser({
-        data: { display_name: displayName.value }
-    });
-
-    if (error) {
-        toast.error('Erreur lors de la mise à jour :' + error.message);
-    } else {
-        toast.success('Profil mis à jour avec succès !');
-        editing.value = false; // Quitter le mode édition
-    }
-}
-
-async function signOut() {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-        console.error('Error signing out:', error);
-    }
-    router.push('/');
-}
+const handleSignOut = async () => {
+    await signOut();
+};
 
 definePageMeta({
-    layout: 'profile' // Utilise le layout "profile.vue"
+    layout: 'profile'
 })
+
+const profile = ref({
+    id: '',
+    email: '',
+    username: '',
+    full_name: '',
+    website: '',
+    created_at: '',
+    updated_at: ''
+});
+
+const save = async () => {
+    await saveProfile(profile);
+};
+
+onMounted(() => {
+    getProfile(profile);
+});
+
 </script>
 
 <template>
@@ -138,48 +124,64 @@ definePageMeta({
                     <!-- Infos utilisateurs -->
                     <div class="ml-6">
                         <h3 class="text-xl font-bold text-lightText dark:text-darkText">{{
-                            user.user_metadata.display_name || user.user_metadata.nickname || "Choisissez un pseudo" }}
+                            profile.username || user.user_metadata.nickname || "Choisissez un pseudo" }}
                         </h3>
-                        <p class="text-sm text-lightText dark:text-darkText">Utilisateur depuis le {{ format(new
-                            Date(user.created_at), 'd MMMM yyyy', { locale: fr }) }}
+                        <p class="text-sm text-lightText dark:text-darkText">
+                            Utilisateur depuis le
+                            {{ profile.created_at ? format(new Date(profile.updated_at), 'd MMMM yyyy', { locale: fr })
+                                : 'Non renseignée' }}
+                        </p>
+                        <p class="text-sm text-lightText dark:text-darkText">
+                            Dernière mise à jour le
+                            {{ profile.updated_at ? format(new Date(profile.updated_at), 'd MMMM yyyy', { locale: fr })
+                                : 'Non renseignée' }}
                         </p>
                     </div>
                 </div>
 
                 <!-- Détails du profil -->
                 <div class="flex justify-center">
+                    <div class="flex flex-col gap-6">
+                        <div>
+                            <div v-if="profile.email">
+                                <p>Email : {{ profile.email }}</p>
+                                <p>Username : {{ profile.username }}</p>
+                                <p>Nom complet : {{ profile.full_name }}</p>
+                                <p>Site Web : {{ profile.website }}</p>
+                            </div>
+                            <div v-else>
+                                <p>Chargement du profil...</p>
+                            </div>
+                        </div>
 
-                    <!-- Affichage ou édition -->
-                    <div v-if="!editing">
-                        <button @click="toggleEdit"
-                            class="btn">
-                            Modifier le profil
-                        </button>
-                    </div>
-
-                    <!-- Formulaire d'édition -->
-                    <div v-else>
-                        <label for="displayName" class="block text-sm font-medium text-lightText dark:text-darkText">Nom
-                            d'utilisateur</label>
-                        <input v-model="displayName" type="text" placeholder="Nom d'utilisateur"
-                            class="input" />
-                        <div class="flex gap-4 mt-4">
-                            <button @click="saveChanges"
-                                class="btn">
-                                Enregistrer
-                            </button>
-
-                            <button @click="toggleEdit"
-                                class="btnvariant">
-                                Annuler
-                            </button>
+                        <div>
+                            <label for="username"
+                                class="block text-sm font-medium text-lightText dark:text-darkText">Pseudo</label>
+                            <input v-model="profile.username" type="text" placeholder="Entrez un pseudo"
+                                class="input" />
+                            <label for="fullname"
+                                class="block text-sm font-medium text-lightText dark:text-darkText">Nom
+                                et Prénom</label>
+                            <input v-model="profile.full_name" type="text" placeholder="Entre votre nom et prénom"
+                                class="input" />
+                            <label for="website"
+                                class="block text-sm font-medium text-lightText dark:text-darkText">Lien
+                                vers le site web
+                                (ex: Twitch)</label>
+                            <input v-model="profile.website" type="text" placeholder="https://exemple.com"
+                                class="input" />
+                            <div class="flex gap-4 mt-4">
+                                <button @click="save" class="btn">
+                                    Sauvegarder les modifications
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Déconnexion -->
                 <div class="mt-8 text-center">
-                    <button @click="signOut"
+                    <button @click="handleSignOut"
                         class="px-6 py-2 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
                         Déconnexion
                     </button>

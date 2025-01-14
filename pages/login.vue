@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Twitch } from 'lucide-vue-next';
 import { useToast } from 'vue-toastification';
+import { Twitch,Check, CircleX } from 'lucide-vue-next';
 
 const supabase = useSupabaseClient();
 const email = ref('');
@@ -16,7 +16,7 @@ async function signInWithTwitch() {
         },
     });
     if (error) {
-        toast.error("Erreur lors de la connexion : " + error.message);
+        toast.error("Erreur lors de la connexion : " + error.message, { icon: CircleX });
     }
 }
 
@@ -26,9 +26,9 @@ async function signInWithEmail() {
         password: password.value,
     });
     if (error) {
-        toast.error("Erreur lors de la connexion : " + error.message);
+        toast.error("Erreur lors de la connexion : " + error.message, { icon: CircleX });
     } else {
-        toast.success("Connexion réussie.");
+        toast.success("Connexion réussie", { icon: Check });
         router.push('/');
     }
 }

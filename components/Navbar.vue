@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 const isDropdownOpen = ref(false);
 
@@ -14,11 +13,23 @@ const sidebarItems = [
     { label: 'Boutique', icon: Store, link: '/boutique' }
 ];
 
-async function signOut() {
-    const { error } = await supabase.auth.signOut()
-    if (error) console.error('Error signing out:', error);
-    isDropdownOpen.value = false;  // Ferme le menu après déconnexion
-}
+const handleSignOut = async () => {
+    await signOut();
+};
+
+const profile = ref({
+    id: '',
+    email: '',
+    username: '',
+    full_name: '',
+    website: '',
+    created_at: '',
+    updated_at: ''
+});
+
+onMounted(() => {
+    getProfile(profile);
+});
 </script>
 
 <template>
@@ -56,7 +67,7 @@ async function signOut() {
                     <img :src="user.user_metadata.avatar || user.user_metadata.avatar_url || 'https://qgpfftkjoktjzylwtvbx.supabase.co/storage/v1/object/public/avatars/default/avatar.jpg?t=2025-01-07T10%3A35%3A56.796Z'"
                         alt="Avatar" class="w-7 h-7 rounded-full object-cover" />
                     <span>
-                        {{ user.user_metadata.display_name || user.user_metadata.nickname || "Choisissez un pseudo" }}
+                        {{ profile.username || user.user_metadata.nickname || "Choisissez un pseudo" }}
                     </span>
                     <ChevronDown />
                 </button>
@@ -71,7 +82,7 @@ async function signOut() {
                             </router-link>
                         </li>
                         <li>
-                            <button @click="signOut"
+                            <button @click="handleSignOut"
                                 class="flex items-center gap-2 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-500 dark:hover:bg-red-700 hover:text-white dark:hover:text-lightBg focus:outline-none dark:focus:ring-red-700 w-full">
                                 <Power /> Déconnexion
                             </button>

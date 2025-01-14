@@ -3,6 +3,8 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from 'vue-toastification';
 import { Check, CircleX } from 'lucide-vue-next';
+import { useUserStore } from '@/stores/user'; // Importer le store utilisateur
+const userStore = useUserStore(); // Initialiser le store
 
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
@@ -11,13 +13,17 @@ const imageUrl = ref<string | null>(null);
 const showOverlay = ref(false);
 const toast = useToast();
 
+// Fonction pour uploader l'avatar
 async function uploadAvatar(event: Event) {
     const target = event.target as HTMLInputElement;
-    if (!target || !target.files || target.files.length === 0) {
+
+    if (!target?.files?.length) {
         toast.error('Aucun fichier sélectionné.', { icon: CircleX });
         return;
     }
+
     const avatarFile = target.files[0];
+
     if (!avatarFile) {
         toast.error('Aucun fichier sélectionné.', { icon: CircleX });
         return;
@@ -26,6 +32,7 @@ async function uploadAvatar(event: Event) {
     showOverlay.value = true;
     const filePath = `private/${avatarFile.name}`;
 
+    // Téléchargement de l'avatar
     const { data: uploadData, error: uploadError } = await supabase
         .storage
         .from('avatars')
@@ -33,12 +40,15 @@ async function uploadAvatar(event: Event) {
             cacheControl: '3600',
             upsert: false
         });
+
     showOverlay.value = false;
+
     if (uploadError) {
         toast.error('Erreur lors du téléchargement de l\'avatar : ' + uploadError.message, { icon: CircleX });
         return;
     }
 
+    // Récupération de l'URL publique de l'avatar
     const { data: publicUrlData } = supabase
         .storage
         .from('avatars')
@@ -46,6 +56,7 @@ async function uploadAvatar(event: Event) {
 
     const avatarUrl = publicUrlData.publicUrl;
 
+    // Mise à jour des métadonnées utilisateur
     const { data, error: updateError } = await supabase.auth.updateUser({
         data: { avatar: avatarUrl }
     })
@@ -67,22 +78,21 @@ definePageMeta({
     layout: 'profile'
 })
 
-const profile = ref({
-    id: '',
-    email: '',
-    username: '',
-    full_name: '',
-    website: '',
-    created_at: '',
-    updated_at: ''
-});
+const profile = ref(null);
 
-const save = async () => {
-    await saveProfile(profile);
+// Sauvegarde du profil avec l'utilisateur connecté
+const updateProfile = async () => {
+    if (!userStore.profile) {
+        toast.error("Le profil n'est pas encore chargé.");
+        return;
+    }
+
+    await userStore.updateProfile(userStore.profile); // Sauvegarde du profil si validé
 };
-
-onMounted(() => {
-    getProfile(profile);
+// Récupérer le profil via le store
+onMounted(async () => {
+    await userStore.fetchUser();  // Récupérer les données de l'utilisateur
+    await userStore.fetchProfile(); // Récupérer les informations du profil
 });
 
 </script>
@@ -110,7 +120,7 @@ onMounted(() => {
                             <!-- Texte "Changer l'avatar" au survol -->
                             <div
                                 class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                <span class="text-white text-lg font-semibold">Changer l'avatar</span>
+                                <span class="text-black">Changer l'avatar</span>
                             </div>
                         </label>
 
@@ -122,19 +132,19 @@ onMounted(() => {
                     </div>
 
                     <!-- Infos utilisateurs -->
-                    <div class="ml-6">
+                    <div v-if="userStore.profile" class="ml-6">
                         <h3 class="text-xl font-bold text-lightText dark:text-darkText">{{
-                            profile.username || user.user_metadata.nickname || "Choisissez un pseudo" }}
+                            userStore.profile?.username || user.user_metadata.nickname || "Choisissez un pseudo" }}
                         </h3>
                         <p class="text-sm text-lightText dark:text-darkText">
-                            Utilisateur depuis le
-                            {{ profile.created_at ? format(new Date(profile.updated_at), 'd MMMM yyyy', { locale: fr })
-                                : 'Non renseignée' }}
+                            Utilisateur depuis {{ format(new Date(userStore.profile.created_at), 'd MMMM yyyy', {
+                                locale: fr
+                            }) }}
                         </p>
-                        <p class="text-sm text-lightText dark:text-darkText">
-                            Dernière mise à jour le
-                            {{ profile.updated_at ? format(new Date(profile.updated_at), 'd MMMM yyyy', { locale: fr })
-                                : 'Non renseignée' }}
+                        <p v-if="userStore.profile" class="text-sm text-lightText dark:text-darkText">
+                            Dernière mise à jour le {{ format(new Date(userStore.profile.updated_at), 'd MMMM yyyy', {
+                                locale: fr
+                            }) }}
                         </p>
                     </div>
                 </div>
@@ -143,35 +153,35 @@ onMounted(() => {
                 <div class="flex justify-center">
                     <div class="flex flex-col gap-6">
                         <div>
-                            <div v-if="profile.email">
-                                <p>Email : {{ profile.email }}</p>
-                                <p>Username : {{ profile.username }}</p>
-                                <p>Nom complet : {{ profile.full_name }}</p>
-                                <p>Site Web : {{ profile.website }}</p>
+                            <div v-if="userStore.profile">
+                                <p>Email : {{ userStore.profile?.email }}</p>
+                                <p>Username : {{ userStore.profile?.username }}</p>
+                                <p>Nom complet : {{ userStore.profile?.full_name }}</p>
+                                <p>Site Web : {{ userStore.profile?.website }}</p>
                             </div>
                             <div v-else>
                                 <p>Chargement du profil...</p>
                             </div>
                         </div>
 
-                        <div>
+                        <div v-if="userStore.profile">
                             <label for="username"
                                 class="block text-sm font-medium text-lightText dark:text-darkText">Pseudo</label>
-                            <input v-model="profile.username" type="text" placeholder="Entrez un pseudo"
+                            <input v-model="userStore.profile.username" type="text" placeholder="Entrez un pseudo"
                                 class="input" />
                             <label for="fullname"
                                 class="block text-sm font-medium text-lightText dark:text-darkText">Nom
                                 et Prénom</label>
-                            <input v-model="profile.full_name" type="text" placeholder="Entre votre nom et prénom"
-                                class="input" />
+                            <input v-model="userStore.profile.full_name" type="text"
+                                placeholder="Entre votre nom et prénom" class="input" />
                             <label for="website"
                                 class="block text-sm font-medium text-lightText dark:text-darkText">Lien
                                 vers le site web
                                 (ex: Twitch)</label>
-                            <input v-model="profile.website" type="text" placeholder="https://exemple.com"
+                            <input v-model="userStore.profile.website" type="text" placeholder="https://exemple.com"
                                 class="input" />
                             <div class="flex gap-4 mt-4">
-                                <button @click="save" class="btn">
+                                <button @click="updateProfile" class="btn">
                                     Sauvegarder les modifications
                                 </button>
                             </div>

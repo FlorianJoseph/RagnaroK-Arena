@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { useUserStore } from '@/stores/user'; // Importer le store
+
 const user = useSupabaseUser();
 const isDropdownOpen = ref(false);
 
 import { Swords, Trophy, Crown, Store, ChevronDown, User, Power } from 'lucide-vue-next'; // Importer les icônes Lucide
-
 
 // Déclaration de la liste des éléments de la sidebar
 const sidebarItems = [
@@ -17,19 +18,15 @@ const handleSignOut = async () => {
     await signOut();
 };
 
-const profile = ref({
-    id: '',
-    email: '',
-    username: '',
-    full_name: '',
-    website: '',
-    created_at: '',
-    updated_at: ''
+// Utilisation du store Pinia
+const userStore = useUserStore();
+
+// Récupération de l'utilisateur au montage du composant
+onMounted(async () => {
+    await userStore.fetchUser();  // Appelle fetchUser pour récupérer l'utilisateur connecté
+    await userStore.fetchProfile(); // Appelle getProfile pour récupérer le profil
 });
 
-onMounted(() => {
-    getProfile(profile);
-});
 </script>
 
 <template>
@@ -57,17 +54,17 @@ onMounted(() => {
         <!-- Section droite -->
         <div class="flex items-center">
             <ToggleTheme />
-            <button v-if="!user" class="btn">
+            <button v-if="!userStore.user" class="btn">
                 <router-link to='/login'>Connexion</router-link>
             </button>
 
             <!-- Menu déroulant pour le profil et la déconnexion -->
-            <div v-if="user" class="relative">
+            <div v-if="userStore.user" class="relative">
                 <button @click="isDropdownOpen = !isDropdownOpen" class="btn-profil">
                     <img :src="user.user_metadata.avatar || user.user_metadata.avatar_url || 'https://qgpfftkjoktjzylwtvbx.supabase.co/storage/v1/object/public/avatars/default/avatar.jpg?t=2025-01-07T10%3A35%3A56.796Z'"
                         alt="Avatar" class="w-7 h-7 rounded-full object-cover" />
                     <span>
-                        {{ profile.username || user.user_metadata.nickname || "Choisissez un pseudo" }}
+                        {{ userStore.profile?.username || user.user_metadata.nickname || "Choisissez un pseudo" }}
                     </span>
                     <ChevronDown />
                 </button>

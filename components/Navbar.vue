@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import { Swords, Trophy, Crown, Store, ChevronDown, User, Power } from 'lucide-vue-next'; // Importer les icônes Lucide
+import { logout } from '~/services/auth';
 
 const user = useSupabaseUser();
+
 const isDropdownOpen = ref(false);
-
-import { Swords, Trophy, Crown, Store, ChevronDown, User, Power } from 'lucide-vue-next'; // Importer les icônes Lucide
-
-// Déclaration de la liste des éléments de la sidebar
 const sidebarItems = [
     { label: 'Tournois', icon: Swords, link: '/tournois' },
     { label: 'Classement', icon: Trophy, link: '/classement' },
@@ -13,19 +12,14 @@ const sidebarItems = [
     { label: 'Boutique', icon: Store, link: '/boutique' }
 ];
 
-const authStore = useAuthStore();
+async function handleLogout() {
+    await logout();
+}
 
-const logout = async () => {
-    await authStore.logout();
-};
-
-// Utilisation du store Pinia
 const userStore = useUserStore();
 
-// Récupération de l'utilisateur au montage du composant
 onMounted(async () => {
-    await userStore.fetchUser();  // Appelle fetchUser pour récupérer l'utilisateur connecté
-    await userStore.fetchProfile(); // Appelle getProfile pour récupérer le profil
+    await userStore.fetchProfile();
 });
 
 </script>
@@ -55,17 +49,17 @@ onMounted(async () => {
         <!-- Section droite -->
         <div class="flex items-center">
             <ToggleTheme />
-            <button v-if="!userStore.user" class="btn">
+            <button v-if="!user" class="btn">
                 <router-link to='/login'>Connexion</router-link>
             </button>
 
             <!-- Menu déroulant pour le profil et la déconnexion -->
-            <div v-if="userStore.user && user" class="relative">
+            <div v-if="user" class="relative">
                 <button @click="isDropdownOpen = !isDropdownOpen" class="btn-profil">
-                    <img :src="user.user_metadata.avatar || user.user_metadata.avatar_url || 'https://qgpfftkjoktjzylwtvbx.supabase.co/storage/v1/object/public/avatars/default/avatar.jpg?t=2025-01-07T10%3A35%3A56.796Z'"
+                    <img :src="user.user_metadata.avatar || user.user_metadata.avatar_url || 'https://rikzkugzznvcygapwgol.supabase.co/storage/v1/object/public/avatar/default/default.jpg?t=2025-01-16T13%3A42%3A28.357Z'"
                         alt="Avatar" class="w-7 h-7 rounded-full object-cover" />
                     <span>
-                        {{ userStore.profile?.username || user.user_metadata.nickname || "Choisissez un pseudo" }}
+                        {{ userStore.profile?.username }}
                     </span>
                     <ChevronDown />
                 </button>
@@ -80,7 +74,7 @@ onMounted(async () => {
                             </router-link>
                         </li>
                         <li>
-                            <button @click="logout"
+                            <button @click="handleLogout"
                                 class="flex items-center gap-2 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-500 dark:hover:bg-red-700 hover:text-white dark:hover:text-lightBg focus:outline-none dark:focus:ring-red-700 w-full">
                                 <Power /> Déconnexion
                             </button>

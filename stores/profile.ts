@@ -1,20 +1,13 @@
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { CircleX, Check } from 'lucide-vue-next';
-import type { User } from '@supabase/supabase-js';
 import type { Profile } from '~/models/types';
 
 export const useUserStore = defineStore('user', () => {
-    const user = ref<User | null>(null);
+    const user = useSupabaseUser();
     const profile = ref<Profile | null>(null);
     const toast = useToast();
     const supabase = useSupabaseClient();
-
-    // Fonction pour récupérer l'utilisateur
-    async function fetchUser(): Promise<void> {
-        const userData = useSupabaseUser();
-        user.value = userData.value;
-    }
 
     // Fonction pour récupérer le profil
     async function fetchProfile() {
@@ -80,9 +73,7 @@ export const useUserStore = defineStore('user', () => {
     }
 
     return {
-        user,
         profile,
-        fetchUser,
         fetchProfile,
         updateProfile,
     };

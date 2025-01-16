@@ -2,81 +2,22 @@
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from 'vue-toastification';
-import { CircleX, Check } from 'lucide-vue-next';
+import { CircleX } from 'lucide-vue-next';
+import { logout } from '~/services/auth';
+import { uploadAvatar } from '~/services/profile';
 
-const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 const toast = useToast();
-const authStore = useAuthStore();
 const userStore = useUserStore();
-const imageUrl = ref<string | null>(null);
 
-const fileInput = ref(null);
-const showOverlay = ref(false);
-
-// Fonction pour uploader l'avatar
-async function uploadAvatar(event: Event) {
-    const target = event.target as HTMLInputElement;
-
-    if (!target?.files?.length) {
-        toast.error('Aucun fichier sélectionné.', { icon: CircleX });
-        return;
-    }
-
-    const avatarFile = target.files[0];
-
-    if (!avatarFile) {
-        toast.error('Aucun fichier sélectionné.', { icon: CircleX });
-        return;
-    }
-
-    showOverlay.value = true;
-    const filePath = `private/${avatarFile.name}`;
-
-    // Téléchargement de l'avatar
-    const { data: uploadData, error: uploadError } = await supabase
-        .storage
-        .from('avatars')
-        .upload(filePath, avatarFile, {
-            cacheControl: '3600',
-            upsert: false
-        });
-
-    showOverlay.value = false;
-
-    if (uploadError) {
-        toast.error('Erreur lors du téléchargement de l\'avatar : ' + uploadError.message, { icon: CircleX });
-        return;
-    }
-
-    // Récupération de l'URL publique de l'avatar
-    const { data: publicUrlData } = supabase
-        .storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
-    const avatarUrl = publicUrlData.publicUrl;
-
-    // Mise à jour des métadonnées utilisateur
-    const { data, error: updateError } = await supabase.auth.updateUser({
-        data: { avatar: avatarUrl }
-    })
-
-    if (updateError) {
-        toast.error('Erreur lors de la mise à jour des métadonnées de l\'utilisateur ' + updateError.message, { icon: CircleX });
-        return;
-    }
-
-    imageUrl.value = avatarUrl;
-    toast.success('Avatar téléchargé et mis à jour avec succès !', { icon: Check });
-}
+const handleAvatarUpload = async (event: Event) => {
+    await uploadAvatar(event);
+};
 
 onMounted(async () => {
-    await userStore.fetchUser();
     await userStore.fetchProfile();
 });
 
-// Sauvegarde du profil avec l'utilisateur connecté
 const updateProfile = async () => {
     if (!userStore.profile) {
         toast.error("Le profil n'est pas encore chargé", { icon: CircleX });
@@ -85,9 +26,9 @@ const updateProfile = async () => {
     await userStore.updateProfile(userStore.profile);
 };
 
-const logout = async () => {
-    await authStore.logout();
-};
+async function handleLogout() {
+    await logout();
+}
 
 definePageMeta({
     layout: 'profile'
@@ -110,22 +51,16 @@ definePageMeta({
                         <!-- Cercle cliquable pour uploader l'avatar -->
                         <label
                             class="w-full h-full rounded-full border-2 border-lgray dark:border-dgray cursor-pointer flex items-center justify-center overflow-hidden hover:border-gray-500 relative">
-                            <input type="file" ref="fileInput" @change="uploadAvatar" class="hidden" />
-                            <img :src="user.user_metadata.avatar || user.user_metadata.avatar_url || 'https://qgpfftkjoktjzylwtvbx.supabase.co/storage/v1/object/public/avatars/default/avatar.jpg?t=2025-01-07T10%3A35%3A56.796Z'"
+                            <input type="file" @change="handleAvatarUpload" class="hidden"/>
+                            <img :src="user.user_metadata.avatar || user.user_metadata.avatar_url || 'https://rikzkugzznvcygapwgol.supabase.co/storage/v1/object/public/avatar/default/default.jpg?t=2025-01-16T13%3A42%3A28.357Z'"
                                 alt="Avatar" class="w-full h-full object-cover" />
 
                             <!-- Texte "Changer l'avatar" au survol -->
                             <div
                                 class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                <span class="text-black">Changer l'avatar</span>
+                                <span class="text-white">Changer l'avatar</span>
                             </div>
                         </label>
-
-                        <!-- Overlay de chargement -->
-                        <div v-if="showOverlay"
-                            class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-full">
-                            <span class="text-white text-sm">Chargement...</span>
-                        </div>
                     </div>
 
                     <!-- Infos utilisateurs -->
@@ -188,7 +123,7 @@ definePageMeta({
 
                 <!-- Déconnexion -->
                 <div class="mt-8 text-center">
-                    <button @click="logout"
+                    <button @click="handleLogout"
                         class="px-6 py-2 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
                         Déconnexion
                     </button>

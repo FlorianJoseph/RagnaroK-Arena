@@ -1,36 +1,16 @@
 <script setup lang="ts">
-import { useToast } from 'vue-toastification';
-import { Twitch, Check, CircleX } from 'lucide-vue-next';
+import { Twitch } from 'lucide-vue-next';
+import { login, twitchAuth } from '~/services/auth';
 
-const supabase = useSupabaseClient();
 const email = ref('');
 const password = ref('');
-const router = useRouter();
-const toast = useToast(); // Initialisation du toast
 
-async function signInWithTwitch() {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'twitch',
-        options: {
-            redirectTo: `https://qgpfftkjoktjzylwtvbx.supabase.co/auth/v1/callback`,
-        },
-    });
-    if (error) {
-        toast.error("Erreur lors de la connexion : " + error.message, { icon: CircleX });
-    }
-}
+const handleTwitchAuth = async () => {
+    await twitchAuth();
+};
 
-async function signInWithEmail() {
-    const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.value,
-        password: password.value,
-    });
-    if (error) {
-        toast.error("Erreur lors de la connexion : " + error.message, { icon: CircleX });
-    } else {
-        toast.success("Connexion réussie", { icon: Check });
-        router.push('/');
-    }
+async function handleLogin() {
+    await login(email.value, password.value);
 }
 
 definePageMeta({
@@ -47,7 +27,7 @@ definePageMeta({
             Connexion
         </h2>
         <!-- Formulaire -->
-        <form @submit.prevent="signInWithEmail">
+        <form @submit.prevent="handleLogin">
             <!-- Email -->
             <div class="mb-6">
                 <label for="email" class="block text-sm font-medium text-ltext dark:text-dtext">
@@ -93,7 +73,7 @@ definePageMeta({
 
         <!-- Bouton de connexion avec Twitch -->
         <div class="flex justify-center mt-6">
-            <button @click="signInWithTwitch"
+            <button @click="handleTwitchAuth"
                 class="flex justify-center w-36 py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md shadow-lg">
                 <Twitch class="mr-2" />
                 Twitch

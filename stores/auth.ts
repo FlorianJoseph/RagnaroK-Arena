@@ -2,30 +2,33 @@ import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { CircleX } from 'lucide-vue-next';
 
-export const useAuthStore = defineStore('auth', {
-    state: () => ({
-        user: null,
-        token: null,
-    }),
-    actions: {
-        async logout() {
-            try {
-                const supabase = useSupabaseClient();
-                const toast = useToast();
-                const router = useRouter(); // Vérifie que tu es dans un composant avec accès au contexte Vue
+export const useAuthStore = defineStore('auth', () => {
+    const user = ref(null);
+    const token = ref(null);
+    const supabase = useSupabaseClient();
+    const toast = useToast();
+    const router = useRouter();
 
-                const { error } = await supabase.auth.signOut();
-                if (error) {
-                    toast.error('Erreur lors de la déconnexion :', { icon: CircleX });
-                } else {
-                    this.user = null;
-                    this.token = null;
-                    toast.success('Déconnexion réussie');
-                    router.push('/'); // Redirection vers la page d’accueil
-                }
-            } catch (err) {
-                console.error('Erreur lors de la déconnexion', err);
+    const logout = async () => {
+        try {
+            const { error } = await supabase.auth.signOut();
+
+            if (error) {
+                toast.error('Erreur lors de la déconnexion : ' + error.message, { icon: CircleX });
+            } else {
+                user.value = null;
+                token.value = null;
+                toast.success('Déconnexion réussie');
+                router.push('/');
             }
-        },
-    },
+        } catch (err) {
+            console.error('Erreur lors de la déconnexion', err);
+        }
+    };
+
+    return {
+        user,
+        token,
+        logout,
+    };
 });

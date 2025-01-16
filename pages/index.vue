@@ -1,10 +1,4 @@
 <script setup lang="ts">
-import { useToast } from 'vue-toastification';
-
-const supabase = useSupabaseClient();
-const user = useSupabaseUser();
-const toast = useToast(); // Initialisation du toast
-
 const features = [
   {
     title: "Tournois Épiques",
@@ -31,13 +25,15 @@ definePageMeta({
 
 <template>
   <!-- Section principale -->
-  <div class="flex flex-col items-center justify-center text-center py-16 px-6 mt-10">
-    <h1 class="text-4xl font-extrabold text-ltextbold dark:text-dtextbold mb-4">
+  <div class="flex flex-col items-center justify-center text-center py-16 px-6 mt-8">
+    <h1 class="text-6xl font-extrabold text-ltextbold dark:text-dtextbold mb-4">
       Bienvenue dans RagnaröK Arena
     </h1>
+    <h1 class="text-2xl text-lightText dark:text-darkText mb-4 mx-auto">Le site web le plus réactif de
+      tournois de jeux vidéo</h1>
     <p class="text-lg text-lightText dark:text-darkText mb-6 max-w-2xl mx-auto">
-      Défiez des guerriers légendaires, progressez dans des arènes mythologiques et devenez une légende
-      parmi les Vikings. Que la bataille commence !
+      Nous vous aidons à gagner de l'argent en jouant à vos jeux vidéo préférés. Les membres ont accès à des tournois
+      avec des prix en argent réel.
     </p>
 
     <!-- Boutons de navigation -->

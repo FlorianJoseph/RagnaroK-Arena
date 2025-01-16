@@ -1,123 +1,142 @@
 <script setup lang="ts">
-import { useToast } from 'vue-toastification';
-import { Check, CircleX } from 'lucide-vue-next';
+import type { Tournament, CategoryType } from '~/models/types';
 
-const supabase = useSupabaseClient();
-const user = useSupabaseUser();
-const tournamentName = ref('');
-const tournamentDescription = ref('');
-const prixEntree = ref('');
-const tournamentDate = ref(''); // Ajouter la date du tournoi
-const organizerId = user.value?.id;
-const toast = useToast(); // Initialisation du toast
+const userStore = useUserStore();
+const tournamentStore = useTournamentStore();
+const gameStore = useGameStore();
 
-const selectedGameId = ref<number | null>(null); // ID du jeu sélectionné
-const games = ref<any[]>([]); // Liste des jeux à afficher
-
-// Récupérer les jeux disponibles depuis Supabase
-async function fetchGames() {
-  const { data, error } = await supabase
-    .from('jeu') // Nom de la table pour les jeux
-    .select(); // Sélectionner l'ID et le nom du jeu
-
-  if (error) {
-    console.error('Error fetching games:', error);
-    toast.error('Erreur lors de la récupération des jeux : ' + error.message, { icon: CircleX });
-  } else {
-    console.log('Jeux récupérés:', data);  // Vérifie les jeux récupérés
-    games.value = data || [];
-  }
-};
-
-type Tournament = {
-  title: string;            // 'text'
-  organizer_id: string;     // 'uuid'
-  prix_entree: number;      // 'int4'
-  date: string;             // 'timestamp' (chaîne ISO 8601)
-  jeu_id: number;           // 'int4'
-  reward_type: string;      // 'text' ou un type spécifique comme 'cash', 'items', etc.
-  reward_amount: number;    // 'int4'
-  created_at: string;       // 'timestamp' (chaîne ISO 8601)
-  updated_at: string;       // 'timestamp' (chaîne ISO 8601)
-};
-
-async function createTournament() {
-
-  const { error } = await supabase
-    .from<Tournament>('tournament')
-    .insert([
-      {
-        title: tournamentName.value,
-        organizer_id: organizerId, // ID de l'organisateur
-        prix_entree: prixEntree.value,
-        date: new Date(tournamentDate.value).toISOString(), // Utiliser la date du tournoi
-        jeu_id: selectedGameId.value, // Associer le tournoi au jeu sélectionné
-      }
-    ]);
-
-  if (error) {
-    toast.error('Impossible de créer le tournoi :' + error.message, { icon: CircleX });
-  } else {
-    toast.success('Tournoi créé avec succès !', { icon: Check });
-    tournamentName.value = '';
-    tournamentDescription.value = '';
-    prixEntree.value = '';
-    tournamentDate.value = '';
-    selectedGameId.value = null; // Réinitialiser le jeu sélectionné
-  }
+// Définir les enums pour reward_type
+enum RewardType {
+  coins = 'coins',
+  tickets = 'tickets',
+  real_money = 'real_money',
 }
 
-// Appeler fetchGames lorsque le composant est monté
-onMounted(() => {
-  fetchGames();
+// Variables réactives pour le formulaire de création de tournoi
+const newTournament = ref({
+  title: '',
+  prix_entree: 0,
+  date: '',
+  reward_type: RewardType.coins,
+  reward_amount: 0,
+  game_id: 1,
 });
+
+// Les valeurs prédéfinies pour les prix d'entrée
+const predefinedPrices = [10, 20, 50, 100];
+
+// Méthode pour définir le prix d'entrée
+const setPrice = (price: number) => {
+  newTournament.value.prix_entree = price;
+};
+
+onMounted(async () => {
+  await tournamentStore.fetchTournaments();
+  await userStore.fetchProfile();
+  gameStore.fetchGames();
+});
+
+// Méthode pour créer un tournoi
+const createNewTournament = async () => {
+
+  if (!userStore.profile?.id) {
+    console.error('Utilisateur non connecté ou profil non chargé');
+    return;
+  }
+
+  const tournamentData = {
+    ...newTournament.value,
+    title: newTournament.value.title,
+    prix_entree: newTournament.value.prix_entree,
+    date: new Date(newTournament.value.date),
+    reward_type: newTournament.value.reward_type,
+    reward_amount: newTournament.value.reward_amount,
+    organizer_id: userStore.profile.user_id,
+    game_id: newTournament.value.game_id,
+    created_at: new Date(),
+    updated_at: new Date(),
+    organizer: userStore.profile,
+    game: gameStore.games.find(game => game.id === newTournament.value.game_id) || {
+      id: 0,
+      nom: '',
+      categorie: '' as CategoryType,
+      tournament: []  // Ajout d'un tableau vide pour 'tournament'
+    }, participants: [],
+  };
+
+  await tournamentStore.createTournament(tournamentData);
+
+  newTournament.value = {
+    title: '',
+    prix_entree: 0,
+    date: '',
+    reward_type: RewardType.coins,
+    reward_amount: 0,
+    game_id: 1,
+  };
+
+  await tournamentStore.fetchTournaments();
+};
 </script>
 
 <template>
-<form @submit.prevent="createTournament">
-    <!-- Nom du tournoi -->
-    <div class="mb-4 mt-10">
-      <label for="tournamentName" class="block text-lg font-medium">Nom du tournoi</label>
-      <input id="tournamentName" v-model="tournamentName" type="text"
-        class="w-full p-3 border rounded-md focus:outline-none focus:ring-1 input"
-        placeholder="Nom du tournoi" required />
-    </div>
+  <div class="max-h-max p-4 bg-white dark:bg-dcardbg rounded-lg shadow border border-lborder dark:border-dborder">
+    <div class="text-2xl font-bold opacity-90 m-0 text-lightPrimary dark:text-darkPrimary mb-8">Créer un tournoi</div>
+    <!-- Formulaire pour créer un tournoi -->
+    <form @submit.prevent="createNewTournament">
 
-    <!-- Sélection du jeu -->
-    <div class="mb-4">
-      <label for="gameSelect" class="block text-lg font-medium">Choisir un jeu</label>
-      <select id="gameSelect" v-model="selectedGameId"
-        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        required>
-        <option value="" disabled>Sélectionnez un jeu</option>
-        <option v-for="game in games" :key="game.id" :value="game.id">
-          {{ game.nom }}
+      <div>
+        <label for="title">Titre</label>
+        <input v-model="newTournament.title" id="title" placeholder="Titre" class="input" required />
+      </div>
+
+      <div>
+        <label for="jeu_id">Jeu</label>
+        <select v-model="newTournament.game_id" id="jeu_id" class="input" required>
+          <option v-for="game in gameStore.games" :key="game.id" :value="game.id">
+            {{ game.nom }} - {{ game.categorie }}
+          </option>
+        </select>
+      </div>
+
+      <!-- 4 boutons de choix pour prix d'entrée -->
+      <div class="my-4">
+        <span class="text-lg font-semibold">Prix d'entrée</span>
+        <div class="flex space-x-2 mt-2">
+          <button v-for="price in predefinedPrices" :key="price" type="button" @click="setPrice(price)" :class="{
+            'bg-blue-500': newTournament.prix_entree === price,
+            'bg-gray-300': newTournament.prix_entree !== price
+          }" class="px-4 py-2 rounded text-white focus:outline-none">
+            {{ price }} coins
+          </button>
+        </div>
+      </div>
+
+      <!-- Montant personnalisé -->
+      <div class="my-4">
+        <input v-if="newTournament.prix_entree === 0" v-model="newTournament.prix_entree" type="number"
+          placeholder="Montant personnalisé" class="input" />
+      </div>
+
+      <div class="form-group">
+        <label for="date">Date</label>
+        <input v-model="newTournament.date" type="datetime-local" id="date" class="input" required />
+      </div>
+
+      <!-- Sélectionner le type de récompense -->
+      <select v-model="newTournament.reward_type" class="input" required>
+        <option v-for="(type, key) in RewardType" :key="key" :value="type">
+          {{ type }}
         </option>
       </select>
-    </div>
 
-    <!-- Prix d'entrée -->
-    <div class="mb-4">
-      <label for="prixEntree" class="block text-lg font-medium">Prix d'entrée</label>
-      <input id="prixEntree" v-model="prixEntree" type="number" min="1"
-        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Prix d'entrée" required />
-    </div>
+      <div class="form-group">
+        <label for="reward_amount">Montant de la récompense</label>
+        <input v-model="newTournament.reward_amount" type="number" id="reward_amount"
+          placeholder="Montant de la récompense" class="input" required />
+      </div>
 
-    <!-- Date du tournoi -->
-    <div class="mb-4">
-      <label for="tournamentDate" class="block text-lg font-medium">Date du tournoi</label>
-      <input id="tournamentDate" v-model="tournamentDate" type="datetime-local"
-        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        required />
-    </div>
-
-    <!-- Bouton de soumission -->
-    <div class="flex justify-center">
-      <button type="submit"
-        class="btn">
-        Créer le tournoi
-      </button>
-    </div>
-  </form>
+      <button type="submit" class="btn">Créer le tournoi</button>
+    </form>
+  </div>
 </template>

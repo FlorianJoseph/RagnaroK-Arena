@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useToast } from 'vue-toastification';
-import { Twitch,Check, CircleX, Info } from 'lucide-vue-next';
+import { Twitch, Check, CircleX, Info } from 'lucide-vue-next';
 
 const supabase = useSupabaseClient();
 const email = ref('');
@@ -14,7 +14,7 @@ async function signUpNewUser() {
         email: email.value,
         password: password.value,
         options: {
-            emailRedirectTo: 'http://localhost:3000/profile',
+            emailRedirectTo: 'http://localhost:3000/profil',
         },
     });
 
@@ -54,7 +54,7 @@ async function signUpWithTwitch() {
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'twitch',
         options: {
-            redirectTo: `https://qgpfftkjoktjzylwtvbx.supabase.co/auth/v1/callback`,
+            redirectTo: `https://rikzkugzznvcygapwgol.supabase.co/auth/v1/callback`,
         },
     });
 

@@ -11,9 +11,10 @@ CREATE TYPE "categorie_type" AS ENUM ('action', 'aventure', 'fps', 'rpg', 'strat
 CREATE TABLE "profile" (
     "id" SERIAL NOT NULL,
     "user_id" UUID NOT NULL,
-    "username" TEXT NOT NULL,
-    "full_name" TEXT NOT NULL,
-    "website" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "username" TEXT,
+    "full_name" TEXT,
+    "website" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -77,7 +78,7 @@ CREATE TABLE "tournament" (
     "organizer_id" UUID NOT NULL,
     "prix_entree" INTEGER NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
-    "jeu_id" INTEGER NOT NULL,
+    "game_id" INTEGER NOT NULL,
     "reward_type" "reward_type" NOT NULL,
     "reward_amount" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -99,6 +100,9 @@ CREATE TABLE "participant" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "profile_user_id_key" ON "profile"("user_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "profile_email_key" ON "profile"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "wallet_user_id_key" ON "wallet"("user_id");
@@ -125,7 +129,7 @@ ALTER TABLE "members" ADD CONSTRAINT "members_user_id_fkey" FOREIGN KEY ("user_i
 ALTER TABLE "tournament" ADD CONSTRAINT "tournament_organizer_id_fkey" FOREIGN KEY ("organizer_id") REFERENCES "profile"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tournament" ADD CONSTRAINT "tournament_jeu_id_fkey" FOREIGN KEY ("jeu_id") REFERENCES "game"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "tournament" ADD CONSTRAINT "tournament_game_id_fkey" FOREIGN KEY ("game_id") REFERENCES "game"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "participant" ADD CONSTRAINT "participant_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "profile"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;

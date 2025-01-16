@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useToast } from 'vue-toastification';
-import { Twitch,Check, CircleX } from 'lucide-vue-next';
+import { Twitch, Check, CircleX } from 'lucide-vue-next';
 
 const supabase = useSupabaseClient();
 const email = ref('');

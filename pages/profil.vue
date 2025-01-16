@@ -71,7 +71,6 @@ async function uploadAvatar(event: Event) {
     toast.success('Avatar téléchargé et mis à jour avec succès !', { icon: Check });
 }
 
-// Récupérer le profil via le store
 onMounted(async () => {
     await userStore.fetchUser();
     await userStore.fetchProfile();

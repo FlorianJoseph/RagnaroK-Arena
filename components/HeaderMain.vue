@@ -4,9 +4,9 @@ const today = ref(new Date());
 const route = useRoute();
 
 const pathAfterSlash = computed(() => {
-  const path = route.path.split('/')[1]; // Récupère la première partie après '/'
-  // Met la première lettre en majuscule et concatène avec le reste de la chaîne
-  return path.charAt(0).toUpperCase() + path.slice(1);
+    const path = route.path.split('/')[1]; // Récupère la première partie après '/'
+    // Met la première lettre en majuscule et concatène avec le reste de la chaîne
+    return path.charAt(0).toUpperCase() + path.slice(1);
 });
 
 // Formatage de la date

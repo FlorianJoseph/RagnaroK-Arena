@@ -1,18 +1,10 @@
 <script setup lang="ts">
-import type { Tournament, CategoryType } from '~/models/types';
+import { RewardType } from '~/models/types'; // Importation de l'énumération
 
 const userStore = useUserStore();
 const tournamentStore = useTournamentStore();
 const gameStore = useGameStore();
 
-// Définir les enums pour reward_type
-enum RewardType {
-  coins = 'coins',
-  tickets = 'tickets',
-  real_money = 'real_money',
-}
-
-// Variables réactives pour le formulaire de création de tournoi
 const newTournament = ref({
   title: '',
   prix_entree: 0,
@@ -22,60 +14,22 @@ const newTournament = ref({
   game_id: 1,
 });
 
-// Les valeurs prédéfinies pour les prix d'entrée
-const predefinedPrices = [10, 20, 50, 100];
-
-// Méthode pour définir le prix d'entrée
-const setPrice = (price: number) => {
-  newTournament.value.prix_entree = price;
-};
-
 onMounted(async () => {
   await tournamentStore.fetchTournaments();
   await userStore.fetchProfile();
   gameStore.fetchGames();
 });
 
-// Méthode pour créer un tournoi
-const createNewTournament = async () => {
 
-  if (!userStore.profile?.id) {
-    console.error('Utilisateur non connecté ou profil non chargé');
-    return;
-  }
+const predefinedPrices = [10, 20, 50, 100];
+const setPrice = (price: number) => {
+  newTournament.value.prix_entree = price;
+};
 
-  const tournamentData = {
-    ...newTournament.value,
-    title: newTournament.value.title,
-    prix_entree: newTournament.value.prix_entree,
-    date: new Date(newTournament.value.date),
-    reward_type: newTournament.value.reward_type,
-    reward_amount: newTournament.value.reward_amount,
-    organizer_id: userStore.profile.user_id,
-    game_id: newTournament.value.game_id,
-    created_at: new Date(),
-    updated_at: new Date(),
-    organizer: userStore.profile,
-    game: gameStore.games.find(game => game.id === newTournament.value.game_id) || {
-      id: 0,
-      nom: '',
-      categorie: '' as CategoryType,
-      tournament: []  // Ajout d'un tableau vide pour 'tournament'
-    }, participants: [],
-  };
-
-  await tournamentStore.createTournament(tournamentData);
-
-  newTournament.value = {
-    title: '',
-    prix_entree: 0,
-    date: '',
-    reward_type: RewardType.coins,
-    reward_amount: 0,
-    game_id: 1,
-  };
-
-  await tournamentStore.fetchTournaments();
+const createTournament = async (event: Event) => {
+  event.preventDefault();
+  const newTournamentData = { ...newTournament.value };
+  await tournamentStore.createTournament({ ...newTournamentData });
 };
 </script>
 
@@ -83,7 +37,7 @@ const createNewTournament = async () => {
   <div class="max-h-max p-4 bg-white dark:bg-dcardbg rounded-lg shadow border border-lborder dark:border-dborder">
     <div class="text-2xl font-bold opacity-90 m-0 text-lightPrimary dark:text-darkPrimary mb-8">Créer un tournoi</div>
     <!-- Formulaire pour créer un tournoi -->
-    <form @submit.prevent="createNewTournament">
+    <form @submit.prevent="createTournament">
 
       <div>
         <label for="title">Titre</label>
@@ -125,9 +79,9 @@ const createNewTournament = async () => {
 
       <!-- Sélectionner le type de récompense -->
       <select v-model="newTournament.reward_type" class="input" required>
-        <option v-for="(type, key) in RewardType" :key="key" :value="type">
-          {{ type }}
-        </option>
+        <option value="coins">Coins</option>
+        <option value="tickets">Tickets</option>
+        <option value="real_money">Argent réel</option>
       </select>
 
       <div class="form-group">

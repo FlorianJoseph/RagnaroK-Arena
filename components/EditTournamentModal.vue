@@ -7,18 +7,15 @@ const props = defineProps<{
     form: Tournament | null;
 }>();
 
-// Définir les événements
 const emit = defineEmits<{
     (e: 'close'): void;
     (e: 'update'): void;
 }>();
 
-// Fonction pour fermer la modale
 function closeModal() {
     emit('close');
 }
 
-// Fonction pour soumettre la modification
 function saveTournament() {
     emit('update');
 }

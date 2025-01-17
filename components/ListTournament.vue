@@ -7,23 +7,24 @@ const isVisible = ref(false);
 const form = ref<Tournament | null>(null);
 
 const tournamentStore = useTournamentStore();
+const userParticipations = ref<Record<number, boolean>>({});
 
 onMounted(async () => {
   await tournamentStore.fetchTournaments();
+  await tournamentStore.fetchUserParticipations();
+
 });
 
-// Fonction pour ouvrir la modale et pré-remplir le formulaire
+
 function openModal(tournament: Tournament) {
-  form.value = { ...tournament }; // Pré-remplir le formulaire avec les données du tournoi
+  form.value = { ...tournament };
   isVisible.value = true;
 }
 
-// Fonction pour fermer la modale
 function closeModal() {
   isVisible.value = false;
 }
 
-// Fonction pour modifier le tournoi
 async function updateTournament() {
   if (form.value) {
     await tournamentStore.updateTournament(form.value);
@@ -31,9 +32,18 @@ async function updateTournament() {
   }
 }
 
-// Fonction pour ouvrir la modale
 function editTournament(tournament: Tournament) {
   openModal(tournament);
+}
+
+function joinTournament(tournamentId: number) {
+  tournamentStore.joinTournament(tournamentId);
+  userParticipations.value[tournamentId] = true;
+}
+
+function leaveTournament(tournamentId: number) {
+  tournamentStore.leaveTournament(tournamentId);
+  delete userParticipations.value[tournamentId]
 }
 </script>
 
@@ -54,11 +64,20 @@ function editTournament(tournament: Tournament) {
           <p class="text-gray-700">Récompense : {{ tournament.reward_type }}</p>
           <p class="text-gray-500 text-sm">Montant récompense : {{ tournament.reward_amount }}</p>
         </div>
-        <div class="p-4 bg-gray-100 text-center">
-          <button @click="editTournament(tournament)" class="px-6 py-2 btn">
+
+        <div class="p-4 bg-gray-100 text-center flex justify-between flex-row gap-2">
+          <button @click="editTournament(tournament)" class="px-6 py-2 btnvariant">
             Modifier
           </button>
+
+          <button v-if="userParticipations[tournament.id]" @click="leaveTournament(tournament.id)" class="btn">
+            Se désinscrire
+          </button>
+          <button v-else @click="joinTournament(tournament.id)" class="btn">
+            S'inscrire
+          </button>
         </div>
+
       </li>
     </ul>
 

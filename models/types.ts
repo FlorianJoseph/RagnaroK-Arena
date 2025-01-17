@@ -91,25 +91,25 @@ export interface Participant {
 
 // Enums
 export enum CurrencyType {
-    coins = "coins",
-    tickets = "tickets",
-    real_money = "real_money"
+    coins = "Pièces",
+    tickets = "Tickets",
+    real_money = "Argent réel"
 }
 
 export enum RewardType {
-    coins = "coins",
-    tickets = "tickets",
-    real_money = "real_money"
+    coins = "Pièces",
+    tickets = "Tickets",
+    real_money = "Argent réel"
 }
 
 export enum CategoryType {
-    action = "action",
-    aventure = "aventure",
-    fps = "fps",
-    rpg = "rpg",
-    strategie = "strategie",
-    sport = "sport",
-    party_games = "party_games",
-    simulation = "simulation",
-    autre = "autre"
+    action = "Action",
+    aventure = "Aventure",
+    fps = "FPS",
+    rpg = "RPG",
+    strategie = "Stratégie",
+    sport = "Sport",
+    party_games = "Party Games",
+    simulation = "Simulation",
+    autre = "Autre"
 }

@@ -18,6 +18,6 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  css: ['~/assets/css/main.css'],
+  css: ['~/assets/styles/main.css'],
   plugins: ['~/plugins/toast.js'],
 })

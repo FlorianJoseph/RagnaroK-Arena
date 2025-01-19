@@ -1,22 +1,31 @@
 <script setup lang="ts">
-// Crée une variable pour la date actuelle
 const today = ref(new Date());
 const route = useRoute();
+let intervalId: number | null = null;
 
 const pathAfterSlash = computed(() => {
-    const path = route.path.split('/')[1]; // Récupère la première partie après '/'
-    // Met la première lettre en majuscule et concatène avec le reste de la chaîne
+    const path = route.path.split('/')[1];
     return path.charAt(0).toUpperCase() + path.slice(1);
 });
 
-// Formatage de la date
-const formattedDate = ref(
+const formattedDate = computed(() =>
     today.value
         .toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
-        .replace(/^\w/, (c) => c.toUpperCase()) // Met la première lettre du mois en majuscule
+        .replace(/^\w/, (c) => c.toUpperCase())
     + " - " + today.value.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 );
 
+onMounted(() => {
+    intervalId = window.setInterval(() => {
+        today.value = new Date();
+    }, 1000);
+});
+
+onUnmounted(() => {
+    if (intervalId !== null) {
+        clearInterval(intervalId);
+    }
+});
 </script>
 
 <template>

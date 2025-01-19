@@ -1,24 +1,13 @@
 import { useToast } from 'vue-toastification';
 import { CircleX, Check } from 'lucide-vue-next';
-import type { Tournament, CategoryType } from '~/models/types';
-import { RewardType } from '~/models/types';
+import type { Tournament, NewTournament } from '~/models/types';
 
 export const useTournamentStore = defineStore('tournament', () => {
     const tournaments = ref<Tournament[]>([]);
-    const currentTournament = ref<Tournament | null>(null);
     const toast = useToast();
     const supabase = useSupabaseClient();
     const userStore = useUserStore();
     const userParticipations = ref<Record<number, boolean>>({});
-
-    const newTournament = ref({
-        title: '',
-        prix_entree: 0,
-        date: '',
-        reward_type: RewardType.coins,
-        reward_amount: 0,
-        game_id: 1,
-    });
 
     // Fonction pour récupérer tous les tournois
     async function fetchTournaments() {
@@ -34,44 +23,26 @@ export const useTournamentStore = defineStore('tournament', () => {
     }
 
     // Fonction pour créer un nouveau tournoi
-    async function createTournament(newTournamentData: typeof newTournament.value) {
-        const tournamentData = {
-            ...newTournament.value,
-            title: newTournamentData.title,
-            prix_entree: newTournamentData.prix_entree,
-            date: new Date(newTournamentData.date),
-            reward_type: newTournamentData.reward_type,
-            reward_amount: newTournamentData.reward_amount,
+    async function createTournament(newTournamentData: NewTournament) {
+        const tournamentInsertData = {
+            ...newTournamentData,
             organizer_id: userStore.profile?.user_id,
-            game_id: newTournamentData.game_id,
-            created_at: new Date(),
             updated_at: new Date(),
         };
 
         const { data, error } = await supabase
             .from('tournament')
-            .insert([tournamentData]);
+            .insert([tournamentInsertData]);
 
         if (error) {
             toast.error('Erreur lors de la création du tournoi : ' + error.message, { icon: CircleX });
             return;
         }
-        if (data) {
-            tournaments.value.push(data[0] as Tournament);
-            currentTournament.value = data[0] as Tournament;
+
+        else {
+            await fetchTournaments();
             toast.success('Tournoi créé avec succès !', { icon: Check });
         }
-
-        newTournament.value = {
-            title: '',
-            prix_entree: 0,
-            date: '',
-            reward_type: RewardType.coins,
-            reward_amount: 0,
-            game_id: 1,
-        };
-
-        await fetchTournaments();
     }
 
     async function updateTournament(updatedTournament: Tournament) {
@@ -91,6 +62,23 @@ export const useTournamentStore = defineStore('tournament', () => {
             tournaments.value[index] = updatedTournament;
         }
         toast.success('Tournoi mis à jour avec succès', { icon: Check });
+    }
+
+    async function deleteTournament(tournamentId: number) {
+        const { data, error } = await supabase
+            .from('tournament')
+            .delete()
+            .eq('id', tournamentId);
+
+        if (error) {
+            toast.error('Erreur lors de la suppression du tournoi : ' + error.message, { icon: CircleX });
+            return;
+        }
+
+        if (data) {
+            tournaments.value = tournaments.value.filter(tournament => tournament.id !== tournamentId);
+            toast.success('Tournoi supprimé avec succès !', { icon: Check });
+        }
     }
 
     async function fetchUserParticipations() {
@@ -136,7 +124,7 @@ export const useTournamentStore = defineStore('tournament', () => {
             return;
         }
 
-        userParticipations.value[tournamentId] = true;+
+        userParticipations.value[tournamentId] = true;
         await fetchUserParticipations();
         toast.success('Vous êtes inscrit au tournoi !');
     }
@@ -166,9 +154,9 @@ export const useTournamentStore = defineStore('tournament', () => {
     return {
         tournaments,
         fetchTournaments,
-        newTournament,
         createTournament,
         updateTournament,
+        deleteTournament,
         fetchUserParticipations,
         joinTournament,
         leaveTournament,

@@ -65,11 +65,11 @@ export interface Game {
 export interface Tournament {
     id: number;
     title: string;
-    organizer_id: string; // UUID as string
+    organizer_id: string;
     organizer: Profile;
     prix_entree: number;
     date: Date;
-    game_id: number; // Game ID
+    game_id: number;
     game: Game;
     participants: Participant[];
     reward_type: RewardType;
@@ -78,10 +78,13 @@ export interface Tournament {
     updated_at: Date;
 }
 
+export interface NewTournament extends Omit<Tournament, 'id' | 'organizer' | 'organizer_id' | 'game' | 'participants' | 'created_at' | 'updated_at'> {
+}
+
 // Participant
 export interface Participant {
     id: number;
-    user_id: string; // UUID as string
+    user_id: string;
     user: Profile;
     tournament_id: number;
     tournament: Tournament;

@@ -19,7 +19,7 @@ import { Twitch, Youtube } from 'lucide-vue-next';
 
             <!-- Section droite (réseaux sociaux ou autre contenu) -->
             <div class="flex space-x-4 mt-2 md:mt-0 ">
-                <a href="https://www.twitch.tv/nordik_fr" target="_blank"
+                <a href="https://www.twitch.tv/nordik_saga" target="_blank"
                     class="hover:text-lightPrimary dark:hover:text-darkPrimary transition">
                     <Twitch />
                 </a>

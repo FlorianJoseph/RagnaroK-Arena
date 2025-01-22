@@ -38,12 +38,12 @@ definePageMeta({
 
     <!-- Boutons de navigation -->
     <div class="flex space-x-4">
-      <router-link to="/tournois" class="btn">
+      <NuxtLink to="/tournois" class="btn">
         Voir les tournois
-      </router-link>
-      <router-link to="/profil" class="btnvariant">
+      </NuxtLink>
+      <NuxtLink to="/profil" class="btnvariant">
         Mon profil
-      </router-link>
+      </NuxtLink>
     </div>
   </div>
 
@@ -70,8 +70,8 @@ definePageMeta({
       rapproche de la gloire éternelle. Serez-vous prêt à vous mesurer aux plus grands guerriers de l'histoire
       ?
     </p>
-    <router-link to="/tournois" class="btn">
+    <NuxtLink to="/tournois" class="btn">
       Commencez maintenant
-    </router-link>
+    </NuxtLink>
   </div>
 </template>

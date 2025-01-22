@@ -1,6 +1,8 @@
+import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { CircleX, Check } from 'lucide-vue-next';
-import type { Tournament, NewTournament } from '~/models/types';
+import type { Tournament, NewTournament } from '~/types/tournament';
+import type { Organizer } from '~/types/profile';
 
 export const useTournamentStore = defineStore('tournament', () => {
     const tournaments = ref<Tournament[]>([]);
@@ -20,6 +22,65 @@ export const useTournamentStore = defineStore('tournament', () => {
             return;
         }
         tournaments.value = data as Tournament[];
+    }
+
+    async function getTournamentWithOrganizerById(id: number): Promise<{ tournament: Tournament, organizer: Organizer }> {
+        let tournament = tournaments.value.find(t => t.id === id);
+        let organizer = null;
+
+        if (!tournament) {
+            const { data, error } = await supabase
+                .from('tournament')
+                .select(`
+                    *,
+                    organizer:organizer_id (id, username, profile:user_id (avatar_url))
+                `)
+                .eq('id', id)
+                .single();
+
+            if (error) {
+                toast.error("Erreur lors de la récupération du tournoi :" + error.message, { icon: CircleX });
+            }
+
+            if (data) {
+
+                if (data) {
+                    tournaments.value.push(data);
+                    tournament = data;
+                    organizer = data.organizer;
+                }
+            }
+        } else {
+            if (tournament.organizer_id) {
+                organizer = await getOrganizerById(tournament.organizer_id);
+            }
+        }
+
+        if (!tournament) {
+            throw new Error(`Tournament with id ${id} not found`);
+        }
+
+        const existingTournamentIndex = tournaments.value.findIndex(t => t.id === id);
+        if (existingTournamentIndex !== -1) {
+            tournaments.value[existingTournamentIndex] = tournament;
+        } else {
+        }
+        return { tournament, organizer };
+    }
+
+    async function getOrganizerById(organizerId: string) {
+        const { data, error } = await supabase
+            .from('profile')
+            .select('username')
+            .eq('user_id', organizerId)
+            .single();
+
+        if (error) {
+            toast.error("Erreur lors de la récupération de l'organisateur :" + error.message, { icon: CircleX });
+
+            return null;
+        }
+        return data;
     }
 
     // Fonction pour créer un nouveau tournoi
@@ -46,18 +107,18 @@ export const useTournamentStore = defineStore('tournament', () => {
     }
 
     async function updateTournament(updatedTournament: Tournament) {
-        const { id, ...data } = updatedTournament;
+        const { organizer, ...data } = updatedTournament;
         const { error } = await supabase
             .from('tournament')
             .update(data)
-            .eq('id', id);
+            .eq('id', updatedTournament.id);
 
         if (error) {
             toast.error('Erreur lors de la mise à jour du tournoi : ' + error.message, { icon: CircleX });
             return;
         }
 
-        const index = tournaments.value.findIndex((t) => t.id === id);
+        const index = tournaments.value.findIndex((t) => t.id === updatedTournament.id);
         if (index !== -1) {
             tournaments.value[index] = updatedTournament;
         }
@@ -154,6 +215,8 @@ export const useTournamentStore = defineStore('tournament', () => {
     return {
         tournaments,
         fetchTournaments,
+        getTournamentWithOrganizerById,
+        getOrganizerById,
         createTournament,
         updateTournament,
         deleteTournament,

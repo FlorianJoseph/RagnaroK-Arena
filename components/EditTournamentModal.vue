@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Tournament } from '~/models/types';
+import type { Tournament } from '~/types/tournament';
 
 // Définir les props
 const props = defineProps<{
@@ -57,8 +57,8 @@ function saveTournament() {
                 </div>
 
                 <div class="flex justify-end space-x-4">
-                    <button type="button" @click="closeModal" class="px-4 py-2 bg-gray-300 rounded">Annuler</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Enregistrer</button>
+                    <button type="button" @click="closeModal" class="btnvariant">Annuler</button>
+                    <button type="submit" class="btn">Enregistrer</button>
                 </div>
             </form>
         </div>

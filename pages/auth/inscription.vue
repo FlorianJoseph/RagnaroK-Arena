@@ -14,7 +14,7 @@ const handleTwitchAuth = async () => {
 };
 
 definePageMeta({
-    layout: 'auth' // Utilise le layout "auth.vue"
+    layout: 'auth'
 })
 
 </script>
@@ -58,9 +58,9 @@ definePageMeta({
         <div class="mt-6 text-center">
             <p class="text-sm text-lightText dark:text-darkText">
                 Vous avez déjà un compte ?
-                <router-link to="/login" class="text-ltextbold dark:text-dtextbold hover:underline">
+                <NuxtLink to="/auth/connexion" class="text-ltextbold dark:text-dtextbold hover:underline">
                     Connectez-vous ici
-                </router-link>
+                </NuxtLink>
             </p>
         </div>
 

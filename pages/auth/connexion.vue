@@ -14,7 +14,7 @@ async function handleLogin() {
 }
 
 definePageMeta({
-    layout: 'auth' // Utilise le layout "auth.vue"
+    layout: 'auth'
 })
 
 </script>
@@ -58,9 +58,9 @@ definePageMeta({
         <div class="mt-6 text-center">
             <p class="text-sm text-lightText dark:text-darkText">
                 Pas encore de compte ?
-                <router-link to="/register" class="text-ltextbold dark:text-dtextbold hover:underline">
+                <NuxtLink to="/auth/inscription" class="text-ltextbold dark:text-dtextbold hover:underline">
                     Créer un compte
-                </router-link>
+                </NuxtLink>
             </p>
         </div>
 

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { CircleX, Check } from 'lucide-vue-next';
-import type { Profile } from '~/models/types';
+import type { Profile } from '~/types/profile';
 
 export const useUserStore = defineStore('user', () => {
     const user = useSupabaseUser();
@@ -31,6 +31,7 @@ export const useUserStore = defineStore('user', () => {
                     username: profileData.username || '',
                     full_name: profileData.full_name || '',
                     website: profileData.website || '',
+                    avatar_url: profileData.avatar_url || '',
                     created_at: profileData.created_at || '',
                     updated_at: profileData.updated_at || '',
                     wallet: profileData.wallet || [],

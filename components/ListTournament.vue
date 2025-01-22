@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import type { Tournament } from '~/models/types';
-
-const isVisible = ref(false);
-const form = ref<Tournament | null>(null);
 
 const tournamentStore = useTournamentStore();
 const userParticipations = ref<Record<number, boolean>>({});
@@ -14,27 +10,6 @@ onMounted(async () => {
   await tournamentStore.fetchUserParticipations();
 
 });
-
-
-function openModal(tournament: Tournament) {
-  form.value = { ...tournament };
-  isVisible.value = true;
-}
-
-function closeModal() {
-  isVisible.value = false;
-}
-
-async function updateTournament() {
-  if (form.value) {
-    await tournamentStore.updateTournament(form.value);
-    closeModal();
-  }
-}
-
-function editTournament(tournament: Tournament) {
-  openModal(tournament);
-}
 
 function joinTournament(tournamentId: number) {
   tournamentStore.joinTournament(tournamentId);
@@ -66,22 +41,19 @@ function leaveTournament(tournamentId: number) {
         </div>
 
         <div class="p-4 bg-gray-100 text-center flex justify-between flex-row gap-2">
-          <button @click="editTournament(tournament)" class="px-6 py-2 btnvariant">
-            Modifier
-          </button>
 
-          <button v-if="userParticipations[tournament.id]" @click="leaveTournament(tournament.id)" class="btn">
+          <!-- <button v-if="userParticipations[tournament.id]" @click="leaveTournament(tournament.id)" class="btn">
             Se désinscrire
           </button>
           <button v-else @click="joinTournament(tournament.id)" class="btn">
             S'inscrire
-          </button>
+          </button> -->
+
+          <NuxtLink :to="`/tournois/${tournament.id}`"> <button class="btn">Voir le tournoi</button></NuxtLink>
+
         </div>
 
       </li>
     </ul>
-
-    <!-- Modale d'édition -->
-    <EditTournamentModal :isVisible="isVisible" :form="form" @close="closeModal" @update="updateTournament" />
   </div>
 </template>

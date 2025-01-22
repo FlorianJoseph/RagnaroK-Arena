@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { RewardType } from '~/models/types'; // Importation de l'énumération
-import type { NewTournament } from '~/models/types';
+import { RewardType } from '~/types/tournament'; // Importation de l'énumération
+import type { NewTournament } from '~/types/tournament';
 
 const userStore = useUserStore();
 const tournamentStore = useTournamentStore();
@@ -44,63 +44,59 @@ async function createTournament() {
 </script>
 
 <template>
-  <div class="max-h-max p-4 bg-white dark:bg-dcardbg rounded-lg shadow border border-lborder dark:border-dborder">
-    <div class="text-2xl font-bold opacity-90 m-0 text-lightPrimary dark:text-darkPrimary mb-8">Créer un tournoi</div>
+  <!-- Formulaire pour créer un tournoi -->
+  <form @submit.prevent="createTournament">
+    <div class="mb-4">
+      <label class="block font-medium">Titre</label>
+      <input v-model="newTournament.title" type="text" class="w-full border rounded p-2" required />
+    </div>
 
-    <!-- Formulaire pour créer un tournoi -->
-    <form @submit.prevent="createTournament">
-      <div class="mb-4">
-        <label class="block font-medium">Titre</label>
-        <input v-model="newTournament.title" type="text" class="w-full border rounded p-2" required />
-      </div>
+    <div class="mb-4">
+      <label class="block font-medium">Jeu</label>
+      <select v-model="newTournament.game_id" class="w-full border rounded p-2" required>
+        <option v-for="game in gameStore.games" :key="game.id" :value="game.id">
+          {{ game.nom }} - {{ game.categorie }}
+        </option>
+      </select>
+    </div>
 
-      <div class="mb-4">
-        <label class="block font-medium">Jeu</label>
-        <select v-model="newTournament.game_id" class="w-full border rounded p-2" required>
-          <option v-for="game in gameStore.games" :key="game.id" :value="game.id">
-            {{ game.nom }} - {{ game.categorie }}
-          </option>
-        </select>
-      </div>
+    <div class="mb-4">
+      <label class="block font-medium">Type de récompense</label>
+      <select v-model="newTournament.reward_type" class="w-full border rounded p-2" required>
+        <option value="coins">Coins</option>
+        <option value="tickets">Tickets</option>
+        <option value="real_money">Argent réel</option>
+      </select>
+    </div>
 
-      <div class="mb-4">
-        <label class="block font-medium">Type de récompense</label>
-        <select v-model="newTournament.reward_type" class="w-full border rounded p-2" required>
-          <option value="coins">Coins</option>
-          <option value="tickets">Tickets</option>
-          <option value="real_money">Argent réel</option>
-        </select>
+    <div class="mb-4">
+      <label class="block font-medium">Prix d'entrée</label>
+      <div class="flex space-x-2 mt-2">
+        <button v-for="price in predefinedPrices" :key="price" type="button" @click="setPrice(price)"
+          :class="{ 'bg-blue-500 text-white': newTournament.prix_entree === price, 'bg-gray-300': newTournament.prix_entree !== price }"
+          class="px-4 py-2 rounded focus:outline-none">
+          {{ price }} {{ newTournament.reward_type }}
+        </button>
       </div>
+    </div>
 
-      <div class="mb-4">
-        <label class="block font-medium">Prix d'entrée</label>
-        <div class="flex space-x-2 mt-2">
-          <button v-for="price in predefinedPrices" :key="price" type="button" @click="setPrice(price)"
-            :class="{ 'bg-blue-500 text-white': newTournament.prix_entree === price, 'bg-gray-300': newTournament.prix_entree !== price }"
-            class="px-4 py-2 rounded focus:outline-none">
-            {{ price }} {{ newTournament.reward_type }}
-          </button>
-        </div>
-      </div>
+    <div class="mb-4" v-if="newTournament.prix_entree === 0">
+      <input v-model="newTournament.prix_entree" type="number" placeholder="Montant personnalisé"
+        class="w-full border rounded p-2" />
+    </div>
 
-      <div class="mb-4" v-if="newTournament.prix_entree === 0">
-        <input v-model="newTournament.prix_entree" type="number" placeholder="Montant personnalisé"
-          class="w-full border rounded p-2" />
-      </div>
+    <div class="mb-4">
+      <label class="block font-medium">Date</label>
+      <input v-model="newTournament.date" type="date" class="w-full border rounded p-2" required />
+    </div>
 
-      <div class="mb-4">
-        <label class="block font-medium">Date</label>
-        <input v-model="newTournament.date" type="date" class="w-full border rounded p-2" required />
-      </div>
+    <div class="mb-4">
+      <label class="block font-medium">Montant de la récompense</label>
+      <input v-model="newTournament.reward_amount" type="number" class="w-full border rounded p-2" required />
+    </div>
 
-      <div class="mb-4">
-        <label class="block font-medium">Montant de la récompense</label>
-        <input v-model="newTournament.reward_amount" type="number" class="w-full border rounded p-2" required />
-      </div>
-
-      <div class="flex justify-end space-x-4">
-        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Créer</button>
-      </div>
-    </form>
-  </div>
+    <div class="flex justify-end space-x-4">
+      <button type="submit" class="btn">Créer</button>
+    </div>
+  </form>
 </template>

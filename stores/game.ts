@@ -1,6 +1,7 @@
+import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { CircleX } from 'lucide-vue-next';
-import type { Game } from '~/models/types';
+import type { Game } from '~/types/game';
 
 export const useGameStore = defineStore('gameStore', () => {
     const games = ref<Game[]>([]);

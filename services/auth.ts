@@ -29,7 +29,7 @@ export const register = async (email: string, password: string) => {
             email,
             password,
             options: {
-                emailRedirectTo: 'http://localhost:3000/login',
+                emailRedirectTo: 'http://localhost:3000/auth/connexion',
             },
         });
 
@@ -40,6 +40,7 @@ export const register = async (email: string, password: string) => {
 
         const user = data.user;
         await createUserProfile(user);
+        toast.info("Utilisateur crée, veuillez vérifier votre adresse email", { icon: Info });
 
     } catch (err) {
         console.error('Erreur d\'inscription:', err);
@@ -76,5 +77,5 @@ export const logout = async () => {
     const supabase = useSupabaseClient();
     const router = useRouter();
     await supabase.auth.signOut();
-    router.push('/login');
+    router.push('/auth/connexion');
 };

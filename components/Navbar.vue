@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { Swords, Trophy, Crown, Store, ChevronDown, User, Power } from 'lucide-vue-next'; // Importer les icônes Lucide
+import { Swords, Trophy, Crown, Store, ChevronDown, User, Power, Dices } from 'lucide-vue-next'; // Importer les icônes Lucide
 import { logout } from '~/services/auth';
 
 const user = useSupabaseUser();
-
 const isDropdownOpen = ref(false);
 const sidebarItems = [
-    { label: 'Tournois', icon: Swords, link: '/tournois' },
     { label: 'Classement', icon: Trophy, link: '/classement' },
     { label: 'Clan', icon: Crown, link: '/clan' },
-    { label: 'Boutique', icon: Store, link: '/boutique' }
+    { label: 'Boutique', icon: Store, link: '/boutique' },
+    { label: 'Roulette', icon: Dices, link: '/roulette' }
 ];
 
 async function handleLogout() {
@@ -22,6 +21,8 @@ onMounted(async () => {
     await userStore.fetchProfile();
 });
 
+const isSubMenuOpen = ref(false);
+
 </script>
 
 <template>
@@ -29,35 +30,64 @@ onMounted(async () => {
         class="flex justify-between items-center w-full px-6 py-3.5 bg-white dark:bg-dcardbg border-b border-lborder dark:border-dborder">
         <!-- Section gauche -->
         <div class="flex items-center">
-            <router-link to='/'>
+            <NuxtLink to='/'>
                 <p class="ml-8 text-2xl font-bold">RagnaröK Arena</p>
-            </router-link>
+            </NuxtLink>
         </div>
 
         <!-- Section milieu -->
         <div class="flex items-center">
+            <!-- Tournois avec sous-menu -->
+            <div class="relative">
+                <div class="flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray"
+                    @mouseover="isSubMenuOpen = true" @mouseleave="isSubMenuOpen = true">
+                    <component :is="Swords" class="h-6 w-6 mr-3" />
+                    <NuxtLink to="/tournois" class="text-sm font-medium">
+                        Tournois
+                    </NuxtLink>
+                </div>
+
+                <!-- Sous-menu qui apparaît au survol -->
+                <div v-if="isSubMenuOpen"
+                    class="absolute left-0 bg-white dark:bg-dcardbg border border-lborder dark:border-dborder rounded shadow-lg w-48 mt-2">
+                    <ul>
+                        <li>
+                            <NuxtLink to="/tournois"
+                                class="flex items-center gap-2 px-4 py-2 text-ltext dark:text-dtext hover:bg-lgray dark:hover:bg-dgray">
+                                Voir les Tournois
+                            </NuxtLink>
+                        </li>
+                        <li>
+                            <NuxtLink to="/tournois/nouveau"
+                                class="flex items-center gap-2 px-4 py-2 text-ltext dark:text-dtext hover:bg-lgray dark:hover:bg-dgray">
+                                Créer un Tournoi
+                            </NuxtLink>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
             <div v-for="(item, index) in sidebarItems" :key="index"
                 class="flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray">
-                <!-- Utilisation de l'icône Lucide -->
                 <component :is="item.icon" class="h-6 w-6 mr-3" />
-                <router-link :to="item.link" class="text-sm font-medium">
+                <NuxtLink :to="item.link" class="text-sm font-medium">
                     {{ item.label }}
-                </router-link>
+                </NuxtLink>
             </div>
         </div>
+
 
         <!-- Section droite -->
         <div class="flex items-center">
             <ToggleTheme />
             <button v-if="!user" class="btn">
-                <router-link to='/login'>Connexion</router-link>
+                <NuxtLink to='/auth/connexion'>Connexion</NuxtLink>
             </button>
 
             <!-- Menu déroulant pour le profil et la déconnexion -->
             <div v-if="user" class="relative">
                 <button @click="isDropdownOpen = !isDropdownOpen" class="btn-profil">
-                    <img :src="user.user_metadata.avatar || user.user_metadata.avatar_url || 'https://rikzkugzznvcygapwgol.supabase.co/storage/v1/object/public/avatar/default/default.jpg?t=2025-01-16T13%3A42%3A28.357Z'"
-                        alt="Avatar" class="w-7 h-7 rounded-full object-cover" />
+                    <img :src="userStore.profile?.avatar_url" alt="Avatar" class="w-7 h-7 rounded-full object-cover" />
                     <span>
                         {{ userStore.profile?.username }}
                     </span>
@@ -68,10 +98,10 @@ onMounted(async () => {
                     class="absolute right-0 mt-2-2 w-48 bg-white dark:bg-dcardbg border border-lborder dark:border-dborder rounded shadow-lg">
                     <ul>
                         <li>
-                            <router-link to="/profil"
+                            <NuxtLink to="/profil"
                                 class="flex items-center gap-2 px-4 py-2 text-ltext dark:text-dtext hover:bg-lgray dark:hover:bg-dgray">
                                 <User /> Profil
-                            </router-link>
+                            </NuxtLink>
                         </li>
                         <li>
                             <button @click="handleLogout"

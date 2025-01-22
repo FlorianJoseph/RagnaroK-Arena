@@ -1,5 +1,6 @@
+import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
-import type { Wallet } from '~/models/types';
+import type { Wallet } from '~/types/wallet';
 
 export const useWalletStore = defineStore('walletStore', () => {
     const wallet = ref<Wallet | null>(null);

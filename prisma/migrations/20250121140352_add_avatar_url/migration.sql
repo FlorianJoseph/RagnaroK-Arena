@@ -15,6 +15,7 @@ CREATE TABLE "profile" (
     "username" TEXT,
     "full_name" TEXT,
     "website" TEXT,
+    "avatar_url" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -93,7 +94,7 @@ CREATE TABLE "participant" (
     "user_id" UUID NOT NULL,
     "tournament_id" INTEGER NOT NULL,
     "score" INTEGER NOT NULL DEFAULT 0,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "joined_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "participant_pkey" PRIMARY KEY ("id")
 );

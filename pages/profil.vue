@@ -2,7 +2,7 @@
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from 'vue-toastification';
-import { CircleX } from 'lucide-vue-next';
+import { CircleX, ExternalLink } from 'lucide-vue-next';
 import { logout } from '~/services/auth';
 import { uploadAvatar } from '~/services/profile';
 
@@ -11,7 +11,12 @@ const toast = useToast();
 const userStore = useUserStore();
 
 const handleAvatarUpload = async (event: Event) => {
-    await uploadAvatar(event);
+    const userId = user.value?.id;
+    if (userId) {
+        await uploadAvatar(event, userId);
+    } else {
+        toast.error("Utilisateur non défini", { icon: CircleX });
+    }
 };
 
 onMounted(async () => {
@@ -51,9 +56,8 @@ definePageMeta({
                         <!-- Cercle cliquable pour uploader l'avatar -->
                         <label
                             class="w-full h-full rounded-full border-2 border-lgray dark:border-dgray cursor-pointer flex items-center justify-center overflow-hidden hover:border-gray-500 relative">
-                            <input type="file" @change="handleAvatarUpload" class="hidden"/>
-                            <img :src="user.user_metadata.avatar || user.user_metadata.avatar_url || 'https://rikzkugzznvcygapwgol.supabase.co/storage/v1/object/public/avatar/default/default.jpg?t=2025-01-16T13%3A42%3A28.357Z'"
-                                alt="Avatar" class="w-full h-full object-cover" />
+                            <input type="file" @change="handleAvatarUpload" class="hidden" />
+                            <img :src="userStore.profile?.avatar_url" alt="Avatar" class="w-full h-full object-cover" />
 
                             <!-- Texte "Changer l'avatar" au survol -->
                             <div
@@ -89,7 +93,10 @@ definePageMeta({
                                 <p>Email : {{ userStore.profile?.email }}</p>
                                 <p>Username : {{ userStore.profile?.username }}</p>
                                 <p>Nom complet : {{ userStore.profile?.full_name }}</p>
-                                <p>Site Web : {{ userStore.profile?.website }}</p>
+                                <p class="flex flex-row">Site Web : <a :href="userStore.profile?.website"
+                                        target="_blank" class="hover:text-laccent">{{ userStore.profile?.website }}
+                                        <ExternalLink />
+                                    </a></p>
                             </div>
                             <div v-else>
                                 <p>Chargement du profil...</p>

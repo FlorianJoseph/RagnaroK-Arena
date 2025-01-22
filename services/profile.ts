@@ -25,6 +25,7 @@ export const createUserProfile = async (user: any) => {
                         user_id: user.id,
                         email: user.email,
                         username: user.user_metadata.nickname || user.email.split('@')[0],
+                        avatar_url: 'https://rikzkugzznvcygapwgol.supabase.co/storage/v1/object/public/avatar/default/default.jpg?t=2025-01-16T13%3A42%3A28.357Z',
                         created_at: new Date(),
                         updated_at: new Date(),
                     },
@@ -40,7 +41,7 @@ export const createUserProfile = async (user: any) => {
     }
 };
 
-export const uploadAvatar = async (event: Event) => {
+export const uploadAvatar = async (event: Event, userId: string) => {
     const toast = useToast();
     const supabase = useSupabaseClient();
     const target = event.target as HTMLInputElement;
@@ -51,13 +52,8 @@ export const uploadAvatar = async (event: Event) => {
     }
 
     const avatarFile = target.files[0];
-
-    if (!avatarFile) {
-        toast.error('Aucun fichier sélectionné.', { icon: CircleX });
-        return;
-    }
-
-    const filePath = `private/${avatarFile.name}`;
+    const fileExt = avatarFile.name.split('.').pop();
+    const filePath = `avatars/${userId}.${fileExt}`;
 
     const { data: uploadData, error: uploadError } = await supabase
         .storage
@@ -79,15 +75,16 @@ export const uploadAvatar = async (event: Event) => {
 
     const avatarUrl = publicUrlData.publicUrl;
 
-    const { data, error: updateError } = await supabase.auth.updateUser({
-        data: { avatar: avatarUrl }
-    })
-    toast.success("Avatar modifié avec succès ", { icon: Check });
+    const { error: updateError } = await supabase
+        .from('profile')
+        .update({ avatar_url: avatarUrl })
+        .eq('user_id', userId);
 
     if (updateError) {
         toast.error('Erreur lors de la mise à jour des métadonnées de l\'utilisateur ' + updateError.message, { icon: CircleX });
         return;
     }
+    toast.success("Avatar modifié avec succès ", { icon: Check });
 
     return avatarUrl;
 };

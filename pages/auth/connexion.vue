@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { Twitch } from 'lucide-vue-next';
-import { login, twitchAuth } from '~/services/auth';
 
+const authStore = useAuthStore();
 const email = ref('');
 const password = ref('');
 
 const handleTwitchAuth = async () => {
-    await twitchAuth();
+    await authStore.twitchAuth();
 };
 
 async function handleLogin() {
-    await login(email.value, password.value);
+    await authStore.login(email.value, password.value);
 }
 
 definePageMeta({
@@ -20,15 +20,13 @@ definePageMeta({
 </script>
 
 <template>
-    <!-- Formulaire de connexion par e-mail et mot de passe -->
     <div
         class="max-w-lg w-96 mx-auto mt-12 p-8 bg-white dark:bg-dcardbg border border-lborder dark:border-dborder shadow-lg rounded-lg">
         <h2 class="text-3xl font-semibold text-center mb-6 text-ltextbold dark:text-dtextbold">
             Connexion
         </h2>
-        <!-- Formulaire -->
+
         <form @submit.prevent="handleLogin">
-            <!-- Email -->
             <div class="mb-6">
                 <label for="email" class="block text-sm font-medium text-ltext dark:text-dtext">
                     Adresse email
@@ -37,7 +35,6 @@ definePageMeta({
                     required />
             </div>
 
-            <!-- Mot de passe -->
             <div class="mb-6">
                 <label for="password" class="block text-sm font-medium text-ltext dark:text-dtext">
                     Mot de passe
@@ -46,7 +43,6 @@ definePageMeta({
                     placeholder="Entrez votre mot de passe" required />
             </div>
 
-            <!-- Bouton de connexion -->
             <div class="mb-6">
                 <button type="submit" class="btn-form">
                     Se connecter
@@ -54,7 +50,6 @@ definePageMeta({
             </div>
         </form>
 
-        <!-- Lien vers la création de compte -->
         <div class="mt-6 text-center">
             <p class="text-sm text-lightText dark:text-darkText">
                 Pas encore de compte ?
@@ -64,14 +59,12 @@ definePageMeta({
             </p>
         </div>
 
-        <!-- Ligne de séparation -->
         <div class="flex items-center my-6">
             <div class="flex-grow border-t border-lightText dark:border-darkText"></div>
             <span class="mx-4 text-sm text-lightText dark:text-darkText">OU</span>
             <div class="flex-grow border-t border-lightText dark:border-darkText"></div>
         </div>
 
-        <!-- Bouton de connexion avec Twitch -->
         <div class="flex justify-center mt-6">
             <button @click="handleTwitchAuth"
                 class="flex justify-center w-36 py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md shadow-lg">
@@ -79,5 +72,6 @@ definePageMeta({
                 Twitch
             </button>
         </div>
+        
     </div>
 </template>

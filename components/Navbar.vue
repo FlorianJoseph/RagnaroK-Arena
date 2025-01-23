@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { Swords, Trophy, Crown, Store, ChevronDown, User, Power, Dices } from 'lucide-vue-next'; // Importer les icônes Lucide
-import { logout } from '~/services/auth';
+import { Swords, Trophy, Crown, Store, ChevronDown, User, Power, Dices } from 'lucide-vue-next';
 
+const authStore = useAuthStore();
 const route = useRoute();
 const user = useSupabaseUser();
 const isDropdownOpen = ref(false);
+const isSubMenuOpen = ref(false);
+const userStore = useUserStore();
 const sidebarItems = [
     { label: 'Classement', icon: Trophy, link: '/classement' },
     { label: 'Clan', icon: Crown, link: '/clan' },
@@ -13,17 +15,12 @@ const sidebarItems = [
 ];
 
 async function handleLogout() {
-    await logout();
+    await authStore.logout();
 }
-
-const userStore = useUserStore();
 
 onMounted(async () => {
     await userStore.fetchProfile();
 });
-
-const isSubMenuOpen = ref(false);
-
 </script>
 
 <template>
@@ -41,7 +38,7 @@ const isSubMenuOpen = ref(false);
             <!-- Tournois avec sous-menu -->
             <div class="relative">
                 <div class="flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray"
-                    @mouseover="isSubMenuOpen = true" @mouseleave="isSubMenuOpen = true">
+                    @mouseover="isSubMenuOpen = true" @mouseleave="isSubMenuOpen = false">
                     <component :is="Swords" class="h-6 w-6 mr-3" />
                     <NuxtLink to="/tournois" class="text-sm font-medium">
                         Tournois
@@ -77,8 +74,6 @@ const isSubMenuOpen = ref(false);
                 </NuxtLink>
             </div>
         </div>
-
-
         <!-- Section droite -->
         <div class="flex items-center">
             <ToggleTheme />
@@ -95,6 +90,7 @@ const isSubMenuOpen = ref(false);
                     </span>
                     <ChevronDown />
                 </button>
+
                 <!-- Menu déroulant -->
                 <div v-if="isDropdownOpen"
                     class="absolute right-0 mt-2-2 w-48 bg-white dark:bg-dcardbg border border-lborder dark:border-dborder rounded shadow-lg">
@@ -113,6 +109,7 @@ const isSubMenuOpen = ref(false);
                         </li>
                     </ul>
                 </div>
+
             </div>
         </div>
     </div>

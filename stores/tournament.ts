@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { CircleX, Check } from 'lucide-vue-next';
 import type { Tournament, NewTournament } from '~/types/tournament';
-import type { Organizer } from '~/types/profile';
+import type { Organizer } from '~/types/tournament';
 
 export const useTournamentStore = defineStore('tournament', () => {
     const tournaments = ref<Tournament[]>([]);

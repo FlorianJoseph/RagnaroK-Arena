@@ -3,9 +3,8 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from 'vue-toastification';
 import { CircleX, ExternalLink } from 'lucide-vue-next';
-import { logout } from '~/services/auth';
-import { uploadAvatar } from '~/services/profile';
 
+const authStore = useAuthStore();
 const user = useSupabaseUser();
 const toast = useToast();
 const userStore = useUserStore();
@@ -13,7 +12,7 @@ const userStore = useUserStore();
 const handleAvatarUpload = async (event: Event) => {
     const userId = user.value?.id;
     if (userId) {
-        await uploadAvatar(event, userId);
+        await userStore.uploadAvatar(event, userId);
     } else {
         toast.error("Utilisateur non défini", { icon: CircleX });
     }
@@ -32,7 +31,7 @@ const updateProfile = async () => {
 };
 
 async function handleLogout() {
-    await logout();
+    await authStore.logout();
 }
 
 definePageMeta({

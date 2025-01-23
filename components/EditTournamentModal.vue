@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Tournament } from '~/types/tournament';
 
-// Définir les props
 const props = defineProps<{
     isVisible: boolean;
     form: Tournament | null;
@@ -25,6 +24,7 @@ function saveTournament() {
     <div v-if="props.isVisible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
         <div class="bg-white w-96 p-6 rounded-lg shadow-lg">
             <h2 class="text-xl font-bold mb-4">Modifier le tournoi</h2>
+
             <form @submit.prevent="saveTournament" v-if="props.form">
                 <div class="mb-4">
                     <label class="block font-medium">Titre</label>
@@ -56,11 +56,13 @@ function saveTournament() {
                         required />
                 </div>
 
+                <!-- Boutons -->
                 <div class="flex justify-end space-x-4">
                     <button type="button" @click="closeModal" class="btnvariant">Annuler</button>
                     <button type="submit" class="btn">Enregistrer</button>
                 </div>
             </form>
+            
         </div>
     </div>
 </template>

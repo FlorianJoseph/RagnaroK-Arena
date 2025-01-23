@@ -2,11 +2,11 @@ import type { Profile } from "./profile";
 
 export interface Wallet {
     id: number;
-    user_id: string; // UUID as string
+    user_id: string;
     user: Profile;
     coins: number;
     tickets: number;
-    balance: number; // Real money (Decimal)
+    balance: number;
     transactions: Transaction[];
 }
 
@@ -14,7 +14,7 @@ export interface Transaction {
     id: number;
     wallet_id: number;
     wallet: Wallet;
-    amount: number; // Amount of coins, tickets, or real money
+    amount: number;
     currency: CurrencyType;
     created_at: Date;
 }

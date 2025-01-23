@@ -3,23 +3,12 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 const tournamentStore = useTournamentStore();
-const userParticipations = ref<Record<number, boolean>>({});
 
 onMounted(async () => {
   await tournamentStore.fetchTournaments();
   await tournamentStore.fetchUserParticipations();
 
 });
-
-function joinTournament(tournamentId: number) {
-  tournamentStore.joinTournament(tournamentId);
-  userParticipations.value[tournamentId] = true;
-}
-
-function leaveTournament(tournamentId: number) {
-  tournamentStore.leaveTournament(tournamentId);
-  delete userParticipations.value[tournamentId]
-}
 </script>
 
 <template>
@@ -34,6 +23,7 @@ function leaveTournament(tournamentId: number) {
             Date : {{ format(new Date(tournament.date), 'd MMMM yyyy à HH:mm', { locale: fr }) }}
           </p>
         </div>
+
         <div class="p-4">
           <p class="text-lg font-semibold text-blue-600">Prix d'entrée : {{ tournament.prix_entree }} coins</p>
           <p class="text-gray-700">Récompense : {{ tournament.reward_type }}</p>
@@ -41,18 +31,9 @@ function leaveTournament(tournamentId: number) {
         </div>
 
         <div class="p-4 bg-gray-100 text-center flex justify-between flex-row gap-2">
-
-          <!-- <button v-if="userParticipations[tournament.id]" @click="leaveTournament(tournament.id)" class="btn">
-            Se désinscrire
-          </button>
-          <button v-else @click="joinTournament(tournament.id)" class="btn">
-            S'inscrire
-          </button> -->
-
           <NuxtLink :to="`/tournois/${tournament.id}`"> <button class="btn">Voir le tournoi</button></NuxtLink>
-
         </div>
-
+        
       </li>
     </ul>
   </div>

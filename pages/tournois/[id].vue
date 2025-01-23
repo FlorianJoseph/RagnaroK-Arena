@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useTournamentStore } from '~/stores/tournament';
 import type { Organizer, Tournament } from '~/types/tournament';
 import { CalendarDays, Coins, UserRound } from 'lucide-vue-next';
 import { format } from 'date-fns';
@@ -53,8 +52,7 @@ function editTournament(tournament: Tournament) {
         <p>Chargement du tournoi...</p>
     </div>
 
-    <div v-if="!loading && tournament"
-        class="p-6">
+    <div v-if="!loading && tournament" class="p-6">
         <h1 class="text-2xl font-bold uppercase border-b-2 pb-2 mb-4">{{ tournament.title }}</h1>
         <div class="text-lg mb-2 flex items-center">
             <CalendarDays />

@@ -1,6 +1,3 @@
-<script lang="ts">
-</script>
-
 <template>
     <ul class="space-y-2">
         <li class="flex justify-between border-b pb-2">

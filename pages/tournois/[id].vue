@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useTournamentStore } from '~/stores/tournament';
-import type { Tournament } from '~/types/tournament';
+import type { Organizer, Tournament } from '~/types/tournament';
 import { CalendarDays, Coins, UserRound } from 'lucide-vue-next';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -11,7 +11,7 @@ const tournamentStore = useTournamentStore();
 const isVisible = ref(false);
 const form = ref<Tournament | null>(null);
 const tournament = ref<Tournament | null>(null);
-const organizer = ref<{ username: string } | null>(null);
+const organizer = ref<Organizer | null>(null);
 const loading = ref(true);
 
 const loadTournament = async () => {

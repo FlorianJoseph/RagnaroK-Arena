@@ -17,7 +17,3 @@ export interface Profile {
     members: Member[];
     tournament: Tournament[];
 }
-
-export interface Organizer {
-    username: string;
-} 

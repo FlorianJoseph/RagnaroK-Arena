@@ -9,7 +9,7 @@ const gameStore = useGameStore();
 onMounted(async () => {
   await tournamentStore.fetchTournaments();
   await userStore.fetchProfile();
-  gameStore.fetchGames();
+  await gameStore.fetchGames();
 });
 
 const newTournament = ref<NewTournament>({

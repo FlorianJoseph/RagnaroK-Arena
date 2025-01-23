@@ -2,6 +2,7 @@
 import { Swords, Trophy, Crown, Store, ChevronDown, User, Power, Dices } from 'lucide-vue-next'; // Importer les icônes Lucide
 import { logout } from '~/services/auth';
 
+const route = useRoute();
 const user = useSupabaseUser();
 const isDropdownOpen = ref(false);
 const sidebarItems = [
@@ -67,10 +68,11 @@ const isSubMenuOpen = ref(false);
                 </div>
             </div>
 
-            <div v-for="(item, index) in sidebarItems" :key="index"
-                class="flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray">
-                <component :is="item.icon" class="h-6 w-6 mr-3" />
-                <NuxtLink :to="item.link" class="text-sm font-medium">
+            <div v-for="(item, index) in sidebarItems" :key="index">
+                <NuxtLink :to="item.link"
+                    class="text-sm font-medium flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray mx-0.5"
+                    :class="{ 'bg-lgray dark:bg-dgray': route.path === item.link }">
+                    <component :is="item.icon" class="h-6 w-6 mr-3" />
                     {{ item.label }}
                 </NuxtLink>
             </div>

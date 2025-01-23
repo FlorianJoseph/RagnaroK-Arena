@@ -20,6 +20,11 @@ export interface Tournament {
 export interface NewTournament extends Omit<Tournament, 'id' | 'organizer' | 'organizer_id' | 'game' | 'participants' | 'created_at' | 'updated_at'> {
 }
 
+export interface Organizer {
+    username: string;
+    avatar_url: string;
+}
+
 export interface Participant {
     id: number;
     user_id: string;

@@ -38,11 +38,11 @@ definePageMeta({
 
     <!-- Boutons de navigation -->
     <div class="flex space-x-4">
-      <NuxtLink to="/tournois" class="btn">
-        Voir les tournois
+      <NuxtLink to="/auth/inscription" class="btn">
+        Créer un compte
       </NuxtLink>
-      <NuxtLink to="/profil" class="btnvariant">
-        Mon profil
+      <NuxtLink to="/tournois" class="btnvariant">
+        Voir les tournois
       </NuxtLink>
     </div>
   </div>

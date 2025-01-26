@@ -24,18 +24,18 @@ a {
     }
 
     .btn {
-        @apply flex items-center space-x-2 px-6 py-2 text-white rounded shadow-sm bg-laccent dark:bg-daccent hover:bg-laccenthover dark:hover:bg-daccenthover
+        @apply flex items-center transition-all font-bold space-x-2 whitespace-nowrap px-6 py-2.5 text-white rounded shadow-sm bg-laccent dark:bg-daccent hover:bg-laccenthover dark:hover:bg-daccenthover
     }
 
     .btnvariant {
-        @apply flex items-center space-x-2 px-6 py-2 text-laccent border-2 border-laccent dark:text-daccent rounded shadow-sm bg-lbg dark:bg-dbg hover:bg-laccenthover hover:text-white
+        @apply flex items-center transition-all font-bold space-x-2 whitespace-nowrap px-6 py-2.5 text-laccent border-2 border-laccent dark:text-daccent rounded shadow-sm bg-lbg dark:bg-dbg hover:bg-laccenthover hover:text-white
     }
 
     .btn-form {
-        @apply w-full py-3 px-4 bg-laccent hover:bg-laccenthover dark:bg-daccent dark:hover:bg-daccenthover text-white font-medium rounded-md shadow-lg
+        @apply w-full transition-all font-bold py-3 px-4 bg-laccent whitespace-nowrap hover:bg-laccenthover dark:bg-daccent dark:hover:bg-daccenthover text-white rounded-md shadow-lg
     }
 
     .btn-profil {
-        @apply flex items-center space-x-2 px-4 py-3 text-ltext border-l border-lgray dark:border-dgray dark:text-dtext rounded shadow-sm hover:bg-lgray dark:hover:bg-dgray
+        @apply flex items-center transition-all font-bold whitespace-nowrap space-x-2 px-4 py-3 text-ltext border-l border-lgray dark:border-dgray dark:text-dtext rounded shadow-sm hover:bg-lgray dark:hover:bg-dgray
     }
 }

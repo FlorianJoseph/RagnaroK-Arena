@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { CircleX, Check } from 'lucide-vue-next';
-import type { Tournament, NewTournament } from '~/types/tournament';
+import type { Tournament, NewTournament, Participant } from '~/types/tournament';
 import type { Organizer } from '~/types/tournament';
 
 export const useTournamentStore = defineStore('tournament', () => {
@@ -9,9 +9,9 @@ export const useTournamentStore = defineStore('tournament', () => {
     const toast = useToast();
     const supabase = useSupabaseClient();
     const userStore = useUserStore();
-    const userParticipations = ref<Record<number, boolean>>({});
+    const participationStore = useParticipationStore();
 
-    // Fonction pour récupérer tous les tournois
+    // Récupérer tous les tournois
     async function fetchTournaments() {
         const { data, error } = await supabase
             .from('tournament')
@@ -21,69 +21,82 @@ export const useTournamentStore = defineStore('tournament', () => {
             toast.error('Erreur lors de la récupération des tournois' + error.message, { icon: CircleX });
             return;
         }
+
+        for (let tournament of data) {
+            const organizer = await getOrganizer(tournament.id);
+            tournament.organizer = organizer
+        }
+
         tournaments.value = data as Tournament[];
     }
 
-    async function getTournamentWithOrganizerById(id: number): Promise<{ tournament: Tournament, organizer: Organizer }> {
+    // Afficher un tournoi
+    async function getTournament(id: number): Promise<{ tournament: Tournament, organizer: Organizer, participants: Participant[] }> {
         let tournament = tournaments.value.find(t => t.id === id);
-        let organizer = null;
+        let organizer: Organizer | null = null;
+        let participants: Participant[] = [];
 
         if (!tournament) {
             const { data, error } = await supabase
                 .from('tournament')
-                .select(`
-                    *,
-                    organizer:organizer_id (id, username, profile:user_id (avatar_url))
-                `)
+                .select(`*`)
                 .eq('id', id)
                 .single();
 
             if (error) {
                 toast.error("Erreur lors de la récupération du tournoi :" + error.message, { icon: CircleX });
+                throw new Error(error.message);
             }
 
             if (data) {
-
-                if (data) {
-                    tournaments.value.push(data);
-                    tournament = data;
-                    organizer = data.organizer;
-                }
+                tournaments.value.push(data);
+                tournament = data;
+                organizer = await getOrganizer(tournament.id);
+                participants = await participationStore.getParticipants(tournament.id);
             }
         } else {
-            if (tournament.organizer_id) {
-                organizer = await getOrganizerById(tournament.organizer_id);
-            }
+            organizer = await getOrganizer(tournament.id);
+            participants = await participationStore.getParticipants(tournament.id);
         }
 
         if (!tournament) {
-            throw new Error(`Tournament with id ${id} not found`);
+            throw new Error(`Le tournoi numéro ${id} non trouvé`);
         }
 
-        const existingTournamentIndex = tournaments.value.findIndex(t => t.id === id);
-        if (existingTournamentIndex !== -1) {
-            tournaments.value[existingTournamentIndex] = tournament;
-        } else {
+        if (!organizer) {
+            throw new Error(`L'organisateur du tournoi numéro ${id} non trouvé`);
         }
-        return { tournament, organizer };
+        return { tournament, organizer, participants };
     }
 
-    async function getOrganizerById(organizerId: string) {
-        const { data, error } = await supabase
-            .from('profile')
-            .select('username')
-            .eq('user_id', organizerId)
+    // Récupérer un organisateur
+    async function getOrganizer(tournamentId: number) {
+        const { data: tournamentData, error: tournamentError } = await supabase
+            .from('tournament')
+            .select('organizer_id')
+            .eq('id', tournamentId)
             .single();
 
-        if (error) {
-            toast.error("Erreur lors de la récupération de l'organisateur :" + error.message, { icon: CircleX });
-
+        if (tournamentError) {
+            console.error("Erreur lors de la récupération des informations du tournoi :", tournamentError.message);
             return null;
         }
-        return data;
+
+        const { data: organizerData, error: organizerError } = await supabase
+            .from('profile')
+            .select('*')
+            .eq('user_id', tournamentData.organizer_id)
+            .single();
+
+        if (organizerError) {
+            console.error("Erreur lors de la récupération de l'organisateur :", organizerError.message);
+            return null;
+        }
+
+        return organizerData;
     }
 
-    // Fonction pour créer un nouveau tournoi
+    // Créer un nouveau tournoi
     async function createTournament(newTournamentData: NewTournament) {
         const tournamentInsertData = {
             ...newTournamentData,
@@ -106,6 +119,7 @@ export const useTournamentStore = defineStore('tournament', () => {
         }
     }
 
+    // Mettre à jour le tournoi
     async function updateTournament(updatedTournament: Tournament) {
         const { organizer, ...data } = updatedTournament;
         const { error } = await supabase
@@ -125,6 +139,7 @@ export const useTournamentStore = defineStore('tournament', () => {
         toast.success('Tournoi mis à jour avec succès', { icon: Check });
     }
 
+    // Supprimer tournoi
     async function deleteTournament(tournamentId: number) {
         const { data, error } = await supabase
             .from('tournament')
@@ -142,32 +157,51 @@ export const useTournamentStore = defineStore('tournament', () => {
         }
     }
 
-    async function fetchUserParticipations() {
-        if (!userStore.profile?.user_id) return;
+    return {
+        tournaments,
+        fetchTournaments,
+        getTournament,
+        createTournament,
+        updateTournament,
+        deleteTournament,
+    };
+});
 
-        const { data, error } = await supabase
+export const useParticipationStore = defineStore('participation', () => {
+    const toast = useToast();
+    const supabase = useSupabaseClient();
+    const userStore = useUserStore();
+
+    // Récupérer les participants
+    async function getParticipants(tournamentId: number) {
+        const { data: participantData, error: participantError } = await supabase
             .from('participant')
-            .select('tournament_id')
-            .eq('user_id', userStore.profile.user_id);
+            .select('user_id')
+            .eq('tournament_id', tournamentId);
 
-        if (error) {
-            toast.error('Erreur lors de la récupération des participations : ' + error.message);
-            return;
+        if (participantError) {
+            console.error("Erreur lors de la récupération des participants :", participantError.message)
+            return [];
         }
 
-        userParticipations.value = (data || []).reduce((acc, { tournament_id }) => {
-            acc[tournament_id] = true;
-            return acc;
-        }, {} as Record<number, boolean>);
+        const participantIds = participantData.map(p => p.user_id);
+        const { data: usersData, error: usersError } = await supabase
+            .from('profile')
+            .select('*')
+            .in('user_id', participantIds);
+
+        if (usersError) {
+            console.error("Erreur lors de la récupération des profils des participants :", usersError.message);
+            return [];
+        }
+
+        return usersData || [];
     }
 
+    // Rejoindre un tournoi
     async function joinTournament(tournamentId: number) {
         if (!userStore.profile?.user_id) {
             toast.error("Vous devez être connecté pour participer !");
-            return;
-        }
-        if (userParticipations.value[tournamentId]) {
-            toast.error("Vous êtes déjà inscrit à ce tournoi !");
             return;
         }
 
@@ -177,19 +211,19 @@ export const useTournamentStore = defineStore('tournament', () => {
             joined_at: new Date(),
         };
 
-        const { error } = await supabase.from('participant')
+        const { error } = await supabase
+            .from('participant')
             .insert([participantData]);
 
         if (error) {
             toast.error('Erreur lors de l’inscription : ' + error.message);
             return;
         }
-
-        userParticipations.value[tournamentId] = true;
-        await fetchUserParticipations();
         toast.success('Vous êtes inscrit au tournoi !');
+
     }
 
+    // Quitter un tournoi
     async function leaveTournament(tournamentId: number) {
         if (!userStore.profile?.user_id) {
             toast.error("Vous devez être connecté pour vous désinscrire !");
@@ -204,23 +238,12 @@ export const useTournamentStore = defineStore('tournament', () => {
 
         if (error) {
             toast.error('Erreur lors de la désinscription : ' + error.message);
-            return;
         }
-
-        delete userParticipations.value[tournamentId];
-        await fetchUserParticipations();
         toast.success('Vous vous êtes désinscrit du tournoi.');
     }
 
     return {
-        tournaments,
-        fetchTournaments,
-        getTournamentWithOrganizerById,
-        getOrganizerById,
-        createTournament,
-        updateTournament,
-        deleteTournament,
-        fetchUserParticipations,
+        getParticipants,
         joinTournament,
         leaveTournament,
     };

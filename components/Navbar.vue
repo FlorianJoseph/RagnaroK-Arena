@@ -25,11 +25,11 @@ onMounted(async () => {
 
 <template>
     <div
-        class="flex justify-between items-center w-full px-6 py-3.5 bg-white dark:bg-dcardbg border-b border-lborder dark:border-dborder">
+        class="flex justify-between items-center w-full px-6 py-2 bg-white dark:bg-dcardbg border-b border-lborder dark:border-dborder">
         <!-- Section gauche -->
         <div class="flex items-center">
             <NuxtLink to='/'>
-                <p class="ml-8 text-2xl font-bold">RagnaröK Arena</p>
+                <p class="ml-8 text-2xl font-bold whitespace-nowrap">RagnaröK Arena</p>
             </NuxtLink>
         </div>
 
@@ -37,7 +37,7 @@ onMounted(async () => {
         <div class="flex items-center">
             <!-- Tournois avec sous-menu -->
             <div class="relative">
-                <div class="flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray"
+                <div class="flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray transition-all"
                     @mouseover="isSubMenuOpen = true" @mouseleave="isSubMenuOpen = false">
                     <component :is="Swords" class="h-6 w-6 mr-3" />
                     <NuxtLink to="/tournois" class="text-sm font-medium">
@@ -67,7 +67,7 @@ onMounted(async () => {
 
             <div v-for="(item, index) in sidebarItems" :key="index">
                 <NuxtLink :to="item.link"
-                    class="text-sm font-medium flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray mx-0.5"
+                    class="text-sm font-medium flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray transition-all"
                     :class="{ 'bg-lgray dark:bg-dgray': route.path === item.link }">
                     <component :is="item.icon" class="h-6 w-6 mr-3" />
                     {{ item.label }}
@@ -97,7 +97,7 @@ onMounted(async () => {
                     <ul>
                         <li>
                             <NuxtLink to="/profil"
-                                class="flex items-center gap-2 px-4 py-2 text-ltext dark:text-dtext hover:bg-lgray dark:hover:bg-dgray">
+                                class="flex items-center gap-2 px-4 py-2 text-ltext dark:text-dtext hover:bg-lgray dark:hover:bg-dgray transition-all">
                                 <User /> Profil
                             </NuxtLink>
                         </li>

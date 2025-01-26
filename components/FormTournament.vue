@@ -85,9 +85,15 @@ async function createTournament() {
         class="w-full border rounded p-2" />
     </div>
 
-    <div class="mb-4">
-      <label class="block font-medium">Date</label>
-      <input v-model="newTournament.date" type="date" class="w-full border rounded p-2" required />
+    <div class="flex justify-center items-center mb-4 gap-4">
+      <div>
+        <label class="block font-medium">Date</label>
+        <input v-model="newTournament.date" type="date" class="w-full border rounded p-2" required />
+      </div>
+      <div>
+        <label class="block font-medium">Heure</label>
+        <input v-model="newTournament.date" type="time" class="w-full border rounded p-2" required />
+      </div>
     </div>
 
     <div class="mb-4">

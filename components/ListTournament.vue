@@ -6,8 +6,6 @@ const tournamentStore = useTournamentStore();
 
 onMounted(async () => {
   await tournamentStore.fetchTournaments();
-  await tournamentStore.fetchUserParticipations();
-
 });
 </script>
 
@@ -16,7 +14,7 @@ onMounted(async () => {
     <!-- Affichage des tournois -->
     <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <li v-for="tournament in tournamentStore.tournaments" :key="tournament.id"
-        class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 transform hover:scale-105 transition-transform duration-300">
+        class="bg-white shadow-lg rounded-lg overflow-hidden border border-lborder dark:border-dborder">
         <div class="p-4 bg-gray-100">
           <h2 class="text-xl font-semibold text-gray-800">{{ tournament.title }}</h2>
           <p class="text-sm text-gray-600">
@@ -31,9 +29,14 @@ onMounted(async () => {
         </div>
 
         <div class="p-4 bg-gray-100 text-center flex justify-between flex-row gap-2">
-          <NuxtLink :to="`/tournois/${tournament.id}`"> <button class="btn">Voir le tournoi</button></NuxtLink>
+          <NuxtLink :to="`/tournois/${tournament.id}`" class="btn">Voir le tournoi</NuxtLink>
+          <!-- Organisateur -->
+          <div class="flex items-center">
+            <img v-if="tournament.organizer.avatar_url" :src="tournament.organizer.avatar_url"
+              alt="Avatar de l'organisateur" class="w-8 h-8 rounded-full border-4 border-[#b68e5d] object-cover mr-3" />
+            <p class="text-ltext font-semibold">{{ tournament.organizer.username }}</p>
+          </div>
         </div>
-        
       </li>
     </ul>
   </div>

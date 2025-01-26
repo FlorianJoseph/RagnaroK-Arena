@@ -25,30 +25,34 @@ definePageMeta({
 
 <template>
   <!-- Section principale -->
-  <div class="flex flex-col items-center justify-center text-center py-16 px-6 mt-8">
-    <h1 class="text-6xl font-extrabold text-ltextbold dark:text-dtextbold mb-4">
-      Bienvenue dans RagnaröK Arena
-    </h1>
-    <h1 class="text-2xl text-lightText dark:text-darkText mb-4 mx-auto">Le site web le plus réactif de
-      tournois de jeux vidéo</h1>
-    <p class="text-lg text-lightText dark:text-darkText mb-6 max-w-2xl mx-auto">
-      Nous vous aidons à gagner de l'argent en jouant à vos jeux vidéo préférés. Les membres ont accès à des tournois
-      avec des prix en argent réel.
-    </p>
-
-    <!-- Boutons de navigation -->
-    <div class="flex space-x-4">
-      <NuxtLink to="/auth/inscription" class="btn">
-        Créer un compte
-      </NuxtLink>
-      <NuxtLink to="/tournois" class="btnvariant">
-        Voir les tournois
-      </NuxtLink>
+  <div class="grid grid-cols-12 gap-4 grid-nogutter">
+    <div class="col-span-12 md:col-span-6 p-12 text-center md:text-left flex items-center ">
+      <section>
+        <span class="block text-6xl font-bold mb-1">Bienvenue</span>
+        <div class="text-6xl font-extrabold text-ltextbold dark:text-dtextbold mb-4">dans RagnaröK Arena</div>
+        <p class="mt-0 mb-1 text-lg text-lightText dark:text-darkText">Le site web le plus réactif de
+          tournois de jeux vidéo.</p>
+        <p class="mt-0 mb-4 text-lg text-lightText dark:text-darkText"> Nous vous aidons à gagner de
+          l'argent en jouant à vos jeux vidéo préférés.</p>
+        <!-- Boutons de navigation -->
+        <div class="flex space-x-4">
+          <NuxtLink to="/auth/inscription" class="btn">
+            Créer un compte
+          </NuxtLink>
+          <NuxtLink to="/tournois" class="btnvariant">
+            Voir les tournois
+          </NuxtLink>
+        </div>
+      </section>
+    </div>
+    <div class="col-span-12 md:col-span-6 overflow-hidden max-h-[600px]">
+      <img src="~/assets/images/index.png" alt="Image" class="w-full h-full object-cover z-index"
+        style="clip-path: polygon(8% 0, 100% 0%, 100% 100%, 0 100%)" />
     </div>
   </div>
 
   <!-- Section des fonctionnalités -->
-  <div class="bg-lcardbg dark:bg-dcardbg py-16">
+  <div class="bg-lcardbg dark:bg-dcardbg py-12">
     <div class="container mx-auto px-6 text-center">
       <h2 class="text-3xl font-bold text-ltext dark:text-dtext mb-12">Fonctionnalités</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
@@ -62,16 +66,15 @@ definePageMeta({
   </div>
 
   <!-- Section de présentation -->
-  <div class="flex flex-col items-center justify-center py-16 px-6">
-    <h2 class="text-3xl font-bold text-lightText dark:text-darkText mb-6">Rejoignez la bataille</h2>
-    <p class="text-lg text-lightText dark:text-darkText mb-6 max-w-2xl mx-auto">
-      L’arène de RagnaröK vous attend. Que vous soyez un novice ou un vétéran des combats, chaque bataille
-      vous
-      rapproche de la gloire éternelle. Serez-vous prêt à vous mesurer aux plus grands guerriers de l'histoire
-      ?
-    </p>
-    <NuxtLink to="/tournois" class="btn">
-      Commencez maintenant
-    </NuxtLink>
+  <div class="flex flex-col justify-center items-center px-6 pt-12 md:px-12 lg:px-20">
+    <div class="font-bold text-4xl mb-4">
+      Rejoignez notre communauté
+    </div>
+    <div class="text-xl mb-8 mx-40 text-center">
+      La communauté est présente pour vous soutenir, que ce soit pour l'entraide ou pour jouer ensemble !
+    </div>
+    <a href="https://discord.gg/uZfU7YExgD" target="_blank" class="btn">
+      Rejoignez-nous maintenant
+    </a>
   </div>
 </template>

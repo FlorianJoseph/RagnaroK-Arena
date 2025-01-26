@@ -22,7 +22,7 @@ const { theme, toggleTheme } = useTheme();
 
 <template>
     <!-- Bouton de bascule -->
-    <button @click="toggleTheme" class="p-2 rounded hover:bg-lgray dark:hover:bg-dgray mr-1">
+    <button @click="toggleTheme" class="p-2 rounded hover:bg-lgray dark:hover:bg-dgray mr-1 transition-all">
         <div v-if="theme === 'light'">
             <Moon />
         </div>

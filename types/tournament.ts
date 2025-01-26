@@ -21,20 +21,19 @@ export interface NewTournament extends Omit<Tournament, 'id' | 'organizer' | 'or
 }
 
 export interface Organizer {
-    username: string;
+    id: number;
+    user_id: string;
+    email: string;
+    username?: string;
     avatar_url: string;
 }
 
 export interface Participant {
     id: number;
     user_id: string;
-    user: Profile;
-    tournament_id: number;
-    tournament: Tournament;
-    score: number;
-    created_at: Date;
+    username: string;
+    avatar_url: string;
 }
-
 
 export enum RewardType {
     coins = "Pièces",

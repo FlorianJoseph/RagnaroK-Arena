@@ -8,15 +8,17 @@ generator client {
 }
 
 model profile {
-  id          Int           @id @default(autoincrement())
-  user_id     String        @unique @default(uuid()) @db.Uuid
-  email       String        @unique
-  username    String?
-  full_name   String?
-  website     String?
-  avatar_url  String?
-  created_at  DateTime      @default(now())
-  updated_at  DateTime      @updatedAt
+  id         Int      @id @default(autoincrement())
+  user_id    String   @unique @default(uuid()) @db.Uuid
+  email      String   @unique
+  username   String?
+  full_name  String?
+  website    String?
+  avatar_url String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  xp         Int      @default(0)
+  rank       String   @default("Novice")
   wallet      wallet[]
   participant participant[]
   members     members[]

@@ -15,7 +15,8 @@ export const useTournamentStore = defineStore('tournament', () => {
     async function fetchTournaments() {
         const { data, error } = await supabase
             .from('tournament')
-            .select('*');
+            .select('*')
+            .order('date', { ascending: true });
 
         if (error) {
             toast.error('Erreur lors de la récupération des tournois' + error.message, { icon: CircleX });
@@ -24,7 +25,9 @@ export const useTournamentStore = defineStore('tournament', () => {
 
         for (let tournament of data) {
             const organizer = await getOrganizer(tournament.id);
-            tournament.organizer = organizer
+            const participants = await participationStore.getParticipants(tournament.id);
+            tournament.organizer = organizer;
+            tournament.participants = participants;
         }
 
         tournaments.value = data as Tournament[];
@@ -121,7 +124,7 @@ export const useTournamentStore = defineStore('tournament', () => {
 
     // Mettre à jour le tournoi
     async function updateTournament(updatedTournament: Tournament) {
-        const { organizer, ...data } = updatedTournament;
+        const { participants, organizer, ...data } = updatedTournament;
         const { error } = await supabase
             .from('tournament')
             .update(data)
@@ -157,6 +160,21 @@ export const useTournamentStore = defineStore('tournament', () => {
         }
     }
 
+    async function getTournamentsByOrganizer(user_id: string) {
+        const { data, error } = await supabase
+            .from('tournament')
+            .select('*')
+            .eq('organizer_id', user_id)
+            .order('created_at', { ascending: false })
+
+        if (error) {
+            console.error('Erreur lors de la récupération des tournois :', error.message)
+            return []
+        }
+
+        return data
+    }
+
     return {
         tournaments,
         fetchTournaments,
@@ -164,6 +182,7 @@ export const useTournamentStore = defineStore('tournament', () => {
         createTournament,
         updateTournament,
         deleteTournament,
+        getTournamentsByOrganizer,
     };
 });
 

@@ -19,7 +19,7 @@ const handleAvatarUpload = async (event: Event) => {
 };
 
 onMounted(async () => {
-    await userStore.fetchProfile();
+    await userStore.getProfile();
 });
 
 const updateProfile = async () => {

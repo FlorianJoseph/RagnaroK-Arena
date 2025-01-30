@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/supabase', '@nuxt/ui', '@prisma/nuxt', '@pinia/nuxt'],
   supabase: {
     redirectOptions: {
-      login: '/login',
+      login: '/auth/connexion',
       callback: '/confirm',
       include: ['/admin'],
       exclude: [],
@@ -20,4 +20,9 @@ export default defineNuxtConfig({
   },
   css: ['~/assets/styles/main.css'],
   plugins: ['~/plugins/toast.js'],
+  nitro: {
+    routeRules: {
+      '/compte/:username': { prerender: false }
+    }
+  }
 })

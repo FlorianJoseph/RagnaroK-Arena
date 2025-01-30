@@ -95,12 +95,13 @@ function editTournament(tournament: Tournament) {
         <div v-if="participants && participants?.length" class="mt-6 mb-4">
             <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-6">
                 <li v-for="participant in participants" :key="participant.id"
-                    class="flex items-center p-4 bg-gray-800 text-white rounded-lg shadow-lg hover:shadow-2xl transition-all">
-                    <img :src="participant.avatar_url" alt="Avatar"
-                        class="w-12 h-12 rounded-full border-4 border-[#b68e5d] object-cover mr-4" />
-                    <p class="font-bold text-xl">{{ participant.username }}</p>
+                    class="flex items-center p-4 rounded-lg shadow-md border-2 border-lborder dark:border-dborder">
+                    <img :src="participant.avatar_url" alt="Avatar" class="w-12 h-12 rounded-full object-cover mr-4" />
+                    <NuxtLink :to="`/compte/${participant.username}`">
+                        <p class="font-bold text-xl">{{ participant.username }}</p>
+                    </NuxtLink>
                     <div class="ml-auto flex items-center">
-                        <span class="text-[#b68e5d] text-lg">⚔️</span>
+                        <span class="text-lg">⚔️</span>
                     </div>
                 </li>
             </ul>

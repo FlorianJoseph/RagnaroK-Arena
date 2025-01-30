@@ -28,13 +28,17 @@ onMounted(async () => {
           <p class="text-gray-500 text-sm">Montant récompense : {{ tournament.reward_amount }}</p>
         </div>
 
-        <div class="p-4 bg-gray-100 text-center flex justify-between flex-row gap-2">
+        <div class="p-4 bg-gray-100 text-center flex justify-between items-center flex-row gap-2">
           <NuxtLink :to="`/tournois/${tournament.id}`" class="btn">Voir le tournoi</NuxtLink>
-          <!-- Organisateur -->
-          <div class="flex items-center">
-            <img v-if="tournament.organizer.avatar_url" :src="tournament.organizer.avatar_url"
-              alt="Avatar de l'organisateur" class="w-8 h-8 rounded-full border-4 border-[#b68e5d] object-cover mr-3" />
-            <p class="text-ltext font-semibold">{{ tournament.organizer.username }}</p>
+          <div class="flex flex-col items-center gap-1">
+            <div class="flex items-center gap-2">
+              <img :src="tournament.organizer.avatar_url" alt="Avatar" class="w-7 h-7 rounded-full object-cover" />
+              <span>
+                <NuxtLink :to="`/compte/${tournament.organizer.username}`">{{ tournament.organizer.username }}</NuxtLink>
+              </span>
+            </div>
+            <p class="text-gray-600">{{ tournament.participants.length }} {{ tournament.participants.length === 1 ?
+              'participant' : 'participants' }}</p>
           </div>
         </div>
       </li>

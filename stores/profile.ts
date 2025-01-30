@@ -46,8 +46,8 @@ export const useUserStore = defineStore('user', () => {
         }
     }
 
-    // Fonction pour récupérer le profil
-    async function fetchProfile() {
+    // Fonction pour récupérer le profil de l'utilisateur
+    async function getProfile() {
         const currentUser = user.value;
 
         if (currentUser) {
@@ -156,11 +156,27 @@ export const useUserStore = defineStore('user', () => {
         return avatarUrl;
     }
 
+    async function getProfileByUsername(username: string) {
+        const { data, error } = await supabase
+            .from('profile')
+            .select('*')
+            .eq('username', username)
+            .single()
+
+        if (error) {
+            console.error('Utilisateur non trouvé :', error.message)
+            return null
+        }
+
+        return data
+    }
+
     return {
         createUserProfile,
         profile,
-        fetchProfile,
+        getProfile,
         updateProfile,
         uploadAvatar,
+        getProfileByUsername,
     };
 });

@@ -4,22 +4,22 @@ const features = [
   {
     title: "Tournois Épiques",
     description:
-      "Participez à des tournois intenses et progressez dans des arènes mythologiques pour devenir une légende.",
+      "Participez à des tournois intenses et progressez dans le classement pour devenir une légende.",
   },
   {
-    title: "Progression Personnalisée",
+    title: "Classement des Champions",
     description:
-      "Améliorez votre personnage avec des équipements légendaires et des compétences spéciales.",
+      "Consultez le classement des meilleurs combattants et mesurez-vous aux plus grands guerriers de l'arène.",
   },
   {
-    title: "Système de Clans",
+    title: "Votre Légende",
     description:
-      "Créez un clan, recrutez des alliés et affrontez d'autres clans dans des batailles épiques.",
+      "Personnalisez votre profil, affichez vos exploits et partagez votre lien unique avec vos alliés.",
   },
 ];
 
 definePageMeta({
-  layout: 'menu' // Utilise le layout "menu.vue"
+  layout: 'menu'
 })
 
 </script>
@@ -59,7 +59,7 @@ definePageMeta({
       <h2 class="text-3xl font-bold text-ltext dark:text-dtext mb-12">Fonctionnalités</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         <div v-for="(feature, index) in features" :key="index"
-          class="bg-white dark:bg-dbg p-6 rounded-lg shadow-md hover:scale-105">
+          class="bg-white dark:bg-dbg p-6 rounded-lg shadow-md">
           <h3 class="text-xl font-semibold text-ltextbold dark:text-dtextbold mb-4">{{ feature.title }}</h3>
           <p class="text-sm text-lightText dark:text-darkText">{{ feature.description }}</p>
         </div>

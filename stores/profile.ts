@@ -68,6 +68,8 @@ export const useUserStore = defineStore('user', () => {
                     username: profileData.username || '',
                     full_name: profileData.full_name || '',
                     website: profileData.website || '',
+                    xp: profileData.xp || 0,
+                    rank: profileData.rank || '',
                     avatar_url: profileData.avatar_url || '',
                     created_at: profileData.created_at || '',
                     updated_at: profileData.updated_at || '',

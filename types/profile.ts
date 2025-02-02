@@ -12,6 +12,8 @@ export interface Profile {
     avatar_url: string;
     created_at: Date;
     updated_at: Date;
+    xp: number;
+    rank: string;
     wallet: Wallet[];
     participant: Participant[];
     members: Member[];

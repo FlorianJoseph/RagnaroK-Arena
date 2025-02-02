@@ -30,10 +30,6 @@ const updateProfile = async () => {
     await userStore.updateProfile(userStore.profile);
 };
 
-async function handleLogout() {
-    await authStore.logout();
-}
-
 definePageMeta({
     layout: 'profile'
 })
@@ -68,9 +64,8 @@ definePageMeta({
 
                     <!-- Infos utilisateurs -->
                     <div v-if="userStore.profile" class="ml-6">
-                        <h3 class="text-xl font-bold text-lightText dark:text-darkText">{{
-                            userStore.profile?.username || user.user_metadata.nickname || "Choisissez un pseudo" }}
-                        </h3>
+                        <h3 class="text-xl font-bold text-lightText dark:text-darkText">{{ userStore.profile?.username
+                            }}</h3>
                         <p class="text-sm text-lightText dark:text-darkText">
                             Utilisateur depuis {{ format(new Date(userStore.profile.created_at), 'd MMMM yyyy', {
                                 locale: fr
@@ -92,10 +87,17 @@ definePageMeta({
                                 <p>Email : {{ userStore.profile?.email }}</p>
                                 <p>Username : {{ userStore.profile?.username }}</p>
                                 <p>Nom complet : {{ userStore.profile?.full_name }}</p>
-                                <p class="flex flex-row">Site Web : <a :href="userStore.profile?.website"
-                                        target="_blank" class="hover:text-laccent">{{ userStore.profile?.website }}
-                                        <ExternalLink />
-                                    </a></p>
+                                <p class="flex items-center">
+                                    Site Web :
+                                    <a :href="userStore.profile?.website" target="_blank"
+                                        class="hover:text-laccent dark:hover:text-daccent text-blue-500 ml-2 flex items-center">
+                                        {{ userStore.profile?.website }}
+                                        <ExternalLink class="ml-1 text-dbg h-4 w-4 dark:text-lbg" />
+                                    </a>
+                                </p>
+                                <p>Montant d'éxpérience : {{ userStore.profile.xp }}</p>
+                                <p>Rang : {{ userStore.profile.rank }}</p>
+
                             </div>
                             <div v-else>
                                 <p>Chargement du profil...</p>
@@ -125,14 +127,6 @@ definePageMeta({
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Déconnexion -->
-                <div class="mt-8 text-center">
-                    <button @click="handleLogout"
-                        class="px-6 py-2 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                        Déconnexion
-                    </button>
                 </div>
             </div>
         </div>

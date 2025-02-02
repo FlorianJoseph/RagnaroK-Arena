@@ -86,8 +86,9 @@ function editTournament(tournament: Tournament) {
         <div v-if="organizer" class="flex flex-row items-center py-2 text-lg mb-2">
             <img v-if="organizer.avatar_url" :src="organizer.avatar_url" alt="Avatar de l'organisateur"
                 class="w-10 h-10 rounded-full object-cover mr-3" />
-            <span v-if="organizer">
-                {{ organizer.username }}
+            <span v-if="organizer" class="hover:underline">
+                <NuxtLink class="hover:underline" :to="`/@${tournament.organizer.username}`">
+                    {{ tournament.organizer.username }}</NuxtLink>
             </span>
         </div>
 
@@ -97,8 +98,8 @@ function editTournament(tournament: Tournament) {
                 <li v-for="participant in participants" :key="participant.id"
                     class="flex items-center p-4 rounded-lg shadow-md border-2 border-lborder dark:border-dborder">
                     <img :src="participant.avatar_url" alt="Avatar" class="w-12 h-12 rounded-full object-cover mr-4" />
-                    <NuxtLink :to="`/compte/${participant.username}`">
-                        <p class="font-bold text-xl">{{ participant.username }}</p>
+                    <NuxtLink :to="`/@${participant.username}`">
+                        <p class="font-bold text-xl hover:underline">{{ participant.username }}</p>
                     </NuxtLink>
                     <div class="ml-auto flex items-center">
                         <span class="text-lg">⚔️</span>

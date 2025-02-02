@@ -22,7 +22,7 @@ export default defineNuxtConfig({
   plugins: ['~/plugins/toast.js'],
   nitro: {
     routeRules: {
-      '/compte/:username': { prerender: false }
+      '/@:username': { prerender: false }
     }
   }
 })

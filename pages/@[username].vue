@@ -7,7 +7,6 @@ const profile = ref(null)
 const tournaments = ref([])
 const username = route.params.username
 
-// Récupération du profil via l'username
 onMounted(async () => {
   profile.value = await userStore.getProfileByUsername(username)
 

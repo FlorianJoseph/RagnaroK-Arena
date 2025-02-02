@@ -9,17 +9,19 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="container mx-auto p-6">
-      <div v-if="profiles.length">
-        <ul>
-          <li v-for="profile in profiles" :key="profile.id" class="border-b py-2">
-            <p><strong>{{ profile.username }}</strong> - XP : {{ profile.xp }} - Rang : {{ profile.rank }}</p>
-          </li>
-        </ul>
-      </div>
-      <div v-else>
-        <p>Chargement du classement...</p>
-      </div>
+  <div class="container mx-auto p-6">
+    <div v-if="profiles.length">
+      <ul>
+        <li v-for="profile in profiles" :key="profile.id" class="border-b py-2">
+          <NuxtLink :to="`/@${profile.username}`">
+            <p><strong class="hover:underline">{{ profile.username }}</strong> - XP : {{ profile.xp }} - Rang : {{
+              profile.rank }}</p>
+          </NuxtLink>
+        </li>
+      </ul>
     </div>
-  </template>
-  
+    <div v-else>
+      <p>Chargement du classement...</p>
+    </div>
+  </div>
+</template>

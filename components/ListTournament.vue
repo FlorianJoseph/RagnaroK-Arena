@@ -34,7 +34,7 @@ onMounted(async () => {
             <div class="flex items-center gap-2">
               <img :src="tournament.organizer.avatar_url" alt="Avatar" class="w-7 h-7 rounded-full object-cover" />
               <span>
-                <NuxtLink :to="`/compte/${tournament.organizer.username}`">{{ tournament.organizer.username }}</NuxtLink>
+                <NuxtLink class="hover:underline" :to="`/@${tournament.organizer.username}`">{{ tournament.organizer.username }}</NuxtLink>
               </span>
             </div>
             <p class="text-gray-600">{{ tournament.participants.length }} {{ tournament.participants.length === 1 ?

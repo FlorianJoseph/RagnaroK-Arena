@@ -9,9 +9,9 @@ const isSubMenuOpen = ref(false);
 const userStore = useUserStore();
 const sidebarItems = [
     { label: 'Classement', icon: Trophy, link: '/classement' },
-    { label: 'Clan', icon: Crown, link: '/clan' },
-    { label: 'Boutique', icon: Store, link: '/boutique' },
-    { label: 'Roulette', icon: Dices, link: '/roulette' }
+    { label: 'Clan', icon: Crown, link: '/clan', disabled: true },
+    { label: 'Boutique', icon: Store, link: '/boutique', disabled: true },
+    { label: 'Roulette', icon: Dices, link: '/roulette', disabled: true },
 ];
 
 async function handleLogout() {
@@ -66,9 +66,12 @@ onMounted(async () => {
             </div>
 
             <div v-for="(item, index) in sidebarItems" :key="index">
-                <NuxtLink :to="item.link"
+                <NuxtLink :to="item.disabled ? '' : item.link"
                     class="text-sm font-medium flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray transition-all"
-                    :class="{ 'bg-lgray dark:bg-dgray': route.path === item.link }">
+                    :class="{
+                        'bg-lgray dark:bg-dgray': route.path === item.link,
+                        'opacity-50 pointer-events-none': item.disabled
+                    }">
                     <component :is="item.icon" class="h-6 w-6 mr-3" />
                     {{ item.label }}
                 </NuxtLink>

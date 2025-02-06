@@ -10,8 +10,8 @@ const userStore = useUserStore();
 const sidebarItems = [
     { label: 'Classement', icon: Trophy, link: '/classement' },
     { label: 'Clan', icon: Crown, link: '/clan', disabled: true },
-    { label: 'Boutique', icon: Store, link: '/boutique', disabled: true },
-    { label: 'Roulette', icon: Dices, link: '/roulette', disabled: true },
+    // { label: 'Boutique', icon: Store, link: '/boutique', disabled: true },
+    // { label: 'Roulette', icon: Dices, link: '/roulette', disabled: true },
 ];
 
 async function handleLogout() {

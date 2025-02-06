@@ -58,14 +58,43 @@ definePageMeta({
     <div class="container mx-auto px-6 text-center">
       <h2 class="text-3xl font-bold text-ltext dark:text-dtext mb-12">Fonctionnalités</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        <div v-for="(feature, index) in features" :key="index"
-          class="bg-white dark:bg-dbg p-6 rounded-lg shadow-md">
+        <div v-for="(feature, index) in features" :key="index" class="bg-white dark:bg-dbg p-6 rounded-lg shadow-md">
           <h3 class="text-xl font-semibold text-ltextbold dark:text-dtextbold mb-4">{{ feature.title }}</h3>
           <p class="text-sm text-lightText dark:text-darkText">{{ feature.description }}</p>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Section d'entraide communautaire -->
+  <!-- <div class="bg-lcardbg dark:bg-dcardbg py-12">
+    <div class="container mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold text-ltext dark:text-dtext mb-12">Aidez votre communauté à grandir</h2>
+      <p class="text-lg text-lightText dark:text-darkText mb-6">
+        "Notre application est conçue pour soutenir les communautés en ligne et les aider à organiser des tournois,
+        créer des liens et récolter des fonds pour des projets caritatifs."
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        <div class="bg-white dark:bg-dbg p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold text-ltextbold dark:text-dtextbold mb-4">Soutenez les projets communautaires
+          </h3>
+          <p class="text-sm text-lightText dark:text-darkText">Une partie des gains des tournois peut être reversée à
+            des projets solidaires ou caritatifs choisis par les membres de votre communauté.</p>
+        </div>
+        <div class="bg-white dark:bg-dbg p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold text-ltextbold dark:text-dtextbold mb-4">Renforcez les liens entre les
+            membres</h3>
+          <p class="text-sm text-lightText dark:text-darkText">Les clans et guildes peuvent organiser leurs propres
+            tournois et défis, renforçant ainsi la solidarité et la coopération.</p>
+        </div>
+        <div class="bg-white dark:bg-dbg p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold text-ltextbold dark:text-dtextbold mb-4">Partagez vos réussites</h3>
+          <p class="text-sm text-lightText dark:text-darkText">En partageant vos exploits et victoires avec la
+            communauté, vous inspirez d'autres groupes à participer et à grandir ensemble.</p>
+        </div>
+      </div>
+    </div>
+  </div> -->
 
   <!-- Section de présentation -->
   <div class="flex flex-col justify-center items-center px-6 pt-12 md:px-12 lg:px-20">

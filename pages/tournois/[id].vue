@@ -40,6 +40,7 @@ async function leaveTournament() {
 }
 
 onMounted(async () => {
+    participants.value = await participationStore.getParticipants(id);
     await loadTournament();
 });
 
@@ -68,6 +69,11 @@ function editTournament(tournament: Tournament) {
     }
 }
 
+// Vérifie si l'utilisateur est déjà inscrit parmi les participants
+const isUserParticipant = computed(() => {
+    return participants.value?.some(participant => participant.user_id === userStore.profile?.user_id);
+});
+
 </script>
 
 <template>
@@ -87,13 +93,13 @@ function editTournament(tournament: Tournament) {
             <img v-if="organizer.avatar_url" :src="organizer.avatar_url" alt="Avatar de l'organisateur"
                 class="w-10 h-10 rounded-full object-cover mr-3" />
             <span v-if="organizer" class="hover:underline">
-                <NuxtLink class="hover:underline" :to="`/@${tournament.organizer.username}`">
-                    {{ tournament.organizer.username }}</NuxtLink>
+                <NuxtLink class="hover:underline" :to="`/@${organizer.username}`">
+                    {{ organizer.username }}</NuxtLink>
             </span>
         </div>
 
         <h2 class="text-xl font-bold border-b pb-2 mb-4">Participants</h2>
-        <div v-if="participants && participants?.length" class="mt-6 mb-4">
+        <div v-if="participants && participants.length > 0" class="mt-6 mb-4">
             <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-6">
                 <li v-for="participant in participants" :key="participant.id"
                     class="flex items-center p-4 rounded-lg shadow-md border-2 border-lborder dark:border-dborder">
@@ -109,17 +115,20 @@ function editTournament(tournament: Tournament) {
         </div>
         <p v-else class="text-center text-lg text-gray-400">Pas de participants pour le moment</p>
 
+        <!-- Vérification de l'inscription de l'utilisateur -->
         <div class="flex space-x-4">
             <button v-if="userStore.profile?.user_id === tournament.organizer_id" @click="editTournament(tournament)"
                 class="btnvariant">
                 Modifier le tournoi
             </button>
 
-            <button @click="joinTournament()" class="btn bg-[#27ae60]">
-                Participer au tournoi
-            </button>
-            <button @click="leaveTournament()" class="btn bg-[#c0392b]">
+            <!-- Vérifie si l'utilisateur est déjà inscrit -->
+            <button v-if="isUserParticipant" @click="leaveTournament()" class="btn bg-[#c0392b]">
                 Désinscription au tournoi
+            </button>
+
+            <button v-else @click="joinTournament()" class="btn bg-[#27ae60]">
+                Participer au tournoi
             </button>
         </div>
 

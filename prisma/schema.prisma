@@ -82,6 +82,7 @@ model tournament {
   participants  participant[]
   reward_type   reward_type
   reward_amount Int
+  format        format_type
   created_at    DateTime      @default(now())
   updated_at    DateTime      @updatedAt
 }
@@ -94,6 +95,49 @@ model participant {
   tournament    tournament @relation(fields: [tournament_id], references: [id])
   score         Int        @default(0)
   joined_at     DateTime   @default(now())
+}
+
+model bracket {
+  id            Int         @id @default(autoincrement())
+  tournament_id Int
+  tournament    tournament  @relation(fields: [tournament_id], references: [id], onDelete: Cascade)
+  round_number  Int        
+   is_losers_bracket Boolean   @default(false) 
+  matches       match[]
+}
+
+model match {
+  id          Int         @id @default(autoincrement())
+  bracket_id  Int
+  bracket     bracket     @relation(fields: [bracket_id], references: [id], onDelete: Cascade)
+  player1_id  String?     @db.Uuid
+  player1     profile?    @relation(fields: [player1_id], references: [user_id], onDelete: SetNull)
+  player2_id  String?     @db.Uuid
+  player2     profile?    @relation(fields: [player2_id], references: [user_id], onDelete: SetNull)
+  winner_id   String?     @db.Uuid
+  winner      profile?    @relation(fields: [winner_id], references: [user_id], onDelete: SetNull)
+  round       Int         // Round actuel du match
+  match_index Int         // Position dans le bracket
+}
+
+model match_results {
+  id            Int        @id @default(autoincrement())
+  tournament_id Int
+  tournament    tournament @relation(fields: [tournament_id], references: [id])
+  user_id       String     @db.Uuid
+  user          profile    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  kills         Int        @default(0)
+  placement     Int        @default(0)
+  score         Int        @default(0)  // Calcul basé sur kills & placement
+  played_at     DateTime   @default(now())
+
+  @@unique([tournament_id, user_id])  // Un score par tournoi et par joueur
+}
+
+enum format_type {
+  single_elimination
+  double_elimination
+  free_for_all
 }
 
 enum currency_type {

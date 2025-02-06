@@ -8,21 +8,25 @@ generator client {
 }
 
 model profile {
-  id         Int      @id @default(autoincrement())
-  user_id    String   @unique @default(uuid()) @db.Uuid
-  email      String   @unique
-  username   String?
-  full_name  String?
-  website    String?
-  avatar_url String?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  xp         Int      @default(0)
-  rank       String   @default("Novice")
-  wallet      wallet[]
-  participant participant[]
-  members     members[]
-  tournament  tournament[]
+  id             Int             @id @default(autoincrement())
+  user_id        String          @unique @default(uuid()) @db.Uuid
+  email          String          @unique
+  username       String?
+  full_name      String?
+  website        String?
+  avatar_url     String?
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @updatedAt
+  xp             Int             @default(0)
+  rank           String          @default("Novice")
+  wallet         wallet[]
+  participant    participant[]
+  members        members[]
+  tournament     tournament[]
+  matchAsPlayer1 match[]         @relation("player1Match")
+  matchAsPlayer2 match[]         @relation("player2Match")
+  matchAsWinner  match[]         @relation("winnerMatch")
+  match_results  match_results[]
 }
 
 model wallet {
@@ -71,20 +75,22 @@ model game {
 }
 
 model tournament {
-  id            Int           @id @default(autoincrement())
+  id            Int             @id @default(autoincrement())
   title         String
-  organizer_id  String        @db.Uuid
-  organizer     profile       @relation(fields: [organizer_id], references: [user_id], onDelete: Cascade)
+  organizer_id  String          @db.Uuid
+  organizer     profile         @relation(fields: [organizer_id], references: [user_id], onDelete: Cascade)
   prix_entree   Int
   date          DateTime
   game_id       Int
-  game          game          @relation(fields: [game_id], references: [id])
+  game          game            @relation(fields: [game_id], references: [id])
   participants  participant[]
   reward_type   reward_type
   reward_amount Int
   format        format_type
-  created_at    DateTime      @default(now())
-  updated_at    DateTime      @updatedAt
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  bracket       bracket[]
+  match_results match_results[]
 }
 
 model participant {
@@ -95,29 +101,35 @@ model participant {
   tournament    tournament @relation(fields: [tournament_id], references: [id])
   score         Int        @default(0)
   joined_at     DateTime   @default(now())
+
+  @@unique([user_id, tournament_id])
 }
 
 model bracket {
-  id            Int         @id @default(autoincrement())
-  tournament_id Int
-  tournament    tournament  @relation(fields: [tournament_id], references: [id], onDelete: Cascade)
-  round_number  Int        
-   is_losers_bracket Boolean   @default(false) 
-  matches       match[]
+  id                Int        @id @default(autoincrement())
+  tournament_id     Int
+  tournament        tournament @relation(fields: [tournament_id], references: [id], onDelete: Cascade)
+  round_number      Int
+  is_losers_bracket Boolean    @default(false)
+  matches           match[]
 }
 
 model match {
-  id          Int         @id @default(autoincrement())
-  bracket_id  Int
-  bracket     bracket     @relation(fields: [bracket_id], references: [id], onDelete: Cascade)
-  player1_id  String?     @db.Uuid
-  player1     profile?    @relation(fields: [player1_id], references: [user_id], onDelete: SetNull)
-  player2_id  String?     @db.Uuid
-  player2     profile?    @relation(fields: [player2_id], references: [user_id], onDelete: SetNull)
-  winner_id   String?     @db.Uuid
-  winner      profile?    @relation(fields: [winner_id], references: [user_id], onDelete: SetNull)
-  round       Int         // Round actuel du match
-  match_index Int         // Position dans le bracket
+  id         Int     @id @default(autoincrement())
+  bracket_id Int
+  bracket    bracket @relation(fields: [bracket_id], references: [id], onDelete: Cascade)
+
+  player1_id String?  @db.Uuid
+  player1    profile? @relation("player1Match", fields: [player1_id], references: [user_id], onDelete: SetNull)
+
+  player2_id String?  @db.Uuid
+  player2    profile? @relation("player2Match", fields: [player2_id], references: [user_id], onDelete: SetNull)
+
+  winner_id String?  @db.Uuid
+  winner    profile? @relation("winnerMatch", fields: [winner_id], references: [user_id], onDelete: SetNull)
+
+  round       Int
+  match_index Int
 }
 
 model match_results {
@@ -128,10 +140,10 @@ model match_results {
   user          profile    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
   kills         Int        @default(0)
   placement     Int        @default(0)
-  score         Int        @default(0)  // Calcul basé sur kills & placement
+  score         Int        @default(0)
   played_at     DateTime   @default(now())
 
-  @@unique([tournament_id, user_id])  // Un score par tournoi et par joueur
+  @@unique([tournament_id, user_id])
 }
 
 enum format_type {

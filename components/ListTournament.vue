@@ -7,8 +7,6 @@ const copied = ref<{ [key: number]: boolean }>({});
 
 onMounted(async () => {
   await tournamentStore.fetchTournaments();
-  console.log(tournamentStore.tournaments);
-  
 });
 
 function copyLinkToClipboard(tournamentId: number) {

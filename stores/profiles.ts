@@ -30,7 +30,7 @@ export const useUserStore = defineStore('user', () => {
                             user_id: user.id,
                             email: user.email,
                             username: user.email.split('@')[0],
-                            avatar_url: 'https://rikzkugzznvcygapwgol.supabase.co/storage/v1/object/public/avatar/default/default.jpg?t=2025-01-16T13%3A42%3A28.357Z',
+                            avatar_url: 'https://rikzkugzznvcygapwgol.supabase.co/storage/v1/object/public/avatars/default/default.jpg',
                             created_at: new Date(),
                             updated_at: new Date(),
                         },
@@ -113,49 +113,83 @@ export const useUserStore = defineStore('user', () => {
     }
 
     async function uploadAvatar(event: Event, userId: string) {
-        const target = event.target as HTMLInputElement;
+        try {
+            const target = event.target as HTMLInputElement;
 
-        if (!target?.files?.length) {
-            toast.error('Aucun fichier sélectionné.', { icon: CircleX });
-            return;
+            if (!target?.files?.length) {
+                toast.error('Aucun fichier sélectionné.', { icon: CircleX });
+                return;
+            }
+
+            const avatarFile = target.files[0];
+            const fileExt = avatarFile.name.split('.').pop();
+            const filePath = `avatars/${userId}.${fileExt}`;
+
+            // Vérifier s'il y a une ancienne image
+            const { data: existingFiles, error: listError } = await supabase
+                .storage
+                .from('avatars')
+                .list('', { search: userId });
+
+            if (listError) {
+                toast.error("Erreur lors de la récupération des fichiers.", { icon: CircleX });
+            }
+
+            if (existingFiles?.length) {
+                // Supprimer l'ancien fichier si un avatar existe déjà
+                const oldFile = existingFiles.find(f => f.name.includes(userId));
+                if (oldFile) {
+                    const { error: removeError } = await supabase.storage.from('avatars').remove([oldFile.name]);
+                    if (removeError) {
+                        console.error("Erreur lors de la suppression de l'ancien avatar :", removeError);
+                        toast.error(`Erreur lors de la suppression de l'ancien avatar : ${removeError.message}`, { icon: CircleX });
+                        return;
+                    }
+                }
+            }
+
+            // Upload du nouveau fichier
+            const { error: uploadError } = await supabase
+                .storage
+                .from('avatars')
+                .upload(filePath, avatarFile, { upsert: true });
+
+            if (uploadError) {
+                toast.error(`Erreur lors de l'upload : ${uploadError.message}`, { icon: CircleX });
+                return;
+            }
+
+            // Récupérer l'URL publique
+            const { data: publicUrlData } = supabase
+                .storage
+                .from('avatars')
+                .getPublicUrl(filePath);
+
+            const publicUrl = publicUrlData?.publicUrl;
+            if (!publicUrl) {
+                toast.error("Impossible de récupérer l'URL de l'avatar.", { icon: CircleX });
+                return;
+            }
+
+            // Mettre à jour l'avatar dans la base de données
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({ avatar_url: publicUrl })
+                .eq('user_id', userId);
+
+            if (updateError) {
+                console.error("Erreur de mise à jour du profil :", updateError);
+                toast.error(`Erreur lors de la mise à jour : ${updateError.message}`, { icon: CircleX });
+                return;
+            }
+
+            toast.success("Avatar mis à jour avec succès !", { icon: Check });
+            return publicUrl;
+
+        } catch (error) {
+            console.error("Erreur inattendue :", error);
+            toast.error("Une erreur inattendue est survenue.", { icon: CircleX });
         }
-
-        const avatarFile = target.files[0];
-        const fileExt = avatarFile.name.split('.').pop();
-        const filePath = `avatars/${userId}.${fileExt}`;
-
-        const { data: uploadData, error: uploadError } = await supabase
-            .storage
-            .from('avatars')
-            .upload(filePath, avatarFile, {
-                cacheControl: '3600',
-                upsert: true
-            });
-
-        if (uploadError) {
-            toast.error('Erreur lors du téléchargement de l\'avatar : ' + uploadError.message, { icon: CircleX });
-            return;
-        }
-
-        const { data: publicUrlData } = supabase
-            .storage
-            .from('avatars')
-            .getPublicUrl(filePath);
-
-        const avatarUrl = publicUrlData.publicUrl;
-
-        const { error: updateError } = await supabase
-            .from('profiles')
-            .update({ avatar_url: avatarUrl })
-            .eq('user_id', userId);
-
-        if (updateError) {
-            toast.error('Erreur lors de la mise à jour des métadonnées de l\'utilisateur ' + updateError.message, { icon: CircleX });
-            return;
-        }
-        toast.success("Avatar modifié avec succès ", { icon: Check });
-
-        return avatarUrl;
     }
 
     async function getProfileByUsername(username: string) {

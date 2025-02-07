@@ -3,7 +3,7 @@ import type { Tournament } from "./tournaments";
 export interface Game {
     id: number;
     name: string;
-    categorie: CategoryType;
+    category: CategoryType;
     tournament: Tournament[];
 }
 

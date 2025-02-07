@@ -10,6 +10,7 @@ export interface Tournament {
     date: Date;
     game_id: number;
     game: Game;
+    format: string;
     participants: Participant[];
     reward_type: RewardType;
     reward_amount: number;
@@ -17,7 +18,14 @@ export interface Tournament {
     updated_at: Date;
 }
 
-export interface NewTournament extends Omit<Tournament, 'id' | 'organizer' | 'organizer_id' | 'game' | 'participants' | 'created_at' | 'updated_at'> {
+export interface NewTournament {
+    title: string;
+    prix_entree: number;
+    date: Date;
+    game_id: number;
+    format: string;
+    reward_type: RewardType;
+    reward_amount: number;
 }
 
 export interface Organizer {
@@ -40,3 +48,9 @@ export enum RewardType {
     tickets = "Tickets",
     real_money = "Argent réel"
 }
+
+export enum FormatType {
+    single_elimination = "Élimination simple",
+    double_elimination = "Élimination double",
+    free_for_all = "Free for all",
+} 

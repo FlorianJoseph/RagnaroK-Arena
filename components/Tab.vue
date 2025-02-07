@@ -1,58 +1,32 @@
-<style scoped>
-  .radio-inputs {
-    position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    border-radius: 0.5rem;
-    background-color: #EEE;
-    box-sizing: border-box;
-    box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.06);
-    padding: 0.25rem;
-    width: 300px;
-    font-size: 14px;
-  }
-
-  .radio-inputs .radio {
-    flex: 1 1 auto;
-    text-align: center;
-  }
-
-  .radio-inputs .radio input {
-    display: none;
-  }
-
-  .radio-inputs .radio .name {
-    display: flex;
-    cursor: pointer;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.5rem;
-    border: none;
-    padding: .5rem 0;
-    color: rgba(51, 65, 85, 1);
-    transition: all .15s ease-in-out;
-  }
-
-  .radio-inputs .radio input:checked + .name {
-    background-color: #fff;
-    font-weight: 600;
-  }
-</style>
-
 <template>
-  <div class="radio-inputs">
-    <label class="radio">
-      <input type="radio" name="radio" checked="">
-      <span class="name">Tournois</span>
+  <div class="flex flex-wrap bg-gray-100 p-1.5 rounded-lg shadow-sm w-96 text-sm">
+    <label class="flex-1 text-center">
+      <input type="radio" name="radio" checked class="hidden" />
+      <span
+        class="flex items-center justify-center cursor-pointer py-2 px-0 rounded-lg text-gray-700 transition-all duration-150 ease-in-out hover:bg-gray-200 hover:font-semibold">
+        <NuxtLink to="/tournois">Tournois</NuxtLink>
+      </span>
     </label>
-    <label class="radio">
-      <input type="radio" name="radio">
-      <span class="name">Favoris</span>
+    <label class="flex-1 text-center">
+      <input type="radio" name="radio" class="hidden" />
+      <span
+        class="flex items-center justify-center cursor-pointer py-2 px-0 rounded-lg text-gray-700 transition-all duration-150 ease-in-out hover:bg-gray-200 hover:font-semibold">
+        <NuxtLink to="/tournois/favoris">Favoris</NuxtLink>
+      </span>
     </label>
-
-    <label class="radio">
-      <input type="radio" name="radio">
-      <span class="name">Mes tournois</span>
+    <label class="flex-1 text-center">
+      <input type="radio" name="radio" class="hidden" />
+      <span
+        class="flex items-center justify-center cursor-pointer py-2 px-0 rounded-lg text-gray-700 transition-all duration-150 ease-in-out hover:bg-gray-200 hover:font-semibold">
+        <NuxtLink to="/tournois/mes-tournois">Mes tournois</NuxtLink>
+      </span>
+    </label>
+    <label class="flex-1 text-center">
+      <input type="radio" name="radio" class="hidden" />
+      <span
+        class="flex items-center justify-center cursor-pointer py-2 px-0 rounded-lg text-gray-700 transition-all duration-150 ease-in-out hover:bg-gray-200 hover:font-semibold">
+        <NuxtLink to="/tournois/nouveau">Nouveau</NuxtLink>
+      </span>
     </label>
   </div>
 </template>

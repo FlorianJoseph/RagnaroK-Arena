@@ -1,6 +1,6 @@
-import type { Wallet } from "./wallet";
-import type { Tournament, Participant } from "./tournament";
-import type { Member } from "./clan";
+import type { Wallet } from "./wallets";
+import type { Tournament, Participant } from "./tournaments";
+import type { Member } from "./clans";
 
 export interface Profile {
     id: number;

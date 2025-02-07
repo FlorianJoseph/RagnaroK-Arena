@@ -6,7 +6,7 @@ export const useRankingStore = defineStore('ranking', () => {
 
     async function fetchProfiles() {
         const { data, error } = await supabase
-            .from('profile')
+            .from('profiles')
             .select('id, username, xp, rank')
             .order('xp', { ascending: false });
 
@@ -27,7 +27,7 @@ export const useRankingStore = defineStore('ranking', () => {
         else if (newXP >= 100) newRank = 'Intermédiaire';
 
         const { error: updateError } = await supabase
-            .from('profile')
+            .from('profiles')
             .update({ xp: newXP, rank: newRank })
             .eq('id', userId);
 

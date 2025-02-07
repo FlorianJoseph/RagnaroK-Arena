@@ -7,48 +7,48 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model profile {
-  id             Int             @id @default(autoincrement())
-  user_id        String          @unique @default(uuid()) @db.Uuid
-  email          String          @unique
+model profiles {
+  id             Int            @id @default(autoincrement())
+  user_id        String         @unique @db.Uuid
+  email          String         @unique
   username       String?
   full_name      String?
   website        String?
   avatar_url     String?
-  created_at     DateTime        @default(now())
-  updated_at     DateTime        @updatedAt
-  xp             Int             @default(0)
-  rank           String          @default("Novice")
-  wallet         wallet[]
-  participant    participant[]
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
+  xp             Int            @default(0)
+  rank           String         @default("Novice")
+  wallet         wallets[]
+  participant    participants[]
   members        members[]
-  tournament     tournament[]
-  matchAsPlayer1 match[]         @relation("player1Match")
-  matchAsPlayer2 match[]         @relation("player2Match")
-  matchAsWinner  match[]         @relation("winnerMatch")
-  match_results  match_results[]
+  tournament     tournaments[]
+  matchAsPlayer1 matches[]      @relation("player1Match")
+  matchAsPlayer2 matches[]      @relation("player2Match")
+  matchAsWinner  matches[]      @relation("winnerMatch")
+  match_results  results[]
 }
 
-model wallet {
-  id           Int           @id @default(autoincrement())
-  user_id      String        @unique @db.Uuid
-  user         profile       @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  coins        Int           @default(0)
-  tickets      Int           @default(0)
-  balance      Decimal       @default(0.0)
-  transactions transaction[]
+model wallets {
+  id           Int            @id @default(autoincrement())
+  user_id      String         @unique @db.Uuid
+  user         profiles       @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  coins        Int            @default(0)
+  tickets      Int            @default(0)
+  balance      Decimal        @default(0.0)
+  transactions transactions[]
 }
 
-model transaction {
+model transactions {
   id         Int           @id @default(autoincrement())
   wallet_id  Int
-  wallet     wallet        @relation(fields: [wallet_id], references: [id])
+  wallet     wallets       @relation(fields: [wallet_id], references: [id])
   amount     Decimal
   currency   currency_type
   created_at DateTime      @default(now())
 }
 
-model clan {
+model clans {
   id         Int       @id @default(autoincrement())
   name       String    @db.VarChar(100)
   members    members[] @relation("ClanMembers")
@@ -57,91 +57,91 @@ model clan {
 }
 
 model members {
-  id      Int     @id @default(autoincrement())
+  id      Int      @id @default(autoincrement())
   clan_id Int
-  clan    clan    @relation("ClanMembers", fields: [clan_id], references: [id])
-  user_id String  @db.Uuid
-  user    profile @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  clan    clans    @relation("ClanMembers", fields: [clan_id], references: [id])
+  user_id String   @db.Uuid
+  user    profiles @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@unique([user_id, clan_id])
   @@index([clan_id])
 }
 
-model game {
+model games {
   id         Int            @id @default(autoincrement())
-  nom        String
-  categorie  categorie_type
-  tournament tournament[]
+  name       String
+  category   categorie_type
+  tournament tournaments[]
 }
 
-model tournament {
-  id            Int             @id @default(autoincrement())
+model tournaments {
+  id            Int            @id @default(autoincrement())
   title         String
-  organizer_id  String          @db.Uuid
-  organizer     profile         @relation(fields: [organizer_id], references: [user_id], onDelete: Cascade)
+  organizer_id  String         @db.Uuid
+  organizer     profiles       @relation(fields: [organizer_id], references: [user_id], onDelete: Cascade)
   prix_entree   Int
   date          DateTime
   game_id       Int
-  game          game            @relation(fields: [game_id], references: [id])
-  participants  participant[]
+  game          games          @relation(fields: [game_id], references: [id])
+  participants  participants[]
   reward_type   reward_type
   reward_amount Int
   format        format_type
-  created_at    DateTime        @default(now())
-  updated_at    DateTime        @updatedAt
-  bracket       bracket[]
-  match_results match_results[]
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  bracket       brackets[]
+  results       results[]
 }
 
-model participant {
-  id            Int        @id @default(autoincrement())
-  user_id       String     @db.Uuid
-  user          profile    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+model participants {
+  id            Int         @id @default(autoincrement())
+  user_id       String      @db.Uuid
+  user          profiles    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
   tournament_id Int
-  tournament    tournament @relation(fields: [tournament_id], references: [id])
-  score         Int        @default(0)
-  joined_at     DateTime   @default(now())
+  tournament    tournaments @relation(fields: [tournament_id], references: [id])
+  score         Int         @default(0)
+  joined_at     DateTime    @default(now())
 
   @@unique([user_id, tournament_id])
 }
 
-model bracket {
-  id                Int        @id @default(autoincrement())
+model brackets {
+  id                Int         @id @default(autoincrement())
   tournament_id     Int
-  tournament        tournament @relation(fields: [tournament_id], references: [id], onDelete: Cascade)
+  tournament        tournaments @relation(fields: [tournament_id], references: [id], onDelete: Cascade)
   round_number      Int
-  is_losers_bracket Boolean    @default(false)
-  matches           match[]
+  is_losers_bracket Boolean     @default(false)
+  matches           matches[]
 }
 
-model match {
-  id         Int     @id @default(autoincrement())
+model matches {
+  id         Int      @id @default(autoincrement())
   bracket_id Int
-  bracket    bracket @relation(fields: [bracket_id], references: [id], onDelete: Cascade)
+  bracket    brackets @relation(fields: [bracket_id], references: [id], onDelete: Cascade)
 
-  player1_id String?  @db.Uuid
-  player1    profile? @relation("player1Match", fields: [player1_id], references: [user_id], onDelete: SetNull)
+  player1_id String?   @db.Uuid
+  player1    profiles? @relation("player1Match", fields: [player1_id], references: [user_id], onDelete: SetNull)
 
-  player2_id String?  @db.Uuid
-  player2    profile? @relation("player2Match", fields: [player2_id], references: [user_id], onDelete: SetNull)
+  player2_id String?   @db.Uuid
+  player2    profiles? @relation("player2Match", fields: [player2_id], references: [user_id], onDelete: SetNull)
 
-  winner_id String?  @db.Uuid
-  winner    profile? @relation("winnerMatch", fields: [winner_id], references: [user_id], onDelete: SetNull)
+  winner_id String?   @db.Uuid
+  winner    profiles? @relation("winnerMatch", fields: [winner_id], references: [user_id], onDelete: SetNull)
 
   round       Int
   match_index Int
 }
 
-model match_results {
-  id            Int        @id @default(autoincrement())
+model results {
+  id            Int         @id @default(autoincrement())
   tournament_id Int
-  tournament    tournament @relation(fields: [tournament_id], references: [id])
-  user_id       String     @db.Uuid
-  user          profile    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  kills         Int        @default(0)
-  placement     Int        @default(0)
-  score         Int        @default(0)
-  played_at     DateTime   @default(now())
+  tournament    tournaments @relation(fields: [tournament_id], references: [id])
+  user_id       String      @db.Uuid
+  user          profiles    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  kills         Int         @default(0)
+  placement     Int         @default(0)
+  score         Int         @default(0)
+  played_at     DateTime    @default(now())
 
   @@unique([tournament_id, user_id])
 }
@@ -165,13 +165,7 @@ enum reward_type {
 }
 
 enum categorie_type {
-  action
-  aventure
-  fps
-  rpg
-  strategie
-  sport
-  party_games
-  simulation
-  autre
+  FPS
+  PartyGames
+  Combat
 }

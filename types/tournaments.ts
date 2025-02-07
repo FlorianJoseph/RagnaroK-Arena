@@ -1,5 +1,5 @@
-import type { Profile } from "./profile";
-import type { Game } from "./game";
+import type { Profile } from "./profiles";
+import type { Game } from "./games";
 
 export interface Tournament {
     id: number;

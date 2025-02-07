@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { CircleX, Check } from 'lucide-vue-next';
-import type { Tournament, NewTournament, Participant } from '~/types/tournament';
-import type { Organizer } from '~/types/tournament';
+import type { Tournament, NewTournament, Participant } from '~/types/tournaments';
+import type { Organizer } from '~/types/tournaments';
 
 export const useTournamentStore = defineStore('tournament', () => {
     const tournaments = ref<Tournament[]>([]);
@@ -14,7 +14,7 @@ export const useTournamentStore = defineStore('tournament', () => {
     // Récupérer tous les tournois
     async function fetchTournaments() {
         const { data, error } = await supabase
-            .from('tournament')
+            .from('tournaments')
             .select('*')
             .order('date', { ascending: true });
 
@@ -41,7 +41,7 @@ export const useTournamentStore = defineStore('tournament', () => {
 
         if (!tournament) {
             const { data, error } = await supabase
-                .from('tournament')
+                .from('tournaments')
                 .select(`*`)
                 .eq('id', id)
                 .single();
@@ -75,7 +75,7 @@ export const useTournamentStore = defineStore('tournament', () => {
     // Récupérer un organisateur
     async function getOrganizer(tournamentId: number) {
         const { data: tournamentData, error: tournamentError } = await supabase
-            .from('tournament')
+            .from('tournaments')
             .select('organizer_id')
             .eq('id', tournamentId)
             .single();
@@ -86,7 +86,7 @@ export const useTournamentStore = defineStore('tournament', () => {
         }
 
         const { data: organizerData, error: organizerError } = await supabase
-            .from('profile')
+            .from('profiles')
             .select('*')
             .eq('user_id', tournamentData.organizer_id)
             .single();
@@ -108,7 +108,7 @@ export const useTournamentStore = defineStore('tournament', () => {
         };
 
         const { data, error } = await supabase
-            .from('tournament')
+            .from('tournaments')
             .insert([tournamentInsertData]);
 
         if (error) {
@@ -126,7 +126,7 @@ export const useTournamentStore = defineStore('tournament', () => {
     async function updateTournament(updatedTournament: Tournament) {
         const { participants, organizer, ...data } = updatedTournament;
         const { error } = await supabase
-            .from('tournament')
+            .from('tournaments')
             .update(data)
             .eq('id', updatedTournament.id);
 
@@ -145,7 +145,7 @@ export const useTournamentStore = defineStore('tournament', () => {
     // Supprimer tournoi
     async function deleteTournament(tournamentId: number) {
         const { data, error } = await supabase
-            .from('tournament')
+            .from('tournaments')
             .delete()
             .eq('id', tournamentId);
 
@@ -162,7 +162,7 @@ export const useTournamentStore = defineStore('tournament', () => {
 
     async function getTournamentsByOrganizer(user_id: string) {
         const { data, error } = await supabase
-            .from('tournament')
+            .from('tournaments')
             .select('*')
             .eq('organizer_id', user_id)
             .order('created_at', { ascending: false })
@@ -194,7 +194,7 @@ export const useParticipationStore = defineStore('participation', () => {
     // Récupérer les participants
     async function getParticipants(tournamentId: number) {
         const { data: participantData, error: participantError } = await supabase
-            .from('participant')
+            .from('participants')
             .select('user_id')
             .eq('tournament_id', tournamentId);
 
@@ -205,7 +205,7 @@ export const useParticipationStore = defineStore('participation', () => {
 
         const participantIds = participantData.map(p => p.user_id);
         const { data: usersData, error: usersError } = await supabase
-            .from('profile')
+            .from('profiles')
             .select('*')
             .in('user_id', participantIds);
 
@@ -231,7 +231,7 @@ export const useParticipationStore = defineStore('participation', () => {
         };
 
         const { error } = await supabase
-            .from('participant')
+            .from('participants')
             .insert([participantData]);
 
         if (error) {
@@ -250,7 +250,7 @@ export const useParticipationStore = defineStore('participation', () => {
         }
 
         const { error } = await supabase
-            .from('participant')
+            .from('participants')
             .delete()
             .eq('tournament_id', tournamentId)
             .eq('user_id', userStore.profile.user_id);

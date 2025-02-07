@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { CircleX } from 'lucide-vue-next';
-import type { Game } from '~/types/game';
+import type { Game } from '~/types/games';
 
 export const useGameStore = defineStore('gameStore', () => {
     const games = ref<Game[]>([]);
@@ -11,7 +11,7 @@ export const useGameStore = defineStore('gameStore', () => {
     // Fonction pour récupérer les jeux
     async function fetchGames() {
         const { data, error } = await supabase
-            .from('game')
+            .from('games')
             .select('*');
 
         if (error) {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Tournament } from '~/types/tournament';
+import type { Tournament } from '~/types/tournaments';
 
 const props = defineProps<{
     isVisible: boolean;

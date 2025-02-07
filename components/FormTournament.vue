@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { RewardType } from '~/types/tournament'; // Importation de l'énumération
-import type { NewTournament } from '~/types/tournament';
+import { RewardType } from '~/types/tournaments'; // Importation de l'énumération
+import type { NewTournament } from '~/types/tournaments';
 
 const userStore = useUserStore();
 const tournamentStore = useTournamentStore();

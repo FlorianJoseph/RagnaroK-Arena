@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Organizer, Tournament, Participant } from '~/types/tournament';
+import type { Organizer, Tournament, Participant } from '~/types/tournaments';
 import { CalendarDays, Coins, UserRound } from 'lucide-vue-next';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';

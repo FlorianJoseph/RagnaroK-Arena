@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { CircleX, Check, Info } from 'lucide-vue-next';
-import type { Profile } from '~/types/profile';
+import type { Profile } from '~/types/profiles';
 
 export const useUserStore = defineStore('user', () => {
     const user = useSupabaseUser();
@@ -13,7 +13,7 @@ export const useUserStore = defineStore('user', () => {
     async function createUserProfile(user: any) {
         try {
             const { data: existingProfiles, error: profileError } = await supabase
-                .from('profile')
+                .from('profiles')
                 .select('*')
                 .eq('user_id', user.id);
 
@@ -24,7 +24,7 @@ export const useUserStore = defineStore('user', () => {
 
             if (!existingProfiles || existingProfiles.length === 0) {
                 const { error: insertError } = await supabase
-                    .from('profile')
+                    .from('profiles')
                     .insert([
                         {
                             user_id: user.id,
@@ -52,7 +52,7 @@ export const useUserStore = defineStore('user', () => {
 
         if (currentUser) {
             const { data, error } = await supabase
-                .from('profile')
+                .from('profiles')
                 .select('*')
                 .eq('user_id', currentUser.id)
                 .single();
@@ -92,7 +92,7 @@ export const useUserStore = defineStore('user', () => {
         }
 
         const { data, error } = await supabase
-            .from('profile')
+            .from('profiles')
             .upsert(
                 {
                     user_id: currentUser.id,
@@ -126,7 +126,7 @@ export const useUserStore = defineStore('user', () => {
 
         const { data: uploadData, error: uploadError } = await supabase
             .storage
-            .from('avatar')
+            .from('avatars')
             .upload(filePath, avatarFile, {
                 cacheControl: '3600',
                 upsert: true
@@ -139,13 +139,13 @@ export const useUserStore = defineStore('user', () => {
 
         const { data: publicUrlData } = supabase
             .storage
-            .from('avatar')
+            .from('avatars')
             .getPublicUrl(filePath);
 
         const avatarUrl = publicUrlData.publicUrl;
 
         const { error: updateError } = await supabase
-            .from('profile')
+            .from('profiles')
             .update({ avatar_url: avatarUrl })
             .eq('user_id', userId);
 
@@ -160,7 +160,7 @@ export const useUserStore = defineStore('user', () => {
 
     async function getProfileByUsername(username: string) {
         const { data, error } = await supabase
-            .from('profile')
+            .from('profiles')
             .select('*')
             .eq('username', username)
             .single()

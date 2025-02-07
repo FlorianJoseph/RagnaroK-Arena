@@ -1,4 +1,4 @@
-import type { Profile } from "./profile";
+import type { Profile } from "./profiles";
 
 export interface Clan {
     id: number;

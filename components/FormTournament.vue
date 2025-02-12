@@ -11,14 +11,13 @@ const router = useRouter();
 onMounted(async () => {
   await tournamentStore.fetchTournaments();
   await userStore.getProfile();
-  await gameStore.fetchGames();
 });
 
 const newTournament = ref<NewTournament>({
   title: '',
   prix_entree: 0,
   date: new Date(),
-  reward_type: RewardType.coins,
+  reward_type: RewardType.Pièces,
   reward_amount: 0,
   game_id: 1,
   format: FormatType.single_elimination,
@@ -39,7 +38,7 @@ async function createTournament() {
     title: '',
     prix_entree: 0,
     date: new Date(),
-    reward_type: RewardType.coins,
+    reward_type: RewardType.Pièces,
     reward_amount: 0,
     game_id: 1,
     format: FormatType.single_elimination,
@@ -80,9 +79,9 @@ async function createTournament() {
       <div>
         <label class="block font-medium">Type de récompense</label>
         <select v-model="newTournament.reward_type" class="w-full border rounded p-2" required>
-          <option value="coins">Coins</option>
-          <option value="tickets">Tickets</option>
-          <option value="real_money">Argent réel</option>
+          <option value="Pièces">Pièces</option>
+          <option value="Tickets">Tickets</option>
+          <option value="Euros">Euros</option>
         </select>
       </div>
 

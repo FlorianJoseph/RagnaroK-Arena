@@ -21,8 +21,29 @@ export const useGameStore = defineStore('gameStore', () => {
         games.value = data as Game[];
     }
 
+    // Fonction pour récupérer le jeu du tournoi
+    async function getGame(game_id: number) {
+        let game = games.value.find(g => g.id === game_id);
+        if (game) return game;
+
+        const { data, error } = await supabase
+            .from('games')
+            .select('*')
+            .eq('id', game_id)
+            .single();
+
+        if (data) {
+            games.value.push(data as Game);
+            return data as Game;
+        } else {
+            toast.error('Jeu non trouvé', { icon: CircleX });
+            return null;
+        }
+    }
+
     return {
         games,
         fetchGames,
+        getGame,
     };
 });

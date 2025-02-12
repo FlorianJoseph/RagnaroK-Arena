@@ -70,6 +70,7 @@ model members {
 model games {
   id         Int            @id @default(autoincrement())
   name       String
+  image_url  String?
   category   categorie_type
   tournament tournaments[]
 }
@@ -153,15 +154,15 @@ enum format_type {
 }
 
 enum currency_type {
-  coins
-  tickets
-  real_money
+  Pièces
+  Tickets
+  Euros
 }
 
 enum reward_type {
-  coins
-  tickets
-  real_money
+  Pièces
+  Tickets
+  Euros
 }
 
 enum categorie_type {

@@ -20,7 +20,7 @@ export interface Transaction {
 }
 
 export enum CurrencyType {
-    coins = "Pièces",
-    tickets = "Tickets",
-    real_money = "Argent réel"
+    Pièces = "Pièces",
+    Tickets = "Tickets",
+    Euros = "Euros"
 } 

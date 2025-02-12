@@ -10,6 +10,7 @@ export const useTournamentStore = defineStore('tournament', () => {
     const supabase = useSupabaseClient();
     const userStore = useUserStore();
     const participationStore = useParticipationStore();
+    const gameStore = useGameStore();
 
     // Récupérer tous les tournois
     async function fetchTournaments() {
@@ -26,8 +27,10 @@ export const useTournamentStore = defineStore('tournament', () => {
         for (let tournament of data) {
             const organizer = await getOrganizer(tournament.id);
             const participants = await participationStore.getParticipants(tournament.id);
+            const games = await gameStore.getGame(tournament.game_id);
             tournament.organizer = organizer;
             tournament.participants = participants;
+            tournament.games = games;
         }
 
         tournaments.value = data as Tournament[];

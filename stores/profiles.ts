@@ -5,24 +5,25 @@ import type { Profile } from '~/types/profiles';
 
 export const useUserStore = defineStore('user', () => {
     const user = useSupabaseUser();
-    const profile = ref<Profile | null>(null);
     const toast = useToast();
     const supabase = useSupabaseClient();
     const router = useRouter();
+    const profile = ref<Profile | null>(null);
 
     async function createUserProfile(user: any) {
         try {
             const { data: existingProfiles, error: profileError } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('user_id', user.id);
+                .eq('user_id', user.id)
+                .single();
 
             if (profileError) {
                 toast.error("Erreur lors de la récupération du profil : " + profileError.message, { icon: CircleX });
                 return;
             }
 
-            if (!existingProfiles || existingProfiles.length === 0) {
+            if (!existingProfiles) {
                 const { error: insertError } = await supabase
                     .from('profiles')
                     .insert([
@@ -30,7 +31,7 @@ export const useUserStore = defineStore('user', () => {
                             user_id: user.id,
                             email: user.email,
                             username: user.email.split('@')[0],
-                            avatar_url: 'https://rikzkugzznvcygapwgol.supabase.co/storage/v1/object/public/avatars/default/default.jpg',
+                            avatar_url: 'https://rikzkugzznvcygapwgol.supabase.co/storage/v1/object/sign/avatars/default/default.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJhdmF0YXJzL2RlZmF1bHQvZGVmYXVsdC5qcGciLCJpYXQiOjE3MzkxODI5MzMsImV4cCI6MjA1NDU0MjkzM30.MBDOEA5uSvMZ4DqC6cFrboE71ljPirEOcMZ0cQOBvPg',
                             created_at: new Date(),
                             updated_at: new Date(),
                         },
@@ -38,7 +39,7 @@ export const useUserStore = defineStore('user', () => {
 
                 if (insertError) {
                     toast.info("Vous possédez déjà un compte", { icon: Info });
-                    router.push("/login")
+                    router.push("/auth/connexion");
                 }
             }
         } catch (err) {
@@ -48,45 +49,25 @@ export const useUserStore = defineStore('user', () => {
 
     // Fonction pour récupérer le profil de l'utilisateur
     async function getProfile() {
-        const currentUser = user.value;
+        if (!user.value) return;
 
-        if (currentUser) {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('user_id', currentUser.id)
-                .single();
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', user.value.id)
+            .single();
 
-            if (error) {
-                toast.error("Erreur lors de la récupération du profil : " + error.message, { icon: CircleX });
-            } else if (data) {
-                const profileData = data as Profile;
-                profile.value = {
-                    id: profileData.id,
-                    user_id: profileData.user_id,
-                    email: profileData.email,
-                    username: profileData.username || '',
-                    full_name: profileData.full_name || '',
-                    website: profileData.website || '',
-                    xp: profileData.xp || 0,
-                    rank: profileData.rank || '',
-                    avatar_url: profileData.avatar_url || '',
-                    created_at: profileData.created_at || '',
-                    updated_at: profileData.updated_at || '',
-                    wallet: profileData.wallet || [],
-                    participant: profileData.participant || [],
-                    members: profileData.members || [],
-                    tournament: profileData.tournament || [],
-                };
-            }
+        if (error) {
+            toast.error(`Erreur lors de la récupération du profil : ${error.message}`, { icon: CircleX });
+            return;
         }
+
+        profile.value = data;
     }
 
     // Fonction pour sauvegarder le profil
     async function updateProfile(updatedProfile: Profile) {
-        const currentUser = user.value;
-
-        if (!currentUser) {
+        if (!user.value) {
             toast.error('Vous devez être connecté pour mettre à jour votre profil.', { icon: CircleX });
             return;
         }
@@ -95,21 +76,17 @@ export const useUserStore = defineStore('user', () => {
             .from('profiles')
             .upsert(
                 {
-                    user_id: currentUser.id,
-                    email: updatedProfile.email,
-                    username: updatedProfile.username,
-                    full_name: updatedProfile.full_name,
-                    website: updatedProfile.website,
-                    updated_at: new Date().toISOString(),  // Mise à jour du champ 'updated_at'
+                    ...updatedProfile,
+                    user_id: user.value.id,
+                    updated_at: new Date().toISOString(),
                 },
                 { onConflict: ['user_id'] }
             );
 
-        if (error) {
-            toast.error('Erreur lors de la mise à jour : ' + error.message, { icon: CircleX });
-        } else {
-            toast.success('Profil mis à jour avec succès !', { icon: Check });
-        }
+        error
+            ? toast.error(`Erreur lors de la mise à jour : ${error.message}`, { icon: CircleX })
+            : toast.success('Profil mis à jour avec succès !', { icon: Check });
+
     }
 
     async function uploadAvatar(event: Event, userId: string) {
@@ -208,11 +185,11 @@ export const useUserStore = defineStore('user', () => {
     }
 
     return {
-        createUserProfile,
         profile,
+        createUserProfile,
         getProfile,
+        getProfileByUsername,
         updateProfile,
         uploadAvatar,
-        getProfileByUsername,
     };
 });

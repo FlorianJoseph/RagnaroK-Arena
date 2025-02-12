@@ -4,7 +4,6 @@ import { fr } from 'date-fns/locale';
 import { useToast } from 'vue-toastification';
 import { CircleX, ExternalLink } from 'lucide-vue-next';
 
-const authStore = useAuthStore();
 const user = useSupabaseUser();
 const toast = useToast();
 const userStore = useUserStore();

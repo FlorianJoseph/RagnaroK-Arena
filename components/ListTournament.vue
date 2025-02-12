@@ -7,6 +7,7 @@ const copied = ref<{ [key: number]: boolean }>({});
 
 onMounted(async () => {
   await tournamentStore.fetchTournaments();
+
 });
 
 function copyLinkToClipboard(tournamentId: number) {
@@ -28,57 +29,65 @@ function copyLinkToClipboard(tournamentId: number) {
       <li v-for="tournament in tournamentStore.tournaments" :key="tournament.id"
         class="bg-white shadow-lg rounded-lg overflow-hidden border border-lborder dark:border-dborder">
 
-        <!-- Header avec titre et organisateur -->
-        <div class="p-4 bg-gray-100 flex items-center justify-between">
+        <!-- Header -->
+        <div class="p-5 flex items-center justify-between bg-lbg dark:bg-dgray">
           <div>
-            <h2 class="text-2xl font-semibold text-gray-800">{{ tournament.title }}</h2>
-            <div class="flex items-center gap-2">
-              <img :src="tournament.organizer.avatar_url" alt="Avatar" class="w-8 h-8 rounded-full object-cover" />
-              <NuxtLink :to="`/@${tournament.organizer.username}`" class="font-medium text-blue-600 hover:underline">{{
-                tournament.organizer.username }}</NuxtLink>
-            </div>
+            <h2 class="text-2xl font-semibold text-ltext dark:text-dtext">{{ tournament.title }}</h2>
           </div>
 
-          <!-- Date mise en évidence -->
-          <div class="text-center py-2">
-            <p class="text-4xl font-semibold text-gray-800">{{ format(new Date(tournament.date), 'd', { locale: fr }) }}
-            </p>
-            <p class="text-sm text-gray-600">{{ format(new Date(tournament.date), 'MMMM yyyy à HH:mm', { locale: fr })
-              }}</p>
+          <!-- Organisateur à droite -->
+          <div class="flex items-center gap-2">
+            <img :src="tournament.organizer.avatar_url" alt="Avatar" class="w-8 h-8 rounded-full object-cover" />
+            <NuxtLink :to="`/@${tournament.organizer.username}`" class="font-medium hover:underline">
+              {{ tournament.organizer.username }}
+            </NuxtLink>
           </div>
-
         </div>
+
 
         <!-- Image du jeu -->
         <div class="relative">
-          <img :alt="tournament.game_id" class="w-full h-48 object-cover" />
-        </div>
+          <img :src="tournament.games.image_url" :alt="tournament.games.name" class="w-full h-48 object-cover"
+            loading="lazy" />
 
-        <!-- Détails du tournoi -->
-        <div class="p-4">
+          <!-- Détails du tournoi superposés -->
+          <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+            <div class="flex items-center justify-between sm:text-sm md:text-md lg:text-lg">
+              <p>Récompense : {{ tournament.reward_amount }} {{ tournament.reward_type }}</p>
+              <p class="font-semibold">Prix d'entrée : {{ tournament.prix_entree }} {{ tournament.reward_type }}</p>
+            </div>
+          </div>
 
-          <div class="text-sm text-gray-600">
-            <p>Récompense : {{ tournament.reward_amount }} {{ tournament.reward_type }}</p>
-            <p class="font-semibold text-blue-600">Prix d'entrée : {{ tournament.prix_entree }} coins</p>
+          <!-- Date mise en évidence en haut à droite -->
+          <div
+            class="absolute top-2 right-2 bg-white bg-opacity-90 text-black px-3 py-1 rounded-full text-xs shadow-md border">
+            <p>{{ format(new Date(tournament.date), 'd MMM yyyy à HH:mm', { locale: fr }) }}</p>
           </div>
         </div>
 
         <!-- Actions -->
-        <div class="px-6 py-4 flex justify-between items-center border-t border-lborder dark:border-dborder">
+        <div
+          class="p-5 flex justify-between items-center bg-lbg dark:bg-dgray border-t border-lborder dark:border-dborder">
           <div class="flex gap-4">
             <NuxtLink :to="`/tournois/${tournament.id}`" class="hover:text-laccent">Voir le tournoi</NuxtLink>
-            <NuxtLink class="hover:text-laccent">Participer</NuxtLink>
+            <p class="text-ltext dark:text-dtext">
+              {{ tournament.participants.length === 1
+                ? `${tournament.participants.length} participant`
+                : `${tournament.participants.length} participants`
+              }}
+            </p>
           </div>
 
           <div class="flex items-center mr-2">
-            <!-- Icône cœur avec hover rouge -->
-            <div class="flex items-center gap-2 hover:text-red-600 cursor-pointer mr-6">
+            <!-- Bouton de favori -->
+            <div
+              class="flex items-center gap-2 hover:text-red-600 cursor-pointer mr-4 transition-transform duration-200 ease-in-out hover:scale-110">
               <Heart class="hover:text-red-600" />
-              <p>Favori</p>
             </div>
 
             <!-- Bouton de partage -->
-            <div class="flex items-center gap-2 text-gray-600 hover:text-green-600 cursor-pointer"
+            <div
+              class="flex items-center gap-2 hover:text-green-600 cursor-pointer transition-transform duration-200 ease-in-out hover:scale-110"
               @click="copyLinkToClipboard(tournament.id)">
               <template v-if="copied[tournament.id]">
                 <Check class="text-green-600" />
@@ -86,7 +95,6 @@ function copyLinkToClipboard(tournamentId: number) {
               </template>
               <template v-else>
                 <Share2 />
-                <p>Partager</p>
               </template>
             </div>
           </div>

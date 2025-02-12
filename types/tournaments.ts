@@ -9,7 +9,7 @@ export interface Tournament {
     prix_entree: number;
     date: Date;
     game_id: number;
-    game: Game;
+    games: Game;
     format: string;
     participants: Participant[];
     reward_type: RewardType;
@@ -44,9 +44,9 @@ export interface Participant {
 }
 
 export enum RewardType {
-    coins = "Pièces",
-    tickets = "Tickets",
-    real_money = "Argent réel"
+    Pièces = "Pièces",
+    Tickets = "Tickets",
+    Euros = "Euros"
 }
 
 export enum FormatType {

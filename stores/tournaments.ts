@@ -205,6 +205,111 @@ export const useTournamentStore = defineStore('tournament', () => {
         updateTournament,
         deleteTournament,
         getTournamentsByOrganizer,
+        getOrganizer,
+    };
+});
+
+export const useFavoriteStore = defineStore('favorites', () => {
+    const supabase = useSupabaseClient();
+    const participationStore = useParticipationStore();
+    const tournamentStore = useTournamentStore();
+    const gameStore = useGameStore();
+
+    // Ajouter un tournoi aux favoris
+    async function addFavorite(user_id: string, tournament_id: number) {
+        const { error } = await supabase
+            .from('favorites')
+            .insert([{ user_id, tournament_id }]);
+
+        if (error) {
+            console.error('Erreur lors de l\'ajout aux favoris:', error.message);
+            return;
+        }
+    }
+
+    // Récupérer les tournois favoris
+    async function fetchFavorites(user_id: string) {
+        const { data, error } = await supabase
+            .from('favorites')
+            .select('tournament_id')
+            .eq('user_id', user_id);
+
+        if (error) {
+            console.error('Erreur lors de la récupération des favoris:', error.message);
+            return [];
+        }
+
+        const tournamentIds = data.map(fav => fav.tournament_id);
+
+        // Récupérer les détails des tournois favoris
+        const { data: tournaments, error: tournamentsError } = await supabase
+            .from('tournaments')
+            .select('*')
+            .in('id', tournamentIds);
+
+        if (tournamentsError) {
+            console.error('Erreur lors de la récupération des tournois:', tournamentsError.message);
+            return [];
+        }
+
+        const tournamentsWithDetails = await Promise.all(
+            tournaments.map(async (tournament) => {
+                try {
+                    const [organizer, participants, games] = await Promise.all([
+                        tournamentStore.getOrganizer(tournament.id),
+                        participationStore.getParticipants(tournament.id),
+                        gameStore.getGame(tournament.game_id)
+                    ]);
+
+                    tournament.organizer = organizer;
+                    tournament.participants = participants;
+                    tournament.games = games;
+                } catch (err) {
+                    console.error('Erreur lors de la récupération des détails du tournoi:', err);
+                }
+                return tournament;
+            })
+        );
+
+        return tournamentsWithDetails;
+    }
+
+    // Supprimer un tournoi des favoris
+    async function removeFavorite(user_id: string, tournament_id: number) {
+        const { error } = await supabase
+            .from('favorites')
+            .delete()
+            .eq('user_id', user_id)
+            .eq('tournament_id', tournament_id);
+
+        if (error) {
+            console.error('Erreur lors de la suppression du favori:', error.message);
+            return;
+        }
+
+        console.log('Tournoi supprimé des favoris');
+    }
+
+    async function isFavorite(user_id: string, tournament_id: number) {
+        const { data, error } = await supabase
+            .from('favorites')
+            .select('tournament_id')
+            .eq('user_id', user_id)
+            .eq('tournament_id', tournament_id);
+
+        if (error) {
+            console.error('Erreur lors de la vérification du favori:', error.message);
+            return false;
+        }
+
+        return data.length > 0;
+    }
+
+    return {
+        addFavorite,
+        fetchFavorites,
+        removeFavorite,
+        isFavorite,
     };
 });
 

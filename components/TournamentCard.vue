@@ -1,3 +1,69 @@
+<script setup lang="ts">
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { Heart, Share2, Check } from 'lucide-vue-next';
+const copied = ref<{ [key: number]: boolean }>({});
+const favoritesStore = useFavoriteStore();
+const user = useSupabaseUser();
+const isFavorite = ref(false);
+
+const props = defineProps({
+    isIndexPage: {
+        type: Boolean,
+        required: true,
+    },
+    id: Number,
+    title: String,
+    organizer: Object,
+    game: Object,
+    reward_amount: Number,
+    reward_type: String,
+    entry_fee: Number,
+    participants: {
+        type: Array,
+        default: () => [],
+    },
+    date: [String, Date],
+});
+
+const formattedDate = computed(() => {
+    if (!props.date) return 'Date inconnue'
+
+    return format(props.date, 'dd MMM à HH:mm', { locale: fr })
+})
+
+async function checkIfFavorite(tournamentId: number) {
+    const userId = user.value?.id;
+    if (userId) {
+        isFavorite.value = await favoritesStore.isFavorite(userId, tournamentId);
+    }
+}
+
+async function handleFavorite(tournamentId: number) {
+    const userId = user.value?.id
+    if (userId) {
+        if (isFavorite.value) {
+            await favoritesStore.removeFavorite(userId, tournamentId);
+        } else {
+            await favoritesStore.addFavorite(userId, tournamentId);
+        }
+        isFavorite.value = !isFavorite.value;
+    }
+}
+
+function copyLinkToClipboard(tournamentId: number) {
+    navigator.clipboard.writeText(`${window.location.origin}/tournois/${tournamentId}`);
+    copied.value[tournamentId] = true;
+    setTimeout(() => { copied.value[tournamentId] = false; }, 3000);
+}
+
+onMounted(() => {
+    if (props.id) {
+        checkIfFavorite(props.id);
+    }
+});
+</script>
+
 <template>
     <li class="bg-white shadow-lg rounded-lg overflow-hidden border border-lborder dark:border-dborder">
 
@@ -51,9 +117,12 @@
                 <div class="flex items-center">
 
                     <!-- Bouton favori -->
-                    <div
-                        class="flex items-center gap-2 hover:text-red-600 cursor-pointer mr-4 transition-transform duration-200 ease-in-out hover:scale-110">
-                        <Heart class="hover:text-red-600" />
+                    <div v-if="id"
+                        class="flex items-center gap-2 cursor-pointer mr-4 transition-transform duration-200 ease-in-out hover:scale-110">
+                        <Heart :class="{
+                            'fill-red-600 text-red-600': isFavorite,
+                            'hover:fill-red-600 hover:text-red-600': !isFavorite,
+                        }" @click="handleFavorite(id)" />
                     </div>
 
                     <!-- Bouton partage -->
@@ -73,42 +142,3 @@
         </div>
     </li>
 </template>
-
-<script setup lang="ts">
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { Heart, Share2, Check } from 'lucide-vue-next';
-const copied = ref<{ [key: number]: boolean }>({});
-
-const props = defineProps({
-    isIndexPage: {
-        type: Boolean,
-        required: true,
-    },
-    id: Number,
-    title: String,
-    organizer: Object,
-    game: Object,
-    reward_amount: Number,
-    reward_type: String,
-    entry_fee: Number,
-    participants: {
-        type: Array,
-        default: () => [],
-    },
-    date: [String, Date],
-});
-
-const formattedDate = computed(() => {
-    if (!props.date) return 'Date inconnue'
-
-    return format(props.date, 'dd MMM à HH:mm', { locale: fr })
-})
-
-
-function copyLinkToClipboard(tournamentId: number) {
-    navigator.clipboard.writeText(`${window.location.origin}/tournois/${tournamentId}`);
-    copied.value[tournamentId] = true;
-    setTimeout(() => { copied.value[tournamentId] = false; }, 3000);
-}
-</script>

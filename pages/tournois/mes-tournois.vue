@@ -11,7 +11,6 @@ async function fetchTournamentsbyProfile() {
     }
 }
 
-
 onMounted(async () => {
     await fetchTournamentsbyProfile()
 })

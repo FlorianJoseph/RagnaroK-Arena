@@ -27,6 +27,7 @@ model profiles {
   matchAsPlayer2 matches[]      @relation("player2Match")
   matchAsWinner  matches[]      @relation("winnerMatch")
   match_results  results[]
+  favorites      favorites[]
 }
 
 model wallets {
@@ -92,6 +93,7 @@ model tournaments {
   updated_at    DateTime       @updatedAt
   bracket       brackets[]
   results       results[]
+  favorites     favorites[]
 }
 
 model participants {
@@ -145,6 +147,16 @@ model results {
   played_at     DateTime    @default(now())
 
   @@unique([tournament_id, user_id])
+}
+
+model favorites {
+  id            Int         @id @default(autoincrement())
+  user_id       String      @db.Uuid
+  tournament_id Int
+  user          profiles    @relation(fields: [user_id], references: [user_id])
+  tournament    tournaments @relation(fields: [tournament_id], references: [id])
+
+  @@unique([user_id, tournament_id])
 }
 
 enum format_type {

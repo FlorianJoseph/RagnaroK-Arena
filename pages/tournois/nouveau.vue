@@ -1,4 +1,4 @@
 <template>
-    <Tab class="mb-4" />
+    <Tab />
     <FormTournament />
 </template>

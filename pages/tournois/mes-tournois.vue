@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Tournament } from '~/types/tournaments';
-
 const tournaments = ref<Tournament[]>([])
 const tournamentStore = useTournamentStore()
 const user = useSupabaseUser();
@@ -12,23 +11,21 @@ async function fetchTournamentsbyProfile() {
     }
 }
 
+
 onMounted(async () => {
     await fetchTournamentsbyProfile()
 })
 </script>
 
 <template>
-    <Tab class="mb-4" />
-    <div v-if="tournaments.length">
-        <h2 class="text-xl font-bold">Mes tournois organisés :</h2>
-        <ul>
-            <li v-for="tournament in tournaments" :key="tournament.id">
-                <NuxtLink :to="`/tournois/${tournament.id}`" class="text-blue-500 hover:underline">
-                    {{ tournament.title }}
-                </NuxtLink>
-            </li>
-        </ul>
-    </div>
+    <Tab />
+    <ul v-if="tournaments.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <TournamentCard v-for="tournament in tournaments" :key="tournament.id" :id="tournament.id"
+            :title="tournament.title" :organizer="tournament.organizer" :game="tournament.games"
+            :reward_amount="tournament.reward_amount" :reward_type="tournament.reward_type"
+            :entry_fee="tournament.entry_fee" :participants="tournament.participants" :date="tournament.date"
+            :isIndexPage="false" />
+    </ul>
     <div v-else>
         <p>Aucun tournoi organisé.</p>
     </div>

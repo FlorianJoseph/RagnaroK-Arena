@@ -77,6 +77,7 @@ const isUserParticipant = computed(() => {
 </script>
 
 <template>
+    <Tab />
     <div v-if="tournament" class="p-6">
         <h1 class="text-2xl font-bold uppercase border-b-2 pb-2 mb-4">{{ tournament.title }}</h1>
         <div class="text-lg mb-2 flex items-center">

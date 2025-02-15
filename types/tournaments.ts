@@ -6,7 +6,7 @@ export interface Tournament {
     title: string;
     organizer_id: string;
     organizer: Profile;
-    prix_entree: number;
+    entry_fee: number;
     date: Date;
     game_id: number;
     games: Game;
@@ -20,7 +20,7 @@ export interface Tournament {
 
 export interface NewTournament {
     title: string;
-    prix_entree: number;
+    entry_fee: number;
     date: Date;
     game_id: number;
     format: string;
@@ -53,4 +53,4 @@ export enum FormatType {
     single_elimination = "Élimination simple",
     double_elimination = "Élimination double",
     free_for_all = "Free for all",
-} 
+}

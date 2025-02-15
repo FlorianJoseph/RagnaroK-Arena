@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-wrap bg-gray-100 p-1.5 rounded-lg shadow-sm w-96 text-sm">
+  <div class="flex flex-wrap mb-4 bg-gray-100 p-1.5 rounded-lg shadow-sm w-96 text-sm">
     <label class="flex-1 text-center">
       <input type="radio" name="radio" checked class="hidden" />
       <span

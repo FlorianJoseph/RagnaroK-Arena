@@ -1,3 +1,3 @@
 <template>
-    <Tab class="mb-4" />
+    <Tab />
 </template>

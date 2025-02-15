@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ro } from 'date-fns/locale';
 import { RewardType, FormatType } from '~/types/tournaments'; // Importation de l'énumération
 import type { NewTournament } from '~/types/tournaments';
 
@@ -15,7 +14,7 @@ onMounted(async () => {
 
 const newTournament = ref<NewTournament>({
   title: '',
-  prix_entree: 0,
+  entry_fee: 0,
   date: new Date(),
   reward_type: RewardType.Pièces,
   reward_amount: 0,
@@ -25,7 +24,7 @@ const newTournament = ref<NewTournament>({
 
 const predefinedPrices = [10, 20, 50, 100];
 const setPrice = (price: number) => {
-  newTournament.value.prix_entree = price;
+  newTournament.value.entry_fee = price;
 };
 
 async function createTournament() {
@@ -36,7 +35,7 @@ async function createTournament() {
 
   newTournament.value = {
     title: '',
-    prix_entree: 0,
+    entry_fee: 0,
     date: new Date(),
     reward_type: RewardType.Pièces,
     reward_amount: 0,
@@ -89,15 +88,15 @@ async function createTournament() {
         <label class="block font-medium">Prix d'entrée</label>
         <div class="flex space-x-2 mt-2">
           <button v-for="price in predefinedPrices" :key="price" type="button" @click="setPrice(price)"
-            :class="{ 'bg-blue-500 text-white': newTournament.prix_entree === price, 'bg-gray-300': newTournament.prix_entree !== price }"
+            :class="{ 'bg-blue-500 text-white': newTournament.entry_fee === price, 'bg-gray-300': newTournament.entry_fee !== price }"
             class="px-4 py-2 rounded focus:outline-none">
             {{ price }} {{ newTournament.reward_type }}
           </button>
         </div>
       </div>
 
-      <div v-if="newTournament.prix_entree === 0">
-        <input v-model="newTournament.prix_entree" type="number" placeholder="Montant personnalisé"
+      <div v-if="newTournament.entry_fee === 0">
+        <input v-model="newTournament.entry_fee" type="number" placeholder="Montant personnalisé"
           class="w-full border rounded p-2" />
       </div>
 

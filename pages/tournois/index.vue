@@ -1,3 +1,4 @@
 <template>
+  <Tab />
   <ListTournament />
 </template>

@@ -175,7 +175,26 @@ export const useTournamentStore = defineStore('tournament', () => {
             return []
         }
 
-        return data
+        const tournamentsWithDetails = await Promise.all(
+            data.map(async (tournament) => {
+                try {
+                    const [organizer, participants, games] = await Promise.all([
+                        getOrganizer(tournament.id),
+                        participationStore.getParticipants(tournament.id),
+                        gameStore.getGame(tournament.game_id)
+                    ]);
+
+                    tournament.organizer = organizer;
+                    tournament.participants = participants;
+                    tournament.games = games;
+                } catch (err) {
+                    console.error('Erreur lors de la récupération des détails du tournoi:', err);
+                }
+                return tournament;
+            })
+        );
+
+        return tournamentsWithDetails;
     }
 
     return {

@@ -38,7 +38,7 @@ function saveTournament() {
 
                 <div class="mb-4">
                     <label class="block font-medium">Prix d'entrée (coins)</label>
-                    <input v-model="props.form.prix_entree" type="number" class="w-full border rounded p-2" required />
+                    <input v-model="props.form.entry_fee" type="number" class="w-full border rounded p-2" required />
                 </div>
 
                 <div class="mb-4">

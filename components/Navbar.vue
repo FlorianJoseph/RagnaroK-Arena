@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { Swords, Trophy, Crown, Store, ChevronDown, User, Power, Dices } from 'lucide-vue-next';
+import { Swords, Trophy, Crown, Store, ChevronDown, User, Power, Dices, Menu } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
 const route = useRoute();
 const user = useSupabaseUser();
 const isDropdownOpen = ref(false);
-const isSubMenuOpen = ref(false);
 const userStore = useUserStore();
+const isMenuOpen = ref(false);
 const sidebarItems = [
+    { label: 'Tournois', icon: Swords, link: '/tournois' },
     { label: 'Classement', icon: Trophy, link: '/classement' },
     { label: 'Clan', icon: Crown, link: '/clan', disabled: true },
     // { label: 'Boutique', icon: Store, link: '/boutique', disabled: true },
@@ -33,43 +34,20 @@ onMounted(async () => {
             </NuxtLink>
         </div>
 
+        <!-- Menu hamburger pour les petits écrans -->
+        <div class="lg:hidden flex items-center">
+            <button @click="isMenuOpen = !isMenuOpen" class="text-2xl">
+                <Menu />
+            </button>
+        </div>
+
         <!-- Section milieu -->
-        <div class="flex items-center">
-            <!-- Tournois avec sous-menu -->
-            <div class="relative">
-                <div class="flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray transition-all"
-                    @mouseover="isSubMenuOpen = true" @mouseleave="isSubMenuOpen = false">
-                    <component :is="Swords" class="h-6 w-6 mr-3" />
-                    <NuxtLink to="/tournois" class="text-sm font-medium">
-                        Tournois
-                    </NuxtLink>
-                </div>
-
-                <!-- Sous-menu qui apparaît au survol -->
-                <div v-if="isSubMenuOpen"
-                    class="absolute left-0 bg-white dark:bg-dcardbg border border-lborder dark:border-dborder rounded shadow-lg w-48 mt-2">
-                    <ul>
-                        <li>
-                            <NuxtLink to="/tournois"
-                                class="flex items-center gap-2 px-4 py-2 text-ltext dark:text-dtext hover:bg-lgray dark:hover:bg-dgray">
-                                Voir les Tournois
-                            </NuxtLink>
-                        </li>
-                        <li>
-                            <NuxtLink to="/tournois/nouveau"
-                                class="flex items-center gap-2 px-4 py-2 text-ltext dark:text-dtext hover:bg-lgray dark:hover:bg-dgray">
-                                Créer un Tournoi
-                            </NuxtLink>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
+        <div class="hidden lg:flex items-center">
             <div v-for="(item, index) in sidebarItems" :key="index">
                 <NuxtLink :to="item.disabled ? '' : item.link"
-                    class="text-sm font-medium flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray transition-all"
+                    class="text-sm font-medium flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray"
                     :class="{
-                        'bg-lgray dark:bg-dgray': route.path === item.link,
+                        'bg-lgray dark:bg-dgray transition-all scale-105': route.path === item.link,
                         'opacity-50 pointer-events-none': item.disabled
                     }">
                     <component :is="item.icon" class="h-6 w-6 mr-3" />
@@ -77,6 +55,7 @@ onMounted(async () => {
                 </NuxtLink>
             </div>
         </div>
+
         <!-- Section droite -->
         <div class="flex items-center">
             <ToggleTheme />
@@ -114,6 +93,21 @@ onMounted(async () => {
                 </div>
 
             </div>
+        </div>
+    </div>
+
+    <!-- Menu latéral sur mobile -->
+    <div v-if="isMenuOpen" class="lg:hidden absolute top-0 left-0 w-full bg-white dark:bg-dcardbg shadow-md">
+        <div v-for="(item, index) in sidebarItems" :key="index">
+            <NuxtLink :to="item.disabled ? '' : item.link"
+                class="text-sm font-medium flex items-center py-3 px-4 rounded hover:bg-lgray dark:hover:bg-dgray transition-all"
+                :class="{
+                    'bg-lgray dark:bg-dgray': route.path === item.link,
+                    'opacity-50 pointer-events-none': item.disabled
+                }">
+                <component :is="item.icon" class="h-6 w-6 mr-3" />
+                {{ item.label }}
+            </NuxtLink>
         </div>
     </div>
 </template>

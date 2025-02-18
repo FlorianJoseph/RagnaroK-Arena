@@ -168,7 +168,7 @@ export const useTournamentStore = defineStore('tournament', () => {
             .from('tournaments')
             .select('*')
             .eq('organizer_id', user_id)
-            .order('created_at', { ascending: false })
+            .order('date', { ascending: true })
 
         if (error) {
             console.error('Erreur lors de la récupération des tournois :', error.message)

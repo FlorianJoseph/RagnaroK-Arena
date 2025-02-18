@@ -1,4 +1,3 @@
 <template>
-    <Tab />
     <FormTournament />
 </template>

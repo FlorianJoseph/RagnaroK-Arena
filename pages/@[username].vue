@@ -1,5 +1,4 @@
 <script setup>
-
 const route = useRoute()
 const userStore = useUserStore()
 const tournamentStore = useTournamentStore()
@@ -30,18 +29,16 @@ onMounted(async () => {
 
     <div class="mt-6">
       <p class="text-xl font-semibold">Tournois organisés :</p>
-      <ul v-if="tournaments.length">
-        <li v-for="tournament in tournaments" :key="tournament.id">
-          <NuxtLink :to="`/tournois/${tournament.id}`" class="text-blue-500 hover:underline">
-            {{ tournament.title }}
-          </NuxtLink>
-        </li>
+
+      <ul v-if="tournaments.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <TournamentCard v-for="tournament in tournaments" :key="tournament.id" :id="tournament.id"
+          :title="tournament.title" :organizer="tournament.organizer" :game="tournament.games"
+          :reward_amount="tournament.reward_amount" :reward_type="tournament.reward_type"
+          :entry_fee="tournament.entry_fee" :participants="tournament.participants" :date="tournament.date"
+          :isIndexPage="false" />
       </ul>
+
       <p v-else class="text-gray-500">Aucun tournoi organisé.</p>
     </div>
-  </div>
-
-  <div v-else class="text-center">
-    <p class="text-red-500">Utilisateur introuvable.</p>
   </div>
 </template>

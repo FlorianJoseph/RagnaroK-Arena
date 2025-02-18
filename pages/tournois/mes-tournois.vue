@@ -17,7 +17,6 @@ onMounted(async () => {
 </script>
 
 <template>
-    <Tab />
     <ul v-if="tournaments.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <TournamentCard v-for="tournament in tournaments" :key="tournament.id" :id="tournament.id"
             :title="tournament.title" :organizer="tournament.organizer" :game="tournament.games"

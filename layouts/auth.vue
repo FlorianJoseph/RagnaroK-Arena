@@ -1,7 +1,9 @@
 <template>
-    <Navbar />
-    <main class="flex flex-1 items-center justify-center min-h-screen bg-lightBg dark:bg-darkBg min-w-screen">
-        <NuxtPage />
-    </main>
-    <Footer />
+    <div class="flex flex-col min-h-screen bg-lightBg dark:bg-darkBg">
+        <Navbar />
+        <main class="flex-1 flex items-center justify-center">
+            <NuxtPage />
+        </main>
+        <Footer />
+    </div>
 </template>

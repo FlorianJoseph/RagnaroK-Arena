@@ -77,6 +77,7 @@ export const useUserStore = defineStore('user', () => {
             .upsert(
                 {
                     ...updatedProfile,
+                    email: user.value.email,
                     user_id: user.value.id,
                     updated_at: new Date().toISOString(),
                 },

@@ -1,5 +1,10 @@
 <template>
-    <Navbar />
-    <NuxtPage />
-    <Footer />
+    <div class="flex flex-col min-h-screen bg-lbg dark:bg-dbg">
+        <Navbar />
+        <InfosNavbar />
+        <main class="flex-1">
+            <NuxtPage />
+        </main>
+        <Footer />
+    </div>
 </template>

@@ -37,7 +37,7 @@ definePageMeta({
           l'argent en jouant à vos jeux vidéo préférés.</p>
         <!-- Boutons de navigation -->
         <div class="flex space-x-4">
-          <NuxtLink :to="User ? '/compte/profil' : '/auth/inscription'" class="btn">
+          <NuxtLink :to="User ? '/informations/profil' : '/auth/inscription'" class="btn">
             <p>{{ User ? 'Voir le profil' : 'Créer un compte' }}</p>
           </NuxtLink>
 

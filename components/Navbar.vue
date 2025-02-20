@@ -78,7 +78,7 @@ onMounted(async () => {
                     class="absolute right-0 mt-2-2 w-48 bg-white dark:bg-dcardbg border border-lborder dark:border-dborder rounded shadow-lg">
                     <ul>
                         <li>
-                            <NuxtLink to="/compte/profil"
+                            <NuxtLink to="/informations/profil"
                                 class="flex items-center gap-2 px-4 py-2 text-ltext dark:text-dtext hover:bg-lgray dark:hover:bg-dgray transition-all">
                                 <User /> Profil
                             </NuxtLink>

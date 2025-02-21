@@ -9,8 +9,8 @@ export default defineNuxtConfig({
     '@primevue/nuxt-module'
   ],
   primevue: {
-    components: {
-      exclude: ['Tabs']
+    options: {
+      theme: 'none'
     }
   },
   supabase: {

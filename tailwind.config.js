@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 
 export default {
-  darkMode: 'selector', // Utilise une classe pour activer le mode sombre
+  darkMode: 'selector',
   content: [
     "./components/**/*.{js,vue,ts}",
     "./layouts/**/*.vue",
@@ -51,6 +51,6 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [require('tailwindcss-primeui')],
 }
 

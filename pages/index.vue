@@ -44,6 +44,7 @@ definePageMeta({
           <NuxtLink to="/tournois" class="btnvariant">
             Voir les tournois
           </NuxtLink>
+
         </div>
       </section>
     </div>

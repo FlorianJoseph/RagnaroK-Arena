@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Heart, Share2, Check } from 'lucide-vue-next';
+import { Heart, Share2, Check, Files } from 'lucide-vue-next';
+
 const copied = ref<{ [key: number]: boolean }>({});
 const favoritesStore = useFavoriteStore();
 const user = useSupabaseUser();
@@ -62,6 +63,18 @@ onMounted(() => {
         checkIfFavorite(props.id);
     }
 });
+
+
+const op = ref();
+const members = ref([
+    { name: 'Amy Elsner', image: 'amyelsner.png', email: 'amy@email.com', role: 'Owner' },
+    { name: 'Bernardo Dominic', image: 'bernardodominic.png', email: 'bernardo@email.com', role: 'Editor' },
+    { name: 'Ioni Bowcher', image: 'ionibowcher.png', email: 'ioni@email.com', role: 'Viewer' }
+]);
+
+const toggle = (event: Event) => {
+    op.value.toggle(event);
+}
 </script>
 
 <template>
@@ -126,17 +139,53 @@ onMounted(() => {
                     </div>
 
                     <!-- Bouton partage -->
-                    <div v-if="id !== undefined"
-                        class="flex items-center gap-2 hover:text-green-600 cursor-pointer transition-transform duration-200 ease-in-out hover:scale-110"
-                        @click="copyLinkToClipboard(id)">
-                        <template v-if="copied[id]">
-                            <Check class="text-green-600" />
-                            <p class="text-green-600">Lien copié</p>
+                    <Button type="button" label="Partager" @click="toggle">
+                        <template #icon>
+                            <Share2 class="w-4 h-4" />
                         </template>
-                        <template v-else>
-                            <Share2 />
-                        </template>
-                    </div>
+                    </Button>
+
+                    <Popover ref="op">
+                        <div class="flex flex-col gap-4 w-[25rem]">
+                            <div>
+                                <span class="font-medium block mb-2">Share this document</span>
+                                <InputGroup>
+                                    <InputText value="https://primevue.org/12323ff26t2g243g423g234gg52hy25XADXAG3"
+                                        readonly class="w-[25rem]"></InputText>
+                                    <InputGroupAddon class="hover:cursor-pointer"
+                                        @click="id !== undefined && copyLinkToClipboard(id)">
+                                        <Files class="w-5 h-5 hover:text-green-600" />
+                                    </InputGroupAddon>
+                                </InputGroup>
+                            </div>
+                            <div>
+                                <span class="font-medium block mb-2">Invite Member</span>
+                                <InputGroup>
+                                    <InputText disabled />
+                                    <Button label="Invite" icon="pi pi-users"></Button>
+                                </InputGroup>
+                            </div>
+                            <div>
+                                <span class="font-medium block mb-2">Team Members</span>
+                                <ul class="list-none p-0 m-0 flex flex-col gap-4">
+                                    <li v-for="member in members" :key="member.name" class="flex items-center gap-2">
+                                        <img :src="`https://primefaces.org/cdn/primevue/images/avatar/${member.image}`"
+                                            style="width: 32px" />
+                                        <div>
+                                            <span class="font-medium">{{ member.name }}</span>
+                                            <div class="text-sm text-surface-500 dark:text-surface-400">{{
+                                                member.email }}</div>
+                                        </div>
+                                        <div
+                                            class="flex items-center gap-2 text-surface-500 dark:text-surface-400 ml-auto text-sm">
+                                            <span>{{ member.role }}</span>
+                                            <i class="pi pi-angle-down"></i>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </Popover>
                 </div>
             </slot>
         </div>

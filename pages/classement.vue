@@ -10,18 +10,16 @@ onMounted(async () => {
 
 <template>
   <div class="container mx-auto p-6">
-    <div v-if="profiles.length">
-      <ul>
-        <li v-for="profile in profiles" :key="profile.id" class="border-b py-2">
-          <NuxtLink :to="`/@${profile.username}`">
-            <p><strong class="hover:underline">{{ profile.username }}</strong> - XP : {{ profile.xp }} - Rang : {{
-              profile.rank }}</p>
-          </NuxtLink>
-        </li>
-      </ul>
+    <div class="card" v-if="profiles.length">
+      <DataTable :value="profiles" paginator :rows="5" :rowsPerPageOptions="[5, 10, 20]" tableStyle="min-width: 50rem">
+        <Column field="username" header="Pseudo" style="width: 25%"></Column>
+        <Column field="xp" header="Montant d'expérience" style="width: 25%"></Column>
+        <Column field="rank" header="Rang" style="width: 25%"></Column>
+      </DataTable>
     </div>
     <div v-else>
       <p>Chargement du classement...</p>
     </div>
   </div>
+
 </template>

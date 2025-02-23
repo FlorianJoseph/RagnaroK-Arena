@@ -65,6 +65,18 @@ export const useUserStore = defineStore('user', () => {
         profile.value = data;
     }
 
+    async function fetchProfiles() {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('username, avatar_url')
+
+        if (error) {
+            console.error("Erreur lors de la récupération de l'utilisateur :", error.message);
+            return [];
+        }
+        return data;
+    }
+
     // Fonction pour sauvegarder le profil
     async function updateProfile(updatedProfile: Profile) {
         if (!user.value) {
@@ -188,6 +200,7 @@ export const useUserStore = defineStore('user', () => {
     return {
         profile,
         createUserProfile,
+        fetchProfiles,
         getProfile,
         getProfileByUsername,
         updateProfile,

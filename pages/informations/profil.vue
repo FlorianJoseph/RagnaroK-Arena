@@ -47,6 +47,9 @@ onMounted(async () => {
 definePageMeta({
     layout: 'profile'
 })
+
+
+const text = ref();
 </script>
 
 <template>
@@ -62,7 +65,8 @@ definePageMeta({
                         <div class="bg-gray-300 rounded">
                             <div :style="{ width: userStore.profile.xp + '%' }" class="bg-green-500 h-4 rounded"></div>
                         </div>
-                        <p class="text-sm text-center">{{ userStore.profile.xp }} XP - Rang: {{ userStore.profile.rank }}</p>
+                        <p class="text-sm text-center">{{ userStore.profile.xp }} XP - Rang: {{ userStore.profile.rank
+                            }}</p>
                     </div>
 
                     <!-- Section d'Informations -->
@@ -70,7 +74,26 @@ definePageMeta({
                         <h3 class="text-xl font-semibold mb-2">Informations</h3>
 
                         <!-- Champs éditables -->
-                        <div v-for="(key) in editableFields" :key="key" class="flex items-center justify-between border-b pb-2">
+                        <div class="flex items-center justify-between border-b pb-2">
+                            <label class="text-gray-700 dark:text-gray-300 font-medium">
+                                Pseudo
+                            </label>
+                            <Inplace>
+                                <template #display>
+                                    {{ 'Éditer' }}
+                                </template>
+                                <template #content="{ closeCallback }">
+                                    <span class="inline-flex items-center gap-2">
+                                        <InputText v-model="text" autofocus />
+                                        <Button icon="pi pi-times" text severity="danger" @click="closeCallback" />
+                                    </span>
+                                </template>
+                            </Inplace>
+                        </div>
+
+
+                        <div v-for="(key) in editableFields" :key="key"
+                            class="flex items-center justify-between border-b pb-2">
                             <label class="text-gray-700 dark:text-gray-300 font-medium">
                                 {{ fieldLabels[key] }}
                             </label>
@@ -80,7 +103,9 @@ definePageMeta({
                                     class="border px-3 py-1 rounded w-56 focus:outline-none focus:ring transition duration-200"
                                     :class="{ 'border-red-500': editedProfile[key] !== (userStore.profile as Record<string, any>)[key] }" />
 
-                                <span v-else class="text-gray-600 dark:text-gray-400">{{ (userStore.profile as Record<string, any>)[key] }}</span>
+                                <span v-else class="text-gray-600 dark:text-gray-400">
+                                    {{ (userStore.profile as Record<string, any>)[key]
+                                        }}</span>
 
                                 <!-- Boutons d'action -->
                                 <button v-if="isEditing[key]" @click="cancelEdit(key)"
@@ -104,4 +129,3 @@ definePageMeta({
         </div>
     </div>
 </template>
-

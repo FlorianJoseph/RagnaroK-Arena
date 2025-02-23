@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RewardType, FormatType } from '~/types/tournaments';
 import type { NewTournament } from '~/types/tournaments';
-import { Ticket, Coins, Euro } from 'lucide-vue-next';
+import { Ticket, Coins, Euro, CalendarDays } from 'lucide-vue-next';
 
 const userStore = useUserStore();
 const tournamentStore = useTournamentStore();
@@ -28,7 +28,7 @@ const setPrice = (price: number) => {
 };
 
 async function createTournament() {
-  
+
   const newTournamentData = {
     ...newTournament.value
   }
@@ -54,9 +54,24 @@ const rewardOptions = [
 ];
 
 const tournamentFormats = [
-  { label: "Élimination simple", value: "single_elimination", image: "bo6.png" },
-  { label: "Élimination double", value: "double_elimination", image: "bo6.png" },
-  { label: "Battle Royale", value: "free_for_all", image: "bo6.png" }
+  {
+    value: "single_elimination",
+    title: "Élimination simple",
+    description: "Un seul match perdu et c'est fini ! Un format rapide et intense.",
+    image: "https://primefaces.org/cdn/primevue/images/usercard.png", // Remplace avec ton image
+  },
+  {
+    value: "double_elimination",
+    title: "Élimination double",
+    description: "Deuxième chance ! Vous pouvez perdre un match et rester en compétition.",
+    image: "https://primefaces.org/cdn/primevue/images/usercard.png",
+  },
+  {
+    value: "free_for_all",
+    title: "Battle Royale",
+    description: "Tout le monde s'affronte, un seul survivant à la fin !",
+    image: "assets\images\tournoi.jpg",
+  },
 ];
 </script>
 
@@ -68,52 +83,14 @@ const tournamentFormats = [
       <!-- Catégorie: Format du tournoi -->
       <div class="flex flex-col space-y-6">
         <h3 class="font-semibold text-2xl">Format du tournoi</h3>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <label class="cursor-pointer">
-            <input type="radio" value="single_elimination" v-model="newTournament.format" class="hidden peer" />
-            <div :class="{ 'border-4 shadow-xl scale-105': newTournament.format === 'single_elimination' }"
-              class="flex flex-col bg-white dark:bg-dgray border-2 border-lborder dark:border-dborder rounded-xl overflow-hidden shadow-md transition-all hover:shadow-lg">
-              <img src="~assets/images/tournoi.jpg" alt="Élimination simple" class="w-full h-44 object-cover" />
-              <div class="p-4 flex flex-col flex-grow">
-                <h4 class="text-lg font-semibold text-ltext dark:text-dtext">Élimination simple</h4>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mt-2 flex-grow">
-                  Un seul match perdu et c'est fini ! Un format rapide et intense.
-                </p>
-              </div>
-            </div>
-          </label>
-
-          <label class="cursor-pointer">
-            <input type="radio" value="double_elimination" v-model="newTournament.format" class="hidden peer" />
-            <div :class="{ 'border-4 shadow-xl scale-105': newTournament.format === 'double_elimination' }"
-              class="flex flex-col bg-white dark:bg-dgray border-2 border-lborder dark:border-dborder rounded-xl overflow-hidden shadow-md transition-all hover:shadow-lg">
-              <img src="~assets/images/tournoi.jpg" alt="Élimination double" class="w-full h-44 object-cover" />
-              <div class="p-4 flex flex-col flex-grow">
-                <h4 class="text-lg font-semibold text-ltext dark:text-dtext">Élimination double</h4>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mt-2 flex-grow">
-                  Deuxième chance ! Vous pouvez perdre un match et rester en compétition.
-                </p>
-              </div>
-            </div>
-          </label>
-
-          <label class="cursor-pointer">
-            <input type="radio" value="free_for_all" v-model="newTournament.format" class="hidden peer" />
-            <div :class="{ 'border-4 shadow-xl scale-105': newTournament.format === 'free_for_all' }"
-              class="flex flex-col bg-white dark:bg-dgray border-2 border-lborder dark:border-dborder rounded-xl overflow-hidden shadow-md transition-all hover:shadow-lg">
-              <img src="~assets/images/tournoi.jpg" alt="Battle Royale" class="w-full h-44 object-cover" />
-              <div class="p-4 flex flex-col flex-grow">
-                <h4 class="text-lg font-semibold text-ltext dark:text-dtext">Battle Royale</h4>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mt-2 flex-grow">
-                  Tout le monde s'affronte, un seul survivant à la fin !
-                </p>
-              </div>
-            </div>
-          </label>
+        <div class="flex flex-wrap gap-4">
+          <div v-for="format in tournamentFormats" :key="format.value" class="flex items-center gap-2 ">
+            <RadioButton :value="format.value" v-model="newTournament.format" name="format" />
+            <!-- <SelectButton v-model="format.value" :options="options" /> -->
+            <label for="format">{{ format.title }}</label>
+          </div>
         </div>
       </div>
-
 
       <!-- Catégorie: Informations supplémentaires -->
       <div class="flex flex-col space-y-8 mt-8">
@@ -127,8 +104,10 @@ const tournamentFormats = [
         </div>
 
         <!-- Jeu -->
-        <SearchGame />
-
+        <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
+          <label for="game" class="w-full sm:w-80 font-medium text-left">Jeu</label>
+          <SearchGame />
+        </div>
         <!-- Type de récompense -->
         <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
           <label class="w-full sm:w-80 font-medium text-left">Type de récompense</label>
@@ -180,8 +159,15 @@ const tournamentFormats = [
         <!-- Date -->
         <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
           <label for="date" class="w-full sm:w-80 font-medium text-left">Date</label>
-          <input id="date" v-model="newTournament.date" type="datetime-local" class="flex-1 w-full border rounded p-2"
-            required />
+          <FloatLabel variant="on">
+            <DatePicker v-model="newTournament.date" showIcon fluid iconDisplay="input" showButtonBar showTime
+              hourFormat="24">
+              <template #inputicon="slotProps">
+                <CalendarDays @click="slotProps.clickCallback" />
+              </template>
+            </DatePicker>
+            <label for="on_label">Date</label>
+          </FloatLabel>
         </div>
 
         <!-- Bouton de soumission -->

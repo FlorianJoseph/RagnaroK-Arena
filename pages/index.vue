@@ -2,17 +2,17 @@
 const User = useSupabaseUser();
 const features = [
   {
-    title: "Tournois Épiques",
+    header: "Tournois Épiques",
     description:
       "Participez à des tournois intenses et progressez dans le classement pour devenir une légende.",
   },
   {
-    title: "Classement des Champions",
+    header: "Classement des Champions",
     description:
       "Consultez le classement des meilleurs combattants et mesurez-vous aux plus grands guerriers de l'arène.",
   },
   {
-    title: "Votre Légende",
+    header: "Votre Légende",
     description:
       "Personnalisez votre profil, affichez vos exploits et partagez votre lien unique avec vos alliés.",
   },
@@ -55,14 +55,18 @@ definePageMeta({
   </div>
 
   <!-- Section des fonctionnalités -->
+
   <div class="bg-lcardbg dark:bg-dcardbg py-12">
     <div class="container mx-auto px-6 text-center">
       <h2 class="text-3xl font-bold text-ltext dark:text-dtext mb-12">Fonctionnalités</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        <div v-for="(feature, index) in features" :key="index" class="bg-white dark:bg-dbg p-6 rounded-lg shadow-md">
-          <h3 class="text-xl font-semibold text-ltextbold dark:text-dtextbold mb-4">{{ feature.title }}</h3>
-          <p class="text-sm text-lightText dark:text-darkText">{{ feature.description }}</p>
+
+        <div v-for="(feature, index) in features" :key="index">
+          <Panel :header="feature.header" class="flex flex-col items-center text-center text-xl shadow-md">
+            <p class="m-0">{{ feature.description }} </p>
+          </Panel>
         </div>
+
       </div>
     </div>
   </div>

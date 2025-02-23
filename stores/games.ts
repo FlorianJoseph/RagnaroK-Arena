@@ -16,9 +16,9 @@ export const useGameStore = defineStore('gameStore', () => {
 
         if (error) {
             toast.error('Erreur lors de la récupération des jeux: ' + error.message, { icon: CircleX });
-            return;
+            return [];
         }
-        games.value = data as Game[];
+        return data as Game[];
     }
 
     // Fonction pour récupérer le jeu du tournoi

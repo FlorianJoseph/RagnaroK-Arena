@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Heart, Share2, Check, Files } from 'lucide-vue-next';
+import { Heart, Share2, Check, Files, Users } from 'lucide-vue-next';
+import type { Profile } from '~/types/profiles';
+import type { Participant } from '~/types/tournaments';
 
 const copied = ref<{ [key: number]: boolean }>({});
 const favoritesStore = useFavoriteStore();
 const user = useSupabaseUser();
 const isFavorite = ref(false);
+const profiles = ref<Profile[]>([]);
+const userStore = useUserStore();
 
 const props = defineProps({
     isIndexPage: {
@@ -21,8 +25,8 @@ const props = defineProps({
     reward_type: String,
     entry_fee: Number,
     participants: {
-        type: Array,
-        default: () => [],
+        type: Array as PropType<Participant[]>,
+        required: true,
     },
     date: [String, Date],
 });
@@ -58,20 +62,15 @@ function copyLinkToClipboard(tournamentId: number) {
     setTimeout(() => { copied.value[tournamentId] = false; }, 3000);
 }
 
-onMounted(() => {
+onMounted(async () => {
     if (props.id) {
         checkIfFavorite(props.id);
     }
+    profiles.value = await userStore.fetchProfiles();
 });
 
 
 const op = ref();
-const members = ref([
-    { name: 'Amy Elsner', image: 'amyelsner.png', email: 'amy@email.com', role: 'Owner' },
-    { name: 'Bernardo Dominic', image: 'bernardodominic.png', email: 'bernardo@email.com', role: 'Editor' },
-    { name: 'Ioni Bowcher', image: 'ionibowcher.png', email: 'ioni@email.com', role: 'Viewer' }
-]);
-
 const toggle = (event: Event) => {
     op.value.toggle(event);
 }
@@ -80,31 +79,45 @@ const toggle = (event: Event) => {
 <template>
     <li class="bg-white shadow-lg rounded-lg overflow-hidden border border-lborder dark:border-dborder">
 
-        <!-- Header -->
-        <div class="p-5 flex items-center justify-between bg-lbg dark:bg-dgray">
-            <h2 class="text-2xl font-semibold text-ltext dark:text-dtext">{{ title }}</h2>
+        <!-- En-tête -->
+        <div class="p-5 bg-lbg dark:bg-dgray flex justify-between">
+            <div class="flex items-center gap-3">
+                <h2 class="text-2xl font-semibold text-ltext dark:text-dtext">{{ title }}</h2>
+                <!-- <div v-if="isIndexPage && organizer" class="flex items-center gap-2">
+                    <img :src="organizer.avatar_url" alt="Avatar" class="w-8 h-8 rounded-full object-cover" />
+                    <NuxtLink :to="`/@${organizer.username}`" class="font-medium hover:underline">
+                        {{ organizer.username }}
+                    </NuxtLink>
+                </div> -->
+                <!-- Avatars des participants -->
+                <div v-if="participants && participants.length > 0">
+                    <AvatarGroup>
+                        <Avatar v-for="(participant, index) in participants.slice(0, 3)" :key="participant.id"
+                            :image="participant.avatar_url" shape="circle" />
+                        <Avatar v-if="participants.length > 3" :label="'+' + (participants.length - 3).toString()"
+                            shape="circle" class="bg-gray-500 text-white font-bold" />
+                    </AvatarGroup>
+                </div>
 
-            <!-- Organisateur -->
-            <div v-if="isIndexPage && organizer" class="flex items-center gap-2">
-                <img :src="organizer.avatar_url" alt="Avatar" class="w-8 h-8 rounded-full object-cover" />
-                <NuxtLink :to="`/@${organizer.username}`" class="font-medium hover:underline">
-                    {{ organizer.username }}
-                </NuxtLink>
+                <p class="text-ltext dark:text-dtext">
+                    {{ participants.length === 1
+                        ? `${participants.length} participant`
+                        : `${participants.length} participants`
+                    }}
+                </p>
             </div>
         </div>
+
 
         <!-- Image du jeu -->
         <div v-if="game" class="relative">
             <img :src="game.image_url" :alt="game.name" class="w-full h-48 object-cover" loading="lazy" />
 
-            <!-- Détails du tournoi -->
+            <!-- Overlay des détails -->
             <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4 flex justify-between">
-                <slot name="tournament-details">
-                    <p class="text-left">Récompense : {{ reward_amount }} {{ reward_type }}</p>
-                    <p class="font-semibold text-right">Prix d'entrée : {{ entry_fee }} {{ reward_type }}</p>
-                </slot>
+                <p class="text-left">Récompense : {{ reward_amount }} {{ reward_type }}</p>
+                <p class="font-semibold text-right">Prix d'entrée : {{ entry_fee }} {{ reward_type }}</p>
             </div>
-
 
             <!-- Date -->
             <div
@@ -118,40 +131,33 @@ const toggle = (event: Event) => {
             class="p-5 flex justify-between items-center bg-lbg dark:bg-dgray border-t border-lborder dark:border-dborder">
             <div class="flex gap-4">
                 <NuxtLink :to="`/tournois/${id}`" class="hover:text-laccent">Voir le tournoi</NuxtLink>
-                <p class="text-ltext dark:text-dtext">
-                    {{ participants.length === 1
-                        ? `${participants.length} participant`
-                        : `${participants.length} participants`
-                    }}
-                </p>
             </div>
 
             <slot name="actions">
-                <div class="flex items-center">
-
+                <div class="flex items-center gap-1">
                     <!-- Bouton favori -->
-                    <div v-if="id"
-                        class="flex items-center gap-2 cursor-pointer mr-4 transition-transform duration-200 ease-in-out hover:scale-110">
-                        <Heart :class="{
-                            'fill-red-600 text-red-600': isFavorite,
-                            'hover:fill-red-600 hover:text-red-600': !isFavorite,
-                        }" @click="handleFavorite(id)" />
-                    </div>
+                    <Button v-if="id" type="button" @click="handleFavorite(id)">
+                        <template #icon>
+                            <Heart class="w-5 h-5" :class="{
+                                'fill-red-600 text-red-600 ': isFavorite,
+                                'hover:fill-red-600 hover:text-red-600': !isFavorite,
+                            }" />
+                        </template>
+                    </Button>
 
                     <!-- Bouton partage -->
-                    <Button type="button" label="Partager" @click="toggle">
+                    <Button type="button" @click="toggle">
                         <template #icon>
-                            <Share2 class="w-4 h-4" />
+                            <Share2 class="w-5 h-5" />
                         </template>
                     </Button>
 
                     <Popover ref="op">
                         <div class="flex flex-col gap-4 w-[25rem]">
                             <div>
-                                <span class="font-medium block mb-2">Share this document</span>
+                                <span class="font-medium block mb-2">Partager ce tournoi</span>
                                 <InputGroup>
-                                    <InputText value="https://primevue.org/12323ff26t2g243g423g234gg52hy25XADXAG3"
-                                        readonly class="w-[25rem]"></InputText>
+                                    <InputText readonly class="w-[25rem]"></InputText>
                                     <InputGroupAddon class="hover:cursor-pointer"
                                         @click="id !== undefined && copyLinkToClipboard(id)">
                                         <Files class="w-5 h-5 hover:text-green-600" />
@@ -159,28 +165,31 @@ const toggle = (event: Event) => {
                                 </InputGroup>
                             </div>
                             <div>
-                                <span class="font-medium block mb-2">Invite Member</span>
+                                <span class="font-medium block mb-2">Inviter un ami</span>
                                 <InputGroup>
-                                    <InputText disabled />
-                                    <Button label="Invite" icon="pi pi-users"></Button>
+                                    <InputText />
+                                    <Button label="Inviter">
+                                        <template #icon>
+                                            <Users class="w-4 h-4" />
+                                        </template></Button>
                                 </InputGroup>
                             </div>
                             <div>
-                                <span class="font-medium block mb-2">Team Members</span>
+                                <span class="font-medium block mb-2">Utilisateurs</span>
                                 <ul class="list-none p-0 m-0 flex flex-col gap-4">
-                                    <li v-for="member in members" :key="member.name" class="flex items-center gap-2">
-                                        <img :src="`https://primefaces.org/cdn/primevue/images/avatar/${member.image}`"
-                                            style="width: 32px" />
+                                    <li v-for="profil in profiles" :key="profil.username"
+                                        class="flex items-center gap-2">
+                                        <Avatar :image="profil.avatar_url" shape="circle" />
                                         <div>
-                                            <span class="font-medium">{{ member.name }}</span>
+                                            <span class="font-medium">{{ profil.username }}</span>
                                             <div class="text-sm text-surface-500 dark:text-surface-400">{{
-                                                member.email }}</div>
+                                                profil.email }}</div>
                                         </div>
-                                        <div
+                                        <!-- <div
                                             class="flex items-center gap-2 text-surface-500 dark:text-surface-400 ml-auto text-sm">
                                             <span>{{ member.role }}</span>
                                             <i class="pi pi-angle-down"></i>
-                                        </div>
+                                        </div> -->
                                     </li>
                                 </ul>
                             </div>
@@ -190,4 +199,51 @@ const toggle = (event: Event) => {
             </slot>
         </div>
     </li>
+
+    <!-- <Card style="width: 25rem; overflow: hidden">
+        <template #header>
+            <div v-if="game" class="relative">
+                <img :src="game.image_url" :alt="game.name" class="w-full h-48 object-cover" loading="lazy" /> -->
+
+    <!-- Titre du jeu en overlay -->
+    <!-- <div
+                    class="absolute top-2 left-2 bg-black bg-opacity-60 text-white px-3 py-1 rounded-md text-sm font-semibold">
+                    {{ game.name }}
+                </div> -->
+
+    <!-- Overlay des détails -->
+    <!-- <div
+                    class="absolute inset-x-0 bottom-0 bg-black bg-opacity-50 text-white p-3 flex justify-between text-sm">
+                    <p>Récompense : {{ reward_amount }} {{ reward_type }}</p>
+                    <p class="font-semibold">Prix d'entrée : {{ entry_fee }} {{ reward_type }}</p>
+                </div> -->
+
+    <!-- Date -->
+    <!-- <div
+                    class="absolute top-2 right-2 bg-white bg-opacity-90 text-black px-3 py-1 rounded-full text-xs shadow-md border">
+                    {{ formattedDate }}
+                </div>
+            </div>
+        </template>
+
+        <template #title>{{ title }}</template>
+        <template #subtitle>
+            <div v-if="game" class="-mt-2">{{ game.name }}</div>
+        </template> -->
+    <!-- <template #content>
+            <p class="m-0">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error
+                repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione quam
+                perferendis esse, cupiditate neque
+                quas!
+            </p>
+        </template> -->
+    <!-- <template #footer>
+            <div class="flex gap-4 mt-1">
+                <Button label="Favori" severity="secondary" outlined class="w-full" />
+                <Button label="Partager" class="w-full" />
+                <Button label="Voir" class="w-full" />
+            </div>
+        </template>
+    </Card> -->
 </template>

@@ -29,11 +29,11 @@ definePageMeta({
   <div class="grid grid-cols-12 gap-4 grid-nogutter">
     <div class="col-span-12 md:col-span-6 p-12 text-center md:text-left flex items-center ">
       <section>
-        <span class="block text-6xl font-bold mb-1">Bienvenue</span>
+        <span class="block text-6xl font-bold mb-1 text-ltext dark:text-dtext">Bienvenue</span>
         <div class="text-6xl font-extrabold text-ltextbold dark:text-dtextbold mb-4">dans RagnaröK Arena</div>
-        <p class="mt-0 mb-1 text-lg text-lightText dark:text-darkText">Le site web le plus réactif de
+        <p class="mt-0 mb-1 text-lg text-ltext dark:text-dtext">Le site web le plus réactif de
           tournois de jeux vidéo.</p>
-        <p class="mt-0 mb-4 text-lg text-lightText dark:text-darkText"> Nous vous aidons à gagner de
+        <p class="mt-0 mb-4 text-lg text-ltext dark:text-dtext"> Nous vous aidons à gagner de
           l'argent en jouant à vos jeux vidéo préférés.</p>
         <!-- Boutons de navigation -->
         <div class="flex space-x-4">
@@ -71,42 +71,12 @@ definePageMeta({
     </div>
   </div>
 
-  <!-- Section d'entraide communautaire -->
-  <!-- <div class="bg-lcardbg dark:bg-dcardbg py-12">
-    <div class="container mx-auto px-6 text-center">
-      <h2 class="text-3xl font-bold text-ltext dark:text-dtext mb-12">Aidez votre communauté à grandir</h2>
-      <p class="text-lg text-lightText dark:text-darkText mb-6">
-        "Notre application est conçue pour soutenir les communautés en ligne et les aider à organiser des tournois,
-        créer des liens et récolter des fonds pour des projets caritatifs."
-      </p>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        <div class="bg-white dark:bg-dbg p-6 rounded-lg shadow-md">
-          <h3 class="text-xl font-semibold text-ltextbold dark:text-dtextbold mb-4">Soutenez les projets communautaires
-          </h3>
-          <p class="text-sm text-lightText dark:text-darkText">Une partie des gains des tournois peut être reversée à
-            des projets solidaires ou caritatifs choisis par les membres de votre communauté.</p>
-        </div>
-        <div class="bg-white dark:bg-dbg p-6 rounded-lg shadow-md">
-          <h3 class="text-xl font-semibold text-ltextbold dark:text-dtextbold mb-4">Renforcez les liens entre les
-            membres</h3>
-          <p class="text-sm text-lightText dark:text-darkText">Les clans et guildes peuvent organiser leurs propres
-            tournois et défis, renforçant ainsi la solidarité et la coopération.</p>
-        </div>
-        <div class="bg-white dark:bg-dbg p-6 rounded-lg shadow-md">
-          <h3 class="text-xl font-semibold text-ltextbold dark:text-dtextbold mb-4">Partagez vos réussites</h3>
-          <p class="text-sm text-lightText dark:text-darkText">En partageant vos exploits et victoires avec la
-            communauté, vous inspirez d'autres groupes à participer et à grandir ensemble.</p>
-        </div>
-      </div>
-    </div>
-  </div> -->
-
   <!-- Section de présentation -->
   <div class="flex flex-col justify-center items-center px-6 pt-12 md:px-12 lg:px-20">
-    <div class="font-bold text-4xl mb-4">
+    <div class="font-bold text-4xl mb-4 text-ltext dark:text-dtext">
       Rejoignez notre communauté
     </div>
-    <div class="text-xl mb-8 mx-40 text-center">
+    <div class="text-xl mb-8 mx-40 text-center text-ltext dark:text-dtext">
       La communauté est présente pour vous soutenir, que ce soit pour l'entraide ou pour jouer ensemble !
     </div>
     <a href="https://discord.gg/uZfU7YExgD" target="_blank" class="btn">

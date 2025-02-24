@@ -82,11 +82,10 @@ const tournamentFormats = [
 
       <!-- Catégorie: Format du tournoi -->
       <div class="flex flex-col space-y-6">
-        <h3 class="font-semibold text-2xl">Format du tournoi</h3>
+        <h3 class="font-semibold text-2xl text-ltext dark:text-dtext">Format du tournoi</h3>
         <div class="flex flex-wrap gap-4">
-          <div v-for="format in tournamentFormats" :key="format.value" class="flex items-center gap-2 ">
+          <div v-for="format in tournamentFormats" :key="format.value" class="flex items-center gap-2 text-ltext dark:text-dtext">
             <RadioButton :value="format.value" v-model="newTournament.format" name="format" />
-            <!-- <SelectButton v-model="format.value" :options="options" /> -->
             <label for="format">{{ format.title }}</label>
           </div>
         </div>
@@ -94,23 +93,23 @@ const tournamentFormats = [
 
       <!-- Catégorie: Informations supplémentaires -->
       <div class="flex flex-col space-y-8 mt-8">
-        <h3 class="font-semibold text-2xl">Informations supplémentaires</h3>
+        <h3 class="font-semibold text-2xl text-ltext dark:text-dtext">Informations supplémentaires</h3>
 
         <!-- Titre -->
         <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
-          <label for="title" class="w-full sm:w-80 font-medium text-left">Titre</label>
+          <label for="title" class="w-full sm:w-80 font-medium text-left text-ltext dark:text-dtext">Titre</label>
           <input id="title" v-model="newTournament.title" type="text" class="flex-1 w-full border rounded p-2"
             required />
         </div>
 
         <!-- Jeu -->
         <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
-          <label for="game" class="w-full sm:w-80 font-medium text-left">Jeu</label>
+          <label for="game" class="w-full sm:w-80 font-medium text-left text-ltext dark:text-dtext">Jeu</label>
           <SearchGame />
         </div>
         <!-- Type de récompense -->
         <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
-          <label class="w-full sm:w-80 font-medium text-left">Type de récompense</label>
+          <label class="w-full sm:w-80 font-medium text-left text-ltext dark:text-dtext">Type de récompense</label>
           <div class="flex flex-wrap gap-2 sm:gap-4">
             <label v-for="option in rewardOptions" :key="option.value" class="cursor-pointer">
               <input type="radio" :value="option.value" v-model="newTournament.reward_type" class="hidden peer" />
@@ -127,7 +126,7 @@ const tournamentFormats = [
 
         <!-- Prix d'entrée -->
         <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
-          <label for="entry_fee" class="w-full sm:w-80 font-medium text-left">Prix d'entrée</label>
+          <label for="entry_fee" class="w-full sm:w-80 font-medium text-left text-ltext dark:text-dtext">Prix d'entrée</label>
           <div class="flex-1 w-full flex items-center gap-2 sm:gap-4">
             <!-- Bouton pour tournoi gratuit -->
             <button type="button" @click="setPrice(0)" :class="{
@@ -158,7 +157,7 @@ const tournamentFormats = [
 
         <!-- Date -->
         <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
-          <label for="date" class="w-full sm:w-80 font-medium text-left">Date</label>
+          <label for="date" class="w-full sm:w-80 font-medium text-left text-ltext dark:text-dtext">Date</label>
           <FloatLabel variant="on">
             <DatePicker v-model="newTournament.date" showIcon fluid iconDisplay="input" showButtonBar showTime
               hourFormat="24">

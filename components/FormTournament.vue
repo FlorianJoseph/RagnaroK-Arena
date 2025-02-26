@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { RewardType, FormatType } from '~/types/tournaments';
-import type { NewTournament } from '~/types/tournaments';
 import { Ticket, Coins, Euro, CalendarDays } from 'lucide-vue-next';
-
+import { zodResolver } from '@primevue/forms/resolvers/zod';
+import { useToast } from "primevue/usetoast";
+import { z } from 'zod';
 const userStore = useUserStore();
 const tournamentStore = useTournamentStore();
 const router = useRouter();
+const toast = useToast();
 
 onMounted(async () => {
   await tournamentStore.fetchTournaments();
   await userStore.getProfile();
 });
 
-const newTournament = ref<NewTournament>({
+const initialValues = ref({
   title: '',
   entry_fee: 0,
   date: new Date(),
@@ -21,31 +23,6 @@ const newTournament = ref<NewTournament>({
   game_id: 1,
   format: FormatType.single_elimination,
 });
-
-const predefinedPrices = [0, 10, 20, 50, 100];
-const setPrice = (price: number) => {
-  newTournament.value.entry_fee = price;
-};
-
-async function createTournament() {
-
-  const newTournamentData = {
-    ...newTournament.value
-  }
-  await tournamentStore.createTournament(newTournamentData);
-
-  newTournament.value = {
-    title: '',
-    entry_fee: 0,
-    date: new Date(),
-    reward_type: RewardType.Pièces,
-    reward_amount: 0,
-    game_id: 1,
-    format: FormatType.single_elimination,
-  };
-
-  router.push('/tournois');
-};
 
 const rewardOptions = [
   { label: 'Pièces', icon: Coins, value: 'Pièces' },
@@ -70,110 +47,131 @@ const tournamentFormats = [
     value: "free_for_all",
     title: "Battle Royale",
     description: "Tout le monde s'affronte, un seul survivant à la fin !",
-    image: "assets\images\tournoi.jpg",
+    image: "https://primefaces.org/cdn/primevue/images/usercard.png",
+
   },
 ];
+
+const predefinedPrices = [0, 10, 20, 50, 100];
+const setPrice = (price: number, $form: any) => {
+  $form.values.entry_fee = price;
+};
+
+const resolver = zodResolver(
+  z.object({
+    format: z.string()
+      .min(1, { message: 'Choisissez un format.' }),
+    title: z.string()
+      .min(1, { message: 'Le titre est requis.' }),
+    entry_fee: z.number()
+      .min(0, { message: 'Le prix ne peut pas être négatif.' })
+      .max(1000, { message: 'Prix trop élevé.' }),
+    reward_type: z.string()
+      .min(1, { message: 'Choisissez un type de récompense.' }),
+  })
+);
+
+async function createTournament(values: any) {
+  initialValues.value = { ...values, entry_fee: Number(values.entry_fee) }; // Conversion si besoin
+  await tournamentStore.createTournament(initialValues.value);
+
+  initialValues.value = {
+    title: '',
+    entry_fee: 0,
+    date: new Date(),
+    reward_type: RewardType.Pièces,
+    reward_amount: 0,
+    game_id: 1,
+    format: FormatType.single_elimination,
+  };
+
+  router.push('/tournois');
+}
+
+const onFormSubmit = async ({ values, valid }: { values: any, valid: boolean }) => {
+  if (!valid) {
+    toast.add({ severity: 'error', summary: 'Remplissez les champs de création', life: 3000 });
+    return;
+  }
+  await createTournament(values);
+};
 </script>
 
 <template>
-  <div class="flex justify-center min-h-full items-center mt-12 px-4 sm:px-40">
-    <!-- Formulaire pour créer un tournoi -->
-    <form @submit.prevent="createTournament" class="min-w-full max-w-7xl flex flex-col space-y-8">
-
+  <div class="card flex justify-center">
+    <Form v-slot="$form" :resolver="resolver" :initialValues="initialValues" @submit="onFormSubmit"
+      class="flex flex-col gap-4">
       <!-- Catégorie: Format du tournoi -->
-      <div class="flex flex-col space-y-6">
-        <h3 class="font-semibold text-2xl text-ltext dark:text-dtext">Format du tournoi</h3>
-        <div class="flex flex-wrap gap-4">
-          <div v-for="format in tournamentFormats" :key="format.value" class="flex items-center gap-2 text-ltext dark:text-dtext">
-            <RadioButton :value="format.value" v-model="newTournament.format" name="format" />
-            <label for="format">{{ format.title }}</label>
-          </div>
-        </div>
+      <div class="flex flex-col gap-2">
+        <Fieldset legend="Format du tournoi">
+          <RadioButtonGroup v-model="$form.values.format" name="format" class="flex flex-wrap gap-4">
+            <div v-for="format in tournamentFormats" :key="format.value"
+              class="flex items-center gap-2 text-ltext dark:text-dtext">
+              <RadioButton :value="format.value" name="format" class="flex flex-wrap gap-4" />
+              <label for="format">{{ format.title }}</label>
+            </div>
+          </RadioButtonGroup>
+        </Fieldset>
+        <Toast position="bottom-right" />
+        <Message v-if="$form?.values?.format?.invalid" severity="error" size="small" variant="simple">{{
+          $form.values.format.error?.message }}</Message>
       </div>
 
-      <!-- Catégorie: Informations supplémentaires -->
-      <div class="flex flex-col space-y-8 mt-8">
-        <h3 class="font-semibold text-2xl text-ltext dark:text-dtext">Informations supplémentaires</h3>
+      <!-- Titre -->
+      <FloatLabel variant="on">
+        <InputText id="on_label" v-model="initialValues.title" fluid />
+        <label for="on_label">Titre du tournoi</label>
+        <Message v-if="$form.title?.invalid" severity="error" size="small" variant="simple">{{
+          $form.title.error?.message }}</Message>
+      </FloatLabel>
 
-        <!-- Titre -->
-        <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
-          <label for="title" class="w-full sm:w-80 font-medium text-left text-ltext dark:text-dtext">Titre</label>
-          <input id="title" v-model="newTournament.title" type="text" class="flex-1 w-full border rounded p-2"
-            required />
-        </div>
+      <!-- Jeu -->
+      <SearchGame />
 
-        <!-- Jeu -->
-        <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
-          <label for="game" class="w-full sm:w-80 font-medium text-left text-ltext dark:text-dtext">Jeu</label>
-          <SearchGame />
-        </div>
-        <!-- Type de récompense -->
-        <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
-          <label class="w-full sm:w-80 font-medium text-left text-ltext dark:text-dtext">Type de récompense</label>
-          <div class="flex flex-wrap gap-2 sm:gap-4">
-            <label v-for="option in rewardOptions" :key="option.value" class="cursor-pointer">
-              <input type="radio" :value="option.value" v-model="newTournament.reward_type" class="hidden peer" />
-              <div :class="{
-                'bg-laccent dark:bg-daccent text-white': newTournament.reward_type === option.value,
-                'bg-lgray dark:bg-dgray': newTournament.reward_type !== option.value
-              }" class="px-4 py-2 rounded flex items-center space-x-2 transition-all peer-checked:scale-105">
-                <component :is="option.icon" class="h-6 w-6" />
-                <span class="text-lg">{{ option.label }}</span>
-              </div>
-            </label>
-          </div>
+      <!-- Type de récompense -->
+      <Fieldset legend="Type de récompense">
+        <div class="flex flex-col gap-1">
+          <SelectButton name="selection" v-model="initialValues.reward_type"
+            :options="rewardOptions.map(option => option.value)" />
+          <Message v-if="$form.reward_type?.invalid" severity="error">{{ $form.reward_type.error?.message }}</Message>
         </div>
 
         <!-- Prix d'entrée -->
-        <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
-          <label for="entry_fee" class="w-full sm:w-80 font-medium text-left text-ltext dark:text-dtext">Prix d'entrée</label>
-          <div class="flex-1 w-full flex items-center gap-2 sm:gap-4">
-            <!-- Bouton pour tournoi gratuit -->
-            <button type="button" @click="setPrice(0)" :class="{
-              'bg-laccent dark:bg-daccent text-white scale-105': newTournament.entry_fee === 0,
-              'bg-lgray dark:bg-dgray': newTournament.entry_fee !== 0
-            }" class="px-4 py-2 rounded flex items-center space-x-2 transition-all">
-              <span>Gratuit</span>
-            </button>
+        <div class="flex-1 w-full flex items-center gap-1 sm:gap-2">
+          <!-- Bouton pour tournoi gratuit -->
+          <Button type="button" @click="setPrice(0, $form)">
+            <span>Gratuit</span>
+          </Button>
 
-            <!-- Boucle pour afficher les prix prédéfinis (sauf 0) -->
-            <button v-for="price in predefinedPrices.slice(1)" :key="price" type="button" @click="setPrice(price)"
-              :class="{
-                'bg-laccent dark:bg-daccent text-white scale-105': newTournament.entry_fee === price,
-                'bg-lgray dark:bg-dgray': newTournament.entry_fee !== price
-              }" class="px-4 py-2 rounded flex items-center space-x-2 transition-all">
-              <span>{{ price }}</span>
-            </button>
+          <!-- Boucle pour afficher les prix prédéfinis (sauf 0) -->
+          <Button v-for="price in predefinedPrices.slice(1)" :key="price" type="button" @click="setPrice(price, $form)">
+            <span>{{ price }}</span>
+          </Button>
 
-            <!-- Champ d'entrée pour montant personnalisé avec icône alignée -->
-            <div class="relative w-24 sm:w-32">
-              <input v-model="newTournament.entry_fee" type="number"
-                class="w-full border-2 border-laccent rounded p-2 pr-8 text-center" :max="500" />
-              <component :is="rewardOptions.find(option => option.value === newTournament.reward_type)?.icon"
-                class="absolute right-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
-            </div>
-          </div>
+          <!-- Champ d'entrée pour montant personnalisé avec icône alignée -->
+          <InputGroup>
+            <InputNumber v-model="initialValues.entry_fee" type="number" placeholder="Prix d'entrée" />
+            <Message v-if="$form.entry_fee?.invalid" severity="error" size="small" variant="simple">{{
+              $form.entry_fee.error?.message }}</Message>
+            <InputGroupAddon>
+              <component :is="Coins" class="h-6 w-6" />
+            </InputGroupAddon>
+          </InputGroup>
         </div>
+      </Fieldset>
 
-        <!-- Date -->
-        <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
-          <label for="date" class="w-full sm:w-80 font-medium text-left text-ltext dark:text-dtext">Date</label>
-          <FloatLabel variant="on">
-            <DatePicker v-model="newTournament.date" showIcon fluid iconDisplay="input" showButtonBar showTime
-              hourFormat="24">
-              <template #inputicon="slotProps">
-                <CalendarDays @click="slotProps.clickCallback" />
-              </template>
-            </DatePicker>
-            <label for="on_label">Date</label>
-          </FloatLabel>
-        </div>
+      <!-- Date -->
+      <FloatLabel variant="on">
+        <DatePicker v-model="initialValues.date" showIcon fluid iconDisplay="input" showButtonBar showTime
+          hourFormat="24">
+          <template #inputicon="slotProps">
+            <CalendarDays @click="slotProps.clickCallback" />
+          </template>
+        </DatePicker>
+        <label for="on_label">Date</label>
+      </FloatLabel>
 
-        <!-- Bouton de soumission -->
-        <div class="flex justify-center mt-6">
-          <button type="submit" class="btn">Valider</button>
-        </div>
-      </div>
-    </form>
+      <Button type="submit" severity="secondary" label="Valider" />
+    </Form>
   </div>
 </template>

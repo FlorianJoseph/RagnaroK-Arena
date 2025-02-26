@@ -134,7 +134,7 @@ const toggle = (event: Event) => {
                 <div class="flex items-center gap-2">
                     <ToggleTheme />
                     <Button v-if="user" type="button" :label="userStore.profile?.username" @click="toggle"
-                        aria-haspopup="true" aria-controls="overlay_tmenu">
+                        aria-haspopup="true" aria-controls="overlay_tmenu" severity="secondary">
                         <template #icon>
                             <Avatar :image="userStore.profile?.avatar_url" shape="circle" />
                         </template>

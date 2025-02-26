@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Heart, Share2, Check, Files, Users } from 'lucide-vue-next';
+import { Heart, Share2, Check, Files, Users, CalendarDays } from 'lucide-vue-next';
 import type { Profile } from '~/types/profiles';
 import type { Participant } from '~/types/tournaments';
 
@@ -77,10 +77,10 @@ const toggle = (event: Event) => {
 </script>
 
 <template>
-    <li class="bg-white shadow-lg rounded-lg overflow-hidden border border-lborder dark:border-dborder">
+    <li class="shadow-lg rounded-lg overflow-hidden border border-lborder dark:border-dborder">
 
         <!-- En-tête -->
-        <div class="p-5 bg-lbg dark:bg-dgray flex justify-between">
+        <div class="p-5 dark:bg-dgray flex justify-between">
             <div class="flex items-center gap-3">
                 <h2 class="text-2xl font-semibold text-ltext dark:text-dtext">{{ title }}</h2>
                 <!-- <div v-if="isIndexPage && organizer" class="flex items-center gap-2">
@@ -124,19 +124,27 @@ const toggle = (event: Event) => {
                 class="absolute top-2 right-2 bg-white bg-opacity-90 text-black px-3 py-1 rounded-full text-xs shadow-md border">
                 <p>{{ formattedDate }}</p>
             </div>
+            <Tag class="absolute top-2 right-2" severity="secondary" value="Secondary">
+                <template #icon>
+                    <CalendarDays class="w-4 h-4" />
+                </template>
+                {{ formattedDate }}
+            </Tag>
         </div>
 
         <!-- Actions -->
-        <div
-            class="p-5 flex justify-between items-center bg-lbg dark:bg-dgray border-t border-lborder dark:border-dborder">
+        <div class="p-5 flex justify-between items-center dark:bg-dgray border-t border-lborder dark:border-dborder">
             <div class="flex gap-4">
-                <NuxtLink :to="`/tournois/${id}`" class="hover:text-laccent">Voir le tournoi</NuxtLink>
+                <NuxtLink :to="`/tournois/${id}`">
+                    <Button label="Voir le tournoi" severity="secondary" />
+                </NuxtLink>
             </div>
 
             <slot name="actions">
                 <div class="flex items-center gap-1">
                     <!-- Bouton favori -->
-                    <Button v-if="id" type="button" @click="handleFavorite(id)">
+                    <Button v-if="id" type="button" @click="handleFavorite(id)" v-tooltip.bottom="'Favori'"
+                        placeholder="Bottom" severity="secondary">
                         <template #icon>
                             <Heart class="w-5 h-5" :class="{
                                 'fill-red-600 text-red-600 ': isFavorite,
@@ -146,7 +154,8 @@ const toggle = (event: Event) => {
                     </Button>
 
                     <!-- Bouton partage -->
-                    <Button type="button" @click="toggle">
+                    <Button type="button" @click="toggle" v-tooltip.bottom="'Partager'" placeholder="Bottom"
+                        severity="secondary">
                         <template #icon>
                             <Share2 class="w-5 h-5" />
                         </template>

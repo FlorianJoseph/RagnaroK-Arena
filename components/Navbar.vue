@@ -133,13 +133,19 @@ const toggle = (event: Event) => {
             <template #end>
                 <div class="flex items-center gap-2">
                     <ToggleTheme />
-                    <Button v-if="user" type="button" :label="userStore.profile?.username" @click="toggle"
-                        aria-haspopup="true" aria-controls="overlay_tmenu" severity="secondary">
-                        <template #icon>
-                            <Avatar :image="userStore.profile?.avatar_url" shape="circle" />
-                        </template>
-                    </Button>
-                    <TieredMenu ref="menu" id="overlay_tmenu" :model="profileItems" popup />
+                    <div v-if="user">
+                        <Button v-if="user" type="button" :label="userStore.profile?.username" @click="toggle"
+                            aria-haspopup="true" aria-controls="overlay_tmenu" severity="secondary">
+                            <template #icon>
+                                <Avatar :image="userStore.profile?.avatar_url" shape="circle" />
+                            </template>
+                        </Button>
+                        <TieredMenu ref="menu" id="overlay_tmenu" :model="profileItems" popup />
+                    </div>
+                    <div v-else>
+                        <Button type="button" label="Connexion" @click="router.push('/auth/connexion')"
+                            severity="secondary" />
+                    </div>
                 </div>
             </template>
         </Menubar>

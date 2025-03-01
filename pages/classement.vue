@@ -21,5 +21,4 @@ onMounted(async () => {
       <p>Chargement du classement...</p>
     </div>
   </div>
-
 </template>

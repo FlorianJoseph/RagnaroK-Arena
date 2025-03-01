@@ -33,7 +33,7 @@ definePageMeta({
 
 <template>
     <div class="flex justify-center">
-        <div class="w-2/3 bg-white dark:bg-gray-800 shadow-md p-6 rounded-lg">
+        <div class="w-2/3 p-6">
             <div v-if="userStore.profile" class="space-y-6">
                 <h2 class="text-3xl font-semibold text-center text-ltext dark:text-dtext mb-6">Mon Profil</h2>
 

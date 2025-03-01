@@ -3,6 +3,7 @@ import { useToast } from 'vue-toastification';
 import { CircleX, Check } from 'lucide-vue-next';
 import type { Tournament, NewTournament, Participant } from '~/types/tournaments';
 import type { Organizer } from '~/types/tournaments';
+import type { Game } from '~/types/games';
 
 export const useTournamentStore = defineStore('tournament', () => {
     const tournaments = ref<Tournament[]>([]);
@@ -27,7 +28,7 @@ export const useTournamentStore = defineStore('tournament', () => {
         for (let tournament of data) {
             const organizer = await getOrganizer(tournament.id);
             const participants = await participationStore.getParticipants(tournament.id);
-            const games = await gameStore.getGame(tournament.game_id);
+            const games = await gameStore.getGame(tournament.id);
             tournament.organizer = organizer;
             tournament.participants = participants;
             tournament.games = games;
@@ -37,10 +38,11 @@ export const useTournamentStore = defineStore('tournament', () => {
     }
 
     // Afficher un tournoi
-    async function getTournament(id: number): Promise<{ tournament: Tournament, organizer: Organizer, participants: Participant[] }> {
+    async function getTournament(id: number): Promise<{ tournament: Tournament, organizer: Organizer, participants: Participant[], game: Game | null }> {
         let tournament = tournaments.value.find(t => t.id === id);
         let organizer: Organizer | null = null;
         let participants: Participant[] = [];
+        let game: Game | null = null;
 
         if (!tournament) {
             const { data, error } = await supabase
@@ -59,10 +61,12 @@ export const useTournamentStore = defineStore('tournament', () => {
                 tournament = data;
                 organizer = await getOrganizer(tournament.id);
                 participants = await participationStore.getParticipants(tournament.id);
+                game = await gameStore.getGame(tournament.id);
             }
         } else {
             organizer = await getOrganizer(tournament.id);
             participants = await participationStore.getParticipants(tournament.id);
+            game = await gameStore.getGame(tournament.id);
         }
 
         if (!tournament) {
@@ -72,7 +76,10 @@ export const useTournamentStore = defineStore('tournament', () => {
         if (!organizer) {
             throw new Error(`L'organisateur du tournoi numéro ${id} non trouvé`);
         }
-        return { tournament, organizer, participants };
+        if (!game) {
+            throw new Error(`Le jeu du tournoi ${id} n'a pas pu être récupéré.`);
+        }
+        return { tournament, organizer, participants, game };
     }
 
     // Récupérer un organisateur
@@ -142,7 +149,6 @@ export const useTournamentStore = defineStore('tournament', () => {
         if (index !== -1) {
             tournaments.value[index] = updatedTournament;
         }
-        toast.success('Tournoi mis à jour avec succès', { icon: Check });
     }
 
     // Supprimer tournoi
@@ -181,7 +187,7 @@ export const useTournamentStore = defineStore('tournament', () => {
                     const [organizer, participants, games] = await Promise.all([
                         getOrganizer(tournament.id),
                         participationStore.getParticipants(tournament.id),
-                        gameStore.getGame(tournament.game_id)
+                        gameStore.getGame(tournament.id)
                     ]);
 
                     tournament.organizer = organizer;
@@ -258,7 +264,7 @@ export const useFavoriteStore = defineStore('favorites', () => {
                     const [organizer, participants, games] = await Promise.all([
                         tournamentStore.getOrganizer(tournament.id),
                         participationStore.getParticipants(tournament.id),
-                        gameStore.getGame(tournament.game_id)
+                        gameStore.getGame(tournament.id)
                     ]);
 
                     tournament.organizer = organizer;

@@ -8,7 +8,6 @@ export const useGameStore = defineStore('gameStore', () => {
     const toast = useToast();
     const supabase = useSupabaseClient();
 
-    // Fonction pour récupérer les jeux
     async function fetchGames() {
         const { data, error } = await supabase
             .from('games')
@@ -21,24 +20,36 @@ export const useGameStore = defineStore('gameStore', () => {
         return data as Game[];
     }
 
-    // Fonction pour récupérer le jeu du tournoi
-    async function getGame(game_id: number) {
-        let game = games.value.find(g => g.id === game_id);
-        if (game) return game;
-
-        const { data, error } = await supabase
-            .from('games')
-            .select('*')
-            .eq('id', game_id)
+    async function getGame(tournamentId: number) {
+        const { data: gameData, error: tournamentError } = await supabase
+            .from('tournaments')
+            .select('game_id')
+            .eq('id', tournamentId)
             .single();
 
-        if (data) {
-            games.value.push(data as Game);
-            return data as Game;
-        } else {
-            toast.error('Jeu non trouvé', { icon: CircleX });
+        if (tournamentError || !gameData) {
+            console.error("Erreur lors de la récupération des informations du tournoi :", tournamentError?.message);
             return null;
         }
+
+        const game_id = gameData?.game_id;
+        if (!game_id) {
+            toast.error(`Le tournoi ${tournamentId} n'est associé à aucun jeu.`, { icon: CircleX });
+            return null;
+        }
+
+        const { data: gameDetails, error: gameError } = await supabase
+        .from('games')
+        .select('*')
+        .eq('id', game_id)
+        .single();
+
+        if (gameError || !gameDetails) {
+            console.error("Erreur lors de la récupération des détails du jeu :", gameError?.message);
+            return null;
+        }
+
+        return gameDetails;
     }
 
     return {

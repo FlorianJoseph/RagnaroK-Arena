@@ -38,12 +38,17 @@ export const useAuthStore = defineStore('AuthStore', () => {
                 return;
             }
 
-            const user = data.user;
-            await userStore.createUserProfile(user);
+            if (!data.user) {
+                toast.error("L'inscription a échoué, veuillez réessayer", { icon: CircleX });
+                return;
+            }
+
+            await userStore.createUserProfile(data.user);
             toast.info("Utilisateur crée, veuillez vérifier votre adresse email", { icon: Info });
 
         } catch (err) {
             console.error('Erreur d\'inscription:', err);
+            toast.error("Une erreur s'est produite lors de l'inscription", { icon: CircleX });
         }
     }
 

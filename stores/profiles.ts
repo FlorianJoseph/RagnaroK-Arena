@@ -12,16 +12,11 @@ export const useUserStore = defineStore('user', () => {
 
     async function createUserProfile(user: any) {
         try {
-            const { data: existingProfiles, error: profileError } = await supabase
+            const { data: existingProfiles } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('user_id', user.id)
                 .single();
-
-            if (profileError) {
-                toast.error("Erreur lors de la récupération du profil : " + profileError.message, { icon: CircleX });
-                return;
-            }
 
             if (!existingProfiles) {
                 const { error: insertError } = await supabase
@@ -39,6 +34,7 @@ export const useUserStore = defineStore('user', () => {
 
                 if (insertError) {
                     toast.info("Vous possédez déjà un compte", { icon: Info });
+                    console.log("Erreur lors de la création du profil :", insertError);
                     router.push("/auth/connexion");
                 }
             }
@@ -47,7 +43,6 @@ export const useUserStore = defineStore('user', () => {
         }
     }
 
-    // Fonction pour récupérer le profil de l'utilisateur
     async function getProfile() {
         if (!user.value) return;
 
@@ -77,7 +72,6 @@ export const useUserStore = defineStore('user', () => {
         return data;
     }
 
-    // Fonction pour sauvegarder le profil
     async function updateProfile(updatedProfile: Profile) {
         if (!user.value) {
             toast.error('Vous devez être connecté pour mettre à jour votre profil.', { icon: CircleX });
@@ -138,7 +132,6 @@ export const useUserStore = defineStore('user', () => {
                 }
             }
 
-            // Upload du nouveau fichier
             const { error: uploadError } = await supabase
                 .storage
                 .from('avatars')

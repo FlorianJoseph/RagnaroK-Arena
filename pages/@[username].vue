@@ -18,8 +18,6 @@ onMounted(async () => {
 <template>
   <div v-if="profile" class="container mx-auto p-6">
     <h1 class="text-3xl font-bold">{{ profile.username }}</h1>
-    <p class="text-gray-600">Nom complet : {{ profile.full_name || 'Non renseigné' }}</p>
-    <p class="text-gray-600">Email : {{ profile.email }}</p>
     <p class="text-gray-600">Site Web :
       <a v-if="profile.website" :href="profile.website" target="_blank" class="text-blue-500 underline">
         {{ profile.website }}

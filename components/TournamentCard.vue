@@ -77,88 +77,57 @@ const toggle = (event: Event) => {
 </script>
 
 <template>
-    <li class="shadow-lg rounded-lg overflow-hidden border border-lborder dark:border-dborder">
+    <Card class="w-full overflow-hidden max-w-xl mx-auto">
+        <template #header>
+            <div class="relative">
+                <img :src="game?.image_url" :alt="game?.name" class="w-full h-40 sm:h-52 object-cover" />
 
-        <!-- En-tête -->
-        <div class="p-5 dark:bg-dgray flex justify-between">
-            <div class="flex items-center gap-3">
-                <h2 class="text-2xl font-semibold text-ltext dark:text-dtext">{{ title }}</h2>
-                <!-- <div v-if="isIndexPage && organizer" class="flex items-center gap-2">
-                    <img :src="organizer.avatar_url" alt="Avatar" class="w-8 h-8 rounded-full object-cover" />
-                    <NuxtLink :to="`/@${organizer.username}`" class="font-medium hover:underline">
-                        {{ organizer.username }}
-                    </NuxtLink>
-                </div> -->
-                <!-- Avatars des participants -->
-                <div v-if="participants && participants.length > 0" class="flex items-center gap-2">
-                    <p class="text-ltext dark:text-dtext">                    
-                        {{ participants.length === 1
-                        ? `${participants.length} participant`
-                        : `${participants.length} participants`
-                    }} :</p>
-                    <AvatarGroup>
-                        <Avatar v-for="(participant, index) in participants.slice(0, 3)" :key="participant.id"
-                            :image="participant.avatar_url" shape="circle" />
-                        <Avatar v-if="participants.length > 3" :label="'+' + (participants.length - 3).toString()"
-                            shape="circle" class="font-bold" />
-                    </AvatarGroup>
+                <!-- Overlay des détails -->
+                <div
+                    class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 sm:p-4 flex flex-col sm:flex-row justify-between text-xs sm:text-sm">
+                    <p class="text-left">Récompense : {{ reward_amount }} {{ reward_type }}</p>
+                    <p class="font-semibold text-right">Prix d'entrée : {{ entry_fee }} {{ reward_type }}</p>
                 </div>
 
+                <!-- Date -->
+                <Tag class="absolute top-2 right-2" severity="secondary" value="Secondary">
+                    <template #icon>
+                        <CalendarDays class="w-4 h-4" />
+                    </template>
+                    {{ formattedDate }}
+                </Tag>
             </div>
-        </div>
+        </template>
 
+        <template #title>
+            <div class="flex items-center justify-between flex-wrap">
+                <div class="flex flex-col">
+                    <p class="text-base font-semibold">{{ title }}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ game?.name }}</p>
+                </div>
 
-        <!-- Image du jeu -->
-        <div v-if="game" class="relative">
-            <img :src="game.image_url" :alt="game.name" class="w-full h-48 object-cover" loading="lazy" />
+                <!-- Bouton favori -->
+                <div>
+                    <ButtonGroup class="w-full">
+                        <Button type="button" label="Favori" v-tooltip.bottom="'Favori'" placeholder="Bottom"
+                            severity="secondary" outlined class="text-xs sm:text-sm" v-if="id"
+                            @click="handleFavorite(id)">
+                            <template #icon>
+                                <Heart class="w-5 h-5" :class="{
+                                    'fill-red-600 text-red-600 ': isFavorite,
+                                    'hover:fill-red-600 hover:text-red-600': !isFavorite,
+                                }" />
+                            </template>
+                        </Button>
 
-            <!-- Overlay des détails -->
-            <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4 flex justify-between">
-                <p class="text-left">Récompense : {{ reward_amount }} {{ reward_type }}</p>
-                <p class="font-semibold text-right">Prix d'entrée : {{ entry_fee }} {{ reward_type }}</p>
-            </div>
-
-            <!-- Date -->
-            <div
-                class="absolute top-2 right-2 bg-white bg-opacity-90 text-black px-3 py-1 rounded-full text-xs shadow-md border">
-                <p>{{ formattedDate }}</p>
-            </div>
-            <Tag class="absolute top-2 right-2" severity="secondary" value="Secondary">
-                <template #icon>
-                    <CalendarDays class="w-4 h-4" />
-                </template>
-                {{ formattedDate }}
-            </Tag>
-        </div>
-
-        <!-- Actions -->
-        <div class="p-5 flex justify-between items-center dark:bg-dgray border-t border-lborder dark:border-dborder">
-            <div class="flex gap-4">
-                <NuxtLink :to="`/tournois/${id}`">
-                    <Button label="Voir le tournoi" severity="contrast" variant="outlined"/>
-                </NuxtLink>
-            </div>
-
-            <slot name="actions">
-                <div class="flex items-center gap-1">
-                    <!-- Bouton favori -->
-                    <Button v-if="id" type="button" @click="handleFavorite(id)" v-tooltip.bottom="'Favori'"
-                        placeholder="Bottom" severity="secondary">
-                        <template #icon>
-                            <Heart class="w-5 h-5" :class="{
-                                'fill-red-600 text-red-600 ': isFavorite,
-                                'hover:fill-red-600 hover:text-red-600': !isFavorite,
-                            }" />
-                        </template>
-                    </Button>
-
-                    <!-- Bouton partage -->
-                    <Button type="button" @click="toggle" v-tooltip.bottom="'Partager'" placeholder="Bottom"
-                        severity="secondary">
-                        <template #icon>
-                            <Share2 class="w-5 h-5" />
-                        </template>
-                    </Button>
+                        <!-- Bouton partage -->
+                        <Button type="button" label="Partager" v-tooltip.bottom="'Partager'" placeholder="Bottom"
+                            severity="secondary" outlined class="text-xs sm:text-sm" @click="toggle">
+                            <template #icon>
+                                <Share2 class="w-5 h-5" />
+                            </template>
+                        </Button>
+                    </ButtonGroup>
 
                     <Popover ref="op">
                         <div class="flex flex-col gap-4 w-[25rem]">
@@ -199,7 +168,31 @@ const toggle = (event: Event) => {
                         </div>
                     </Popover>
                 </div>
-            </slot>
-        </div>
-    </li>
+            </div>
+        </template>
+
+        <template #subtitle></template>
+        <template #content>
+            <!-- Avatars des participants -->
+            <div v-if="participants && participants.length > 0" class="flex items-center gap-2">
+                <p class="text-gray-600 dark:text-gray-300 text-sm">
+                    {{ participants.length === 1
+                        ? `${participants.length} participant`
+                        : `${participants.length} participants`
+                    }} :</p>
+                <AvatarGroup>
+                    <Avatar v-for="(participant, index) in participants.slice(0, 3)" :key="participant.id"
+                        :image="participant.avatar_url" shape="circle" />
+                    <Avatar v-if="participants.length > 3" :label="'+' + (participants.length - 3).toString()"
+                        shape="circle" class="font-bold" />
+                </AvatarGroup>
+            </div>
+            <p v-else class="text-gray-500 dark:text-gray-400 text-sm">Aucun participant pour le moment.</p>
+        </template>
+        <template #footer>
+            <NuxtLink :to="`/tournois/${id}`">
+                <Button label="Voir le tournoi" severity="contrast" class="w-full mt-1 text-xs sm:text-sm md:text-md xl:text-lg" />
+            </NuxtLink>
+        </template>
+    </Card>
 </template>

@@ -89,10 +89,13 @@ const isUserParticipant = computed(() => {
             <Divider />
             <div class="text-lg flex items-center">
                 <User />
-                <p v-if="organizer" class="ml-2"> Organisateur :
+                <div v-if="organizer" class="flex items-center gap-2">
+                    <p class="ml-2"> Organisateur :</p>
                     <NuxtLink class="hover:underline" :to="`/@${organizer.username}`">
-                        {{ organizer.username }}</NuxtLink>
-                </p>
+                        <Chip v-tooltip.bottom="'Voir le profil'" :label="organizer.username"
+                            :image="organizer.avatar_url" class="mr-2" />
+                    </NuxtLink>
+                </div>
             </div>
             <Divider />
 
@@ -139,22 +142,15 @@ const isUserParticipant = computed(() => {
         </div>
     </Fieldset>
 
-    <div class="card">
-        <DataTable :value="participants" tableStyle="min-width: 50rem" stripedRows>
-            <Column header="Participants" style="min-width: 14rem">
-                <template #body="{ data }">
-                    <div class="flex items-center gap-2">
-                        <img :src="data.avatar_url" style="width: 32px" />
-                        <span class="ml-2">
-                            <NuxtLink class="hover:underline" :to="`/@${data.username}`">
-                                {{ data.username }}</NuxtLink>
-                        </span>
+    <Fieldset legend="Participants">
+        <template v-if="participants?.length">
+            <NuxtLink v-for="p in participants" :key="p.id" class="hover:underline" :to="`/@${p.username}`">
+                <Chip v-tooltip.bottom="'Voir le profil'" :label="p.username" :image="p.avatar_url" class="mr-1" />
+            </NuxtLink>
+        </template>
+        <p v-else class="text-gray-500 dark:text-gray-400">Aucun participant pour le moment.</p>
+    </Fieldset>
 
-                    </div>
-                </template>
-            </Column>
-        </DataTable>
-    </div>
     <p v-if="loading">Chargement...</p>
     <Toast position="bottom-right" />
 </template>

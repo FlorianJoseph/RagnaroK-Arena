@@ -30,6 +30,5 @@ import { Twitch, Youtube } from 'lucide-vue-next';
                 </a>
             </div>
         </footer>
-        
     </div>
 </template>

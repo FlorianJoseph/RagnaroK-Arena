@@ -44,8 +44,10 @@ async function checkIfFavorite(tournamentId: number) {
     }
 }
 
+const emit = defineEmits(['update-favorites']);
+
 async function handleFavorite(tournamentId: number) {
-    const userId = user.value?.id
+    const userId = user.value?.id;
     if (userId) {
         if (isFavorite.value) {
             await favoritesStore.removeFavorite(userId, tournamentId);
@@ -53,8 +55,10 @@ async function handleFavorite(tournamentId: number) {
             await favoritesStore.addFavorite(userId, tournamentId);
         }
         isFavorite.value = !isFavorite.value;
+        emit('update-favorites');
     }
 }
+
 
 function copyLinkToClipboard(tournamentId: number) {
     navigator.clipboard.writeText(`${window.location.origin}/tournois/${tournamentId}`);
@@ -109,10 +113,10 @@ const toggle = (event: Event) => {
                 <!-- Bouton favori -->
                 <div>
                     <ButtonGroup class="w-full">
-                        <Button type="button" label="Favori" v-tooltip.bottom="'Favori'" placeholder="Bottom"
+                        <Button type="button" v-tooltip.bottom="'Mettre en favori'" placeholder="Bottom"
                             severity="secondary" outlined class="text-xs sm:text-sm" v-if="id"
                             @click="handleFavorite(id)">
-                            <template #icon>
+                            <template #icon >
                                 <Heart class="w-5 h-5" :class="{
                                     'fill-red-600 text-red-600 ': isFavorite,
                                     'hover:fill-red-600 hover:text-red-600': !isFavorite,
@@ -121,7 +125,7 @@ const toggle = (event: Event) => {
                         </Button>
 
                         <!-- Bouton partage -->
-                        <Button type="button" label="Partager" v-tooltip.bottom="'Partager'" placeholder="Bottom"
+                        <Button type="button" v-tooltip.bottom="'Partager le tournoi'" placeholder="Bottom"
                             severity="secondary" outlined class="text-xs sm:text-sm" @click="toggle">
                             <template #icon>
                                 <Share2 class="w-5 h-5" />
@@ -191,7 +195,7 @@ const toggle = (event: Event) => {
         </template>
         <template #footer>
             <NuxtLink :to="`/tournois/${id}`">
-                <Button label="Voir le tournoi" severity="contrast" class="w-full mt-1 text-xs sm:text-sm md:text-md xl:text-lg" />
+                <Button label="Voir le tournoi" severity="contrast" class="w-full mt-1 text-xs sm:text-sm xl:text-lg" />
             </NuxtLink>
         </template>
     </Card>

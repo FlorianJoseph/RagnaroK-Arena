@@ -35,16 +35,11 @@ definePageMeta({
           tournois de jeux vidéo.</p>
         <p class="mt-0 mb-4 text-lg text-ltext dark:text-dtext"> Nous vous aidons à gagner de
           l'argent en jouant à vos jeux vidéo préférés.</p>
+
         <!-- Boutons de navigation -->
         <div class="flex space-x-4">
-          <NuxtLink :to="User ? '/informations/profil' : '/auth/inscription'" class="btn">
-            <p>{{ User ? 'Voir le profil' : 'Créer un compte' }}</p>
-          </NuxtLink>
-
-          <NuxtLink to="/tournois" class="btnvariant">
-            Voir les tournois
-          </NuxtLink>
-
+          <Button as="router-link" :to="User ? '/tournois' : '/auth/inscription'"
+            :label="User ? 'Accéder à l\'application' : 'Créer un compte'" />
         </div>
       </section>
     </div>
@@ -79,8 +74,8 @@ definePageMeta({
     <div class="text-xl mb-8 mx-40 text-center text-ltext dark:text-dtext">
       La communauté est présente pour vous soutenir, que ce soit pour l'entraide ou pour jouer ensemble !
     </div>
-    <a href="https://discord.gg/uZfU7YExgD" target="_blank" class="btn">
-      Rejoignez-nous maintenant
-    </a>
+    <Button label="Rejoignez-nous maintenant" href="'https://discord.gg/uZfU7YExgD'" target="_blank"
+      severity="contrast">
+    </Button>
   </div>
 </template>

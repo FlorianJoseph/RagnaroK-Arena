@@ -56,7 +56,7 @@ definePageMeta({
       <h2 class="text-3xl font-bold text-ltext dark:text-dtext mb-12">Fonctionnalités</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
 
-        <div v-for="(feature, index) in features" :key="index">
+        <div v-for="(feature, index) in features" :key="index" class="flex">
           <Panel :header="feature.header" class="flex flex-col items-center text-center text-xl shadow-md">
             <p class="m-0">{{ feature.description }} </p>
           </Panel>

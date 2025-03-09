@@ -68,11 +68,11 @@ const items = ref([
                     router.push('/compte/mes-tournois');
                 },
             },
-            {
-                label: 'Messages',
-                icon: 'MessagesSquare',
-                badge: 2
-            },
+            // {
+            //     label: 'Messages',
+            //     icon: 'MessagesSquare',
+            //     badge: 2
+            // },
             {
                 label: 'Déconnexion',
                 icon: 'LogOut',
@@ -137,7 +137,7 @@ onUnmounted(() => {
                     </svg>
                     <div class="flex flex-col">
                         <span class="text-xl font-semibold">{{ pathAfterSlash }}</span>
-                        <span class="text-sm text-primary mt-1">{{ formattedDate }}</span>
+                        <span class="text-sm text-primary">{{ formattedDate }}</span>
                     </div>
                 </span>
             </template>

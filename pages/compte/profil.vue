@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { CircleX, Check, User, UserCheck, ImageUp } from 'lucide-vue-next';
+import { CircleX, Check, User, UserCheck, Pencil } from 'lucide-vue-next';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 const userStore = useUserStore();
-const toast = useToast();
+const loading = ref(true);
+
+const fields = {
+    username: 'Pseudo',
+    full_name: 'Nom Complet',
+    website: 'Site Web'
+};
 
 const editedProfile = ref({
     username: "",
@@ -18,6 +24,7 @@ onMounted(async () => {
         editedProfile.value.full_name = userStore.profile.full_name ?? "";
         editedProfile.value.website = userStore.profile.website ?? "";
     }
+    loading.value = false;
 });
 
 const saveField = async (field: keyof typeof editedProfile.value, closeCallback: () => void) => {
@@ -29,78 +36,104 @@ const saveField = async (field: keyof typeof editedProfile.value, closeCallback:
     closeCallback();
 };
 
-const onAdvancedUpload = () => {
-    toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+const toast = useToast();
+const fileupload = ref();
+
+const upload = () => {
+    fileupload.value.upload();
+};
+
+const onUpload = () => {
+    toast.add({ severity: 'success', summary: 'Success', detail: 'File Uploaded', life: 3000 });
 };
 </script>
 
 <template>
-    <Fieldset legend="Compte">
-        <div class="flex justify-center">
-            <div class="w-2/3">
-                <div v-if="userStore.profile" class="flex flex-col items-center space-y-4">
-                    <label class="relative w-24 h-24 cursor-pointer shadow-md rounded-full overflow-hidden">
-                        <input type="file" class="hidden" />
-                        <img :src="userStore.profile.avatar_url || 'path/to/default-avatar.png'" alt="Avatar"
-                            class="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
-                    </label>
-
-                    <div class="text-center">
-                        <p class="text-sm text-lightText dark:text-darkText flex items-center justify-center space-x-2">
-                            <User />
-                            <span>Utilisateur depuis
-                                {{ format(new Date(userStore.profile.created_at), 'd MMMM yyyy', { locale: fr })
-                                }}</span>
-                        </p>
-                        <p class="text-sm text-lightText dark:text-darkText flex items-center justify-center space-x-2">
-                            <UserCheck />
-                            <span>Dernière mise à jour le
-                                {{ format(new Date(userStore.profile.updated_at), 'd MMMM yyyy', { locale: fr })
-                                }}</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </Fieldset>
-
-    <Fieldset legend="Modifier le profil">
-        <div class="flex justify-center">
-            <div class="w-2/3">
-                <div v-if="userStore.profile" class="space-y-6">
-                    <!-- Section d'Informations -->
-                    <div class="p-4 w-1/2">
-                        <!-- Champs éditables -->
-                        <div v-for="(label, field) in { username: 'Pseudo', full_name: 'Nom Complet', website: 'Site Web' }"
-                            :key="field" class="flex items-center justify-between pb-2">
-                            <label>
-                                {{ label }}
-                            </label>
-                            <Inplace>
-                                <template #display>
-                                    {{ userStore.profile[field] ?? "Éditer" }}
-                                </template>
-                                <template #content="{ closeCallback }">
-                                    <span class="inline-flex items-center gap-2">
-                                        <InputText v-model="editedProfile[field]" autofocus />
-                                        <Button icon="pi pi-times" text severity="danger" @click="closeCallback">
-                                            <CircleX />
-                                        </Button>
-                                        <Button icon="pi pi-check" text severity="success"
-                                            @click="saveField(field, closeCallback)">
-                                            <Check />
-                                        </Button>
-                                    </span>
-                                </template>
-                            </Inplace>
+    <div class="size-full">
+        <Card class="p-6 h-full w-2/3 mx-auto flex gap-4">
+            <template #header>
+                <Card v-if="userStore.profile">
+                    <template #title>
+                        <div class="flex flex-row justify-center gap-2 items-center">
+                            <Avatar :image="userStore.profile.avatar_url || 'path/to/default-avatar.png'" size="xlarge"
+                                shape="circle" />
+                            <span>{{ userStore.profile.username }}</span>
                         </div>
-                    </div>
+                    </template>
+                    <template #content>
+                        <div class="text-center">
+                            <p
+                                class="text-sm text-lightText dark:text-darkText flex items-center justify-center space-x-2">
+                                <User />
+                                <span>Utilisateur depuis
+                                    {{ format(new Date(userStore.profile.created_at), 'd MMMM yyyy', { locale: fr })
+                                    }}</span>
+                            </p>
+                            <p
+                                class="text-sm text-lightText dark:text-darkText flex items-center justify-center space-x-2">
+                                <UserCheck />
+                                <span>Dernière mise à jour le
+                                    {{ format(new Date(userStore.profile.updated_at), 'd MMMM yyyy', { locale: fr })
+                                    }}</span>
+                            </p>
+                        </div>
+                    </template>
+                </Card>
+            </template>
+            <template #content>
+                <div v-if="loading" class="flex justify-center items-center py-6">
+                    <ProgressSpinner />
                 </div>
-            </div>
-        </div>
-        <FileUpload ref="fileupload" mode="basic" name="demo[]" url="/api/upload" accept="image/*"
-            :maxFileSize="1000000" @upload="onUpload" />
-        <Button label="Upload" @click="upload" severity="secondary" />
-    </Fieldset>
-    <Button label="Supprimer le compte" severity="danger" outlined />
+                <div v-else>
+                    <!-- Champs éditables -->
+                    <Fieldset legend="Informations du profil">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div v-for="(label, field) in fields" :key="field"
+                                class="flex items-center justify-between">
+                                <div>
+                                    <label class="text-gray-700 dark:text-gray-300 font-medium text-xl">{{ label
+                                        }}</label>
+                                    <p class="text-gray-900 dark:text-gray-100">
+                                        {{ userStore.profile ? userStore.profile[field] : "Aucune donnée" }}
+                                    </p>
+                                </div>
+
+                                <Inplace v-if="editedProfile[field]" class="block mt-1">
+                                    <template #display>
+                                        <Pencil />
+                                    </template>
+                                    <template #content="{ closeCallback }">
+                                        <div class="flex items-center gap-2">
+                                            <InputText v-model="editedProfile[field]" class="w-full" autofocus />
+                                            <Button text severity="danger" @click="closeCallback">
+                                                <CircleX />
+                                            </Button>
+                                            <Button icon="pi pi-check" text severity="success"
+                                                @click="saveField(field, closeCallback)">
+                                                <Check />
+                                            </Button>
+                                        </div>
+                                    </template>
+                                </Inplace>
+                            </div>
+                        </div>
+                    </Fieldset>
+
+                    <!-- Upload d'image -->
+                    <Fieldset legend="Changer l'avatar">
+                        <div class="flex justify-center flex-col gap-4">
+                            <FileUpload mode="basic" name="avatar" url="/api/upload" accept="image/*"
+                                :maxFileSize="1000000" @upload="onUpload" chooseLabel="Choisir une image">
+                                <template #empty>
+                                    <span>Drag and drop files to here to upload.</span>
+                                </template>
+                            </FileUpload>
+                            <Button label="Valider" @click="upload" severity="secondary" />
+                        </div>
+                    </Fieldset>
+                </div>
+                <Button label="Supprimer le compte" severity="danger" outlined />
+            </template>
+        </Card>
+    </div>
 </template>

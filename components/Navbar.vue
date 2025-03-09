@@ -30,7 +30,7 @@ const { theme, toggleTheme } = useTheme();
     <div class="card">
         <Menubar>
             <template #start>
-                <Button as="router-link" to="/" class="ml-2" severity="secondary" text>
+                <Button as="router-link" to="/" severity="secondary" text>
                     <House />
                     <span>Retourner à l'accueil</span>
                 </Button>

@@ -54,28 +54,32 @@ const onUpload = () => {
             <template #header>
                 <Card v-if="userStore.profile">
                     <template #title>
-                        <div class="flex flex-row justify-center gap-2 items-center">
+                        <div class="flex items-center gap-4 flex-row justify-center items-center">
+                            <!-- Avatar à gauche -->
                             <Avatar :image="userStore.profile.avatar_url || 'path/to/default-avatar.png'" size="xlarge"
                                 shape="circle" />
-                            <span>{{ userStore.profile.username }}</span>
-                        </div>
-                    </template>
-                    <template #content>
-                        <div class="text-center">
-                            <p
-                                class="text-sm text-lightText dark:text-darkText flex items-center justify-center space-x-2">
-                                <User />
-                                <span>Utilisateur depuis
-                                    {{ format(new Date(userStore.profile.created_at), 'd MMMM yyyy', { locale: fr })
-                                    }}</span>
-                            </p>
-                            <p
-                                class="text-sm text-lightText dark:text-darkText flex items-center justify-center space-x-2">
-                                <UserCheck />
-                                <span>Dernière mise à jour le
-                                    {{ format(new Date(userStore.profile.updated_at), 'd MMMM yyyy', { locale: fr })
-                                    }}</span>
-                            </p>
+
+                            <!-- Infos à droite -->
+                            <div class="flex flex-col">
+                                <!-- Pseudo -->
+                                <span class="text-xl font-bold">{{ userStore.profile.username }}</span>
+
+                                <!-- Infos supplémentaires -->
+                                <div class="flex flex-col text-sm text-lightText dark:text-darkText">
+                                    <p class="flex items-center gap-2">
+                                        <span>Utilisateur depuis
+                                            {{ format(new Date(userStore.profile.created_at), 'd MMMM yyyy', {
+                                                locale: fr
+                                            }) }}</span>
+                                    </p>
+                                    <p class="flex items-center gap-2">
+                                        <span>Dernière mise à jour le
+                                            {{ format(new Date(userStore.profile.updated_at), 'd MMMM yyyy', {
+                                                locale: fr
+                                            }) }}</span>
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </template>
                 </Card>
@@ -92,7 +96,7 @@ const onUpload = () => {
                                 class="flex items-center justify-between">
                                 <div>
                                     <label class="text-gray-700 dark:text-gray-300 font-medium text-xl">{{ label
-                                        }}</label>
+                                    }}</label>
                                     <p class="text-gray-900 dark:text-gray-100">
                                         {{ userStore.profile ? userStore.profile[field] : "Aucune donnée" }}
                                     </p>

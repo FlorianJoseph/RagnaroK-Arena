@@ -1,12 +1,14 @@
 <script setup>
-
 const tournamentStore = useTournamentStore();
-const participationStore = useParticipationStore();
+const supabase = useSupabaseClient();
 const route = useRoute();
 const id = Number(route.params.id);
 const tournament = ref(null);
 const organizer = ref(null);
 const participants = ref([]);
+const matches = ref([]);
+const brackets = ref([]);
+const winnerId = ref(null);
 
 async function loadTournament() {
     try {
@@ -14,99 +16,144 @@ async function loadTournament() {
         tournament.value = data.tournament;
         organizer.value = data.organizer;
         participants.value = data.participants;
+        await loadBrackets();
     } catch (error) {
         console.error("Erreur lors de la récupération du tournoi :", error);
     }
 };
-onMounted(async () => {
-    participants.value = await participationStore.getParticipants(id);
-    await loadTournament();
-});
 
-const tournamentTree = computed(() => {
-    if (!participants.value.length) return { label: "En attente de participants" };
+async function loadMatchesForBracket(bracketId) {
+    try {
+        const { data, error } = await supabase
+            .from('matches')
+            .select('*')
+            .eq('bracket_id', bracketId)
+            .order('match_index', { ascending: true });
 
-    // Simulation d'un tournoi simple en mode élimination directe
-    let tree = { label: "Finale", children: [] };
-    let round = [];
+        if (error) throw error;
 
-    // On organise les participants en paires (1 vs 1)
-    for (let i = 0; i < participants.value.length; i += 2) {
-        if (participants.value[i + 1]) {
-            round.push({
-                label: `${participants.value[i].username} ⚔️ ${participants.value[i + 1].username}`,
-                children: [
-                    { label: participants.value[i].username },
-                    { label: participants.value[i + 1].username }
-                ]
-            });
-        } else {
-            // Si un participant est seul (nombre impair), il est qualifié directement
-            round.push({
-                label: participants.value[i].username,
-                children: [{ label: "En attente d'adversaire" }]
-            });
-        }
+        data.forEach((match) => {
+            const player1 = participants.value.find(p => String(p.user_id) === String(match.player1_id));
+            const player2 = participants.value.find(p => String(p.user_id) === String(match.player2_id));
+
+            match.player1 = player1;
+            match.player2 = player2;
+        });
+
+        matches.value = matches.value.filter(m => m.bracket_id !== bracketId).concat(data);
+
+    } catch (error) {
+        console.error("Erreur lors de la récupération des matchs :", error.message);
     }
+}
 
-    tree.children = round;
-    return tree;
+
+async function loadBrackets() {
+    try {
+        const { data, error } = await supabase
+            .from('brackets')
+            .select('*')
+            .eq('tournament_id', id)
+            .order('round_number', { ascending: true });
+
+        if (error) throw error;
+
+        brackets.value = data;
+
+        for (const bracket of brackets.value) {
+            await loadMatchesForBracket(bracket.id);
+        }
+    } catch (error) {
+        console.error("Erreur lors de la récupération des brackets :", error.message);
+    }
+}
+
+async function setWinner(match, winnerId) {
+    try {
+        const { data, error } = await supabase
+            .from('matches')
+            .update({ winner_id: winnerId })
+            .eq('id', match.id)
+            .select();
+
+        if (error) throw Error(error.message);
+
+        if (data && data.length) {
+            match.winner_id = data[0].winner_id;
+        }
+        winnerId = null;
+        await loadMatchesForBracket(match.bracket_id);
+
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour du gagnant:', error.message);
+    }
+}
+
+const getWinner = (match) => {
+    return participants.value.find(p => p.user_id === match.winner_id) || null;
+};
+
+onMounted(async () => {
+    try {
+        await loadTournament();
+    } catch (error) {
+        console.error("Erreur lors du chargement des données :", error);
+    }
 });
+
+const log = (evt) => {
+    console.log(evt);
+};
+
+const clone = (participant) => ({ ...participant });
 </script>
 
 <template>
-    <div class="card overflow-x-auto">
-        <OrganizationChart :value="tournamentTree">
-            <template #default="{ node }">
-                <span>{{ node.label }}</span>
+    <div class="flex gap-6 p-6">
+        <!-- Joueurs de départ -->
+        <Fieldset class="w-1/4" legend="Participants">
+            <template v-if="participants?.length">
+                <draggable :list="participants" item-key="id" :clone="clone" :group="{ name: 'participants' }"
+                    @end="log">
+                    <template #item="{ element: participant }">
+                        <Chip v-if="participant.username" :label="participant.username" :image="participant.avatar_url"
+                            class="mr-1 cursor-grab" />
+                    </template>
+                </draggable>
             </template>
-        </OrganizationChart>
-    </div>
-    <div class="container mx-auto px-4">
-        <h1 class="text-center text-3xl font-bold mb-6">Tournament Bracket</h1>
+            <p v-else class="text-gray-500 dark:text-gray-400">Aucun participant pour le moment.</p>
+        </Fieldset>
 
-        <div class="flex flex-col sm:flex-row justify-center">
-            <!-- Round 1 -->
-            <div class="tournament-round flex flex-col items-center sm:mr-12">
-                <h2 class="text-lg font-semibold text-gray-700 mb-4">Round 1</h2>
-                <div class="flex flex-col space-y-4">
-                    <div class="match flex items-center">
-                        <div class="team p-4 bg-white shadow-md rounded-md">Team A</div>
-                        <div class="bracket-line"></div>
-                        <div class="team p-4 bg-white shadow-md rounded-md">Team B</div>
+        <!-- Tournois et brackets -->
+        <Fieldset legend="Brackets">
+            <div v-for="(bracket, bracketIndex) in brackets" :key="bracketIndex">
+                <h3 class="text-lg font-semibold mb-3">Tour {{ bracket.round_number }}</h3>
+                <div v-for="match in matches.filter(m => m.bracket_id === bracket.id)" :key="match.id">
+                    <div v-if="match.player1 && match.player2" class="flex justify-center items-center my-4">
+                        <Chip v-if="match.player1?.username" :label="match.player1?.username"
+                            :image="match.player1?.avatar_url" class="mr-1" />
+                        <p class="mx-2">vs</p>
+                        <Chip v-if="match.player2?.username" :label="match.player2?.username"
+                            :image="match.player2?.avatar_url" class="mr-1" />
                     </div>
-                    <div class="match flex items-center">
-                        <div class="team p-4 bg-white shadow-md rounded-md">Team C</div>
-                        <div class="bracket-line"></div>
-                        <div class="team p-4 bg-white shadow-md rounded-md">Team D</div>
+                    <!-- Affichage du gagnant -->
+                    <div v-if="match.winner_id" class="mt-2 text-green-500 font-semibold flex items-center gap-2">
+                        🏆 Gagnant :
+                        <Chip v-if="getWinner(match)?.username" :label="getWinner(match)?.username"
+                            :image="getWinner(match)?.avatar_url" class="mr-1" />
                     </div>
+                    <Form v-else @submit="setWinner(match, winnerId)" class="flex flex-col gap-4 w-full md:w-56">
+                        <div class="flex flex-col gap-1">
+                            <Select name="winner" v-model="winnerId" :options="[
+                                { id: match.player1.id, user_id: match.player1.user_id, name: match.player1.username },
+                                { id: match.player2.id, user_id: match.player2.user_id, name: match.player2.username }
+                            ]" optionLabel="name" optionValue="user_id" placeholder="Sélectionner le vainqueur"
+                                fluid />
+                        </div>
+                        <Button type="submit" severity="secondary" label="Valider" />
+                    </Form>
                 </div>
             </div>
-
-            <!-- Round 2 -->
-            <div class="tournament-round flex flex-col items-center sm:mr-12 mt-10 sm:mt-0">
-                <h2 class="text-lg font-semibold text-gray-700 mb-4">Round 2</h2>
-                <div class="flex flex-col space-y-4">
-                    <div class="match flex items-center">
-                        <div class="team p-4 bg-white shadow-md rounded-md">Team A</div>
-                        <div class="bracket-line"></div>
-                        <div class="team p-4 bg-white shadow-md rounded-md">Team D</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Round 3 -->
-            <div class="tournament-round flex flex-col items-center">
-                <h2 class="text-lg font-semibold text-gray-700 mb-4">Finals</h2>
-                <div class="flex flex-col space-y-4">
-                    <div class="match flex items-center">
-                        <div class="team p-4 bg-white shadow-md rounded-md">Team A</div>
-                        <div class="bracket-line"></div>
-                        <div class="team p-4 bg-white shadow-md rounded-md">Team B</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        </Fieldset>
     </div>
 </template>

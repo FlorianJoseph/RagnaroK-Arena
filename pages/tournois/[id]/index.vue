@@ -144,7 +144,7 @@ const isUserParticipant = computed(() => {
 
     <Fieldset legend="Participants">
         <template v-if="participants?.length">
-            <NuxtLink v-for="p in participants" :key="p.id" class="hover:underline" :to="`/@${p.username}`">
+            <NuxtLink v-for="p in participants" :key="p.id" :to="`/@${p.username}`">
                 <Chip v-tooltip.bottom="'Voir le profil'" :label="p.username" :image="p.avatar_url" class="mr-1" />
             </NuxtLink>
         </template>

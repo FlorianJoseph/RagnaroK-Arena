@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { CircleX, Check } from 'lucide-vue-next';
-import type { Tournament, NewTournament, Participant } from '~/types/tournaments';
+import type { Tournament, NewTournament, Participant, Match } from '~/types/tournaments';
 import type { Organizer } from '~/types/tournaments';
 import type { Game } from '~/types/games';
 
@@ -12,6 +12,7 @@ export const useTournamentStore = defineStore('tournament', () => {
     const userStore = useUserStore();
     const participationStore = useParticipationStore();
     const gameStore = useGameStore();
+    const matches = ref([]);
 
     // Récupérer tous les tournois
     async function fetchTournaments() {
@@ -80,6 +81,70 @@ export const useTournamentStore = defineStore('tournament', () => {
             throw new Error(`Le jeu du tournoi ${id} n'a pas pu être récupéré.`);
         }
         return { tournament, organizer, participants, game };
+    }
+
+    // Fonction pour charger les brackets
+    async function getBrackets(tournamentId: number) {
+        try {
+            const { data, error } = await supabase
+                .from('brackets')
+                .select('*')
+                .eq('tournament_id', tournamentId)
+                .order('round_number', { ascending: true });
+
+            if (error) throw new Error(error.message);
+            return data;
+
+        } catch (error) {
+            console.error('Erreur lors de la récupération des brackets:', error.message);
+        }
+    }
+
+    // Fonction pour charger les matchs d'un bracket
+    async function getMatches(bracketId: number, tournamentId: number) {
+        const participants = await participationStore.getParticipants(tournamentId);
+
+        try {
+            const { data, error } = await supabase
+                .from('matches')
+                .select('*')
+                .eq('bracket_id', bracketId)
+                .order('match_index', { ascending: true });
+
+            if (error) throw new Error(error.message);
+
+            data.forEach((match) => {
+                const player1 = participants.find(p => String(p.user_id) === String(match.player1_id));
+                const player2 = participants.find(p => String(p.user_id) === String(match.player2_id));
+                match.player1 = player1;
+                match.player2 = player2;
+            });
+
+            return data;
+
+        } catch (error) {
+            console.error('Erreur lors de la récupération des matchs:', error.message);
+            return [];
+        }
+    }
+
+    async function setWinner(match: Match, winnerId: string,) {
+        try {
+            const { data, error } = await supabase
+                .from('matches')
+                .update({ winner_id: winnerId })
+                .eq('id', match.id)
+                .select();
+
+            if (error) throw new Error(error.message);
+
+            if (data && data.length) {
+                match.winner_id = data[0].winner_id;
+                console.log(`Gagnant mis à jour pour le match ID: ${match.id} avec winner_id: ${data[0].winner_id}`);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la mise à jour du gagnant:', error.message);
+        }
     }
 
     // Récupérer un organisateur
@@ -212,6 +277,10 @@ export const useTournamentStore = defineStore('tournament', () => {
         deleteTournament,
         getTournamentsByOrganizer,
         getOrganizer,
+        getBrackets,
+        matches,
+        getMatches,
+        setWinner,
     };
 });
 

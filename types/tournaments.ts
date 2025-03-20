@@ -18,6 +18,17 @@ export interface Tournament {
     updated_at: Date;
 }
 
+export interface Match {
+    id: number;
+    bracket_id: number;
+    player1_id: string;
+    player2_id: string;
+    winner_id: string | null;
+    match_index: number;
+    player1?: Participant;
+    player2?: Participant;
+}
+
 export interface NewTournament {
     title: string;
     entry_fee: number;

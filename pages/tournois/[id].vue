@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Organizer, Tournament, Participant } from '~/types/tournaments';
+import type { Organizer, Tournament, Participant, Match } from '~/types/tournaments';
 import type { Game } from '~/types/games';
 import { CalendarDays, Coins, User, Quote, Gamepad2 } from 'lucide-vue-next';
 import { format } from 'date-fns';
@@ -14,14 +14,10 @@ const tournament = ref<Tournament | null>(null);
 const organizer = ref<Organizer | null>(null);
 const participants = ref<Participant[]>([]);
 const game = ref<Game | null>(null);
-const loading = ref(true);
 const id = Number(route.params.id);
-const router = useRouter();
 const toast = useToast();
-const supabase = useSupabaseClient();
-const matches = ref([]);
 const brackets = ref([]);
-const winnerId = ref(null);
+const winnerId = ref('');
 const formattedDate = computed(() => {
     return tournament.value ? format(new Date(tournament.value.date), 'd MMMM yyyy à HH:mm', { locale: fr }) : '';
 });
@@ -33,83 +29,35 @@ async function loadTournament() {
         organizer.value = data.organizer;
         participants.value = data.participants;
         game.value = data.game;
-        loading.value = false;
         await loadBrackets();
     } catch (error) {
         console.error("Erreur lors de la récupération du tournoi :", error);
     }
 };
 
-async function loadMatchesForBracket(bracketId) {
-    try {
-        const { data, error } = await supabase
-            .from('matches')
-            .select('*')
-            .eq('bracket_id', bracketId)
-            .order('match_index', { ascending: true });
-
-        if (error) throw error;
-
-        data.forEach((match) => {
-            const player1 = participants.value.find(p => String(p.user_id) === String(match.player1_id));
-            const player2 = participants.value.find(p => String(p.user_id) === String(match.player2_id));
-
-            match.player1 = player1;
-            match.player2 = player2;
-        });
-
-        matches.value = matches.value.filter(m => m.bracket_id !== bracketId).concat(data);
-
-    } catch (error) {
-        console.error("Erreur lors de la récupération des matchs :", error.message);
-    }
-}
-
-
 async function loadBrackets() {
-    try {
-        const { data, error } = await supabase
-            .from('brackets')
-            .select('*')
-            .eq('tournament_id', id)
-            .order('round_number', { ascending: true });
-
-        if (error) throw error;
-
-        brackets.value = data;
-
-        for (const bracket of brackets.value) {
-            await loadMatchesForBracket(bracket.id);
-        }
-    } catch (error) {
-        console.error("Erreur lors de la récupération des brackets :", error.message);
+    const bracketsData = await tournamentStore.getBrackets(id) || [];
+    for (const bracket of bracketsData) {
+        bracket.matches = await tournamentStore.getMatches(bracket.id, id);
     }
+    brackets.value = bracketsData;
+
+    return brackets.value;
 }
 
-async function setWinner(match, winnerId) {
-    try {
-        const { data, error } = await supabase
-            .from('matches')
-            .update({ winner_id: winnerId })
-            .eq('id', match.id)
-            .select();
+async function setWinnerHandler(matchId: number, winnerId: string) {
+    let match = null;
 
-        if (error) throw Error(error.message);
-
-        if (data && data.length) {
-            match.winner_id = data[0].winner_id;
+    for (const bracket of brackets.value) {
+        match = bracket.matches.find(m => m.id === matchId);
+        if (match) {
+            break;
         }
-        winnerId = null;
-        await loadMatchesForBracket(match.bracket_id);
-
-    } catch (error) {
-        console.error('Erreur lors de la mise à jour du gagnant:', error.message);
     }
+    await tournamentStore.setWinner(match, winnerId);
+    match.winner_id = winnerId;
+    await loadBrackets();
 }
-
-const getWinner = (match) => {
-    return participants.value.find(p => p.user_id === match.winner_id) || null;
-};
 
 async function joinTournament() {
     await participationStore.joinTournament(id);
@@ -121,13 +69,16 @@ async function leaveTournament() {
     await loadTournament();
 }
 
+
 onMounted(async () => {
+    await loadTournament();
     try {
-        participants.value = await participationStore.getParticipants(id);
-        await loadTournament();
+        const data = await loadBrackets();
+        brackets.value = data;
     } catch (error) {
         console.error("Erreur lors du chargement des données :", error);
     }
+    participants.value = await participationStore.getParticipants(id);
 });
 
 const saveTournament = async () => {
@@ -149,21 +100,14 @@ const tournamentFormats = [
     {
         value: "single_elimination",
         title: "Élimination simple",
-        description: "Un seul match perdu et c'est fini ! Un format rapide et intense.",
-        image: "https://primefaces.org/cdn/primevue/images/usercard.png", // Remplace avec ton image
     },
     {
         value: "double_elimination",
         title: "Élimination double",
-        description: "Deuxième chance ! Vous pouvez perdre un match et rester en compétition.",
-        image: "https://primefaces.org/cdn/primevue/images/usercard.png",
     },
     {
         value: "free_for_all",
         title: "Battle Royale",
-        description: "Tout le monde s'affronte, un seul survivant à la fin !",
-        image: "https://primefaces.org/cdn/primevue/images/usercard.png",
-
     },
 ];
 </script>
@@ -203,10 +147,11 @@ const tournamentFormats = [
     </Fieldset>
 
     <!-- Actions -->
-    <div class="flex items-center gap-2 mb-4">
-        <Button v-if="tournament && userStore.profile?.user_id === tournament.organizer_id" label="Valider le tournoi" />
-        <Button v-if="tournament && userStore.profile?.user_id === tournament.organizer_id" @click="visible = true" severity="info"
-            variant="text" label="Modifier le tournoi" />
+    <div class="flex items-center gap-2 mb-4" v-if="tournament">
+        <Button v-if="tournament && userStore.profile?.user_id === tournament.organizer_id"
+            label="Valider le tournoi" />
+        <Button v-if="tournament && userStore.profile?.user_id === tournament.organizer_id" @click="visible = true"
+            severity="info" variant="text" label="Modifier le tournoi" />
         <Dialog v-model:visible="visible" modal header="Modifier le tournoi" :style="{ width: '25rem' }">
             <!-- Titre -->
             <InputGroup class="my-4">
@@ -266,34 +211,48 @@ const tournamentFormats = [
     </div>
 
     <!-- Brackets -->
-    <Fieldset legend="Brackets">
-        <div v-for="(bracket, bracketIndex) in brackets" :key="bracketIndex">
-            <h3 class="text-lg font-semibold mb-3">Tour {{ bracket.round_number }}</h3>
-            <div v-for="match in matches.filter(m => m.bracket_id === bracket.id)" :key="match.id">
-                <div v-if="match.player1 && match.player2" class="flex justify-center items-center my-4">
-                    <Chip v-if="match.player1?.username" :label="match.player1?.username"
-                        :image="match.player1?.avatar_url" class="mr-1" />
-                    <p class="mx-2">vs</p>
-                    <Chip v-if="match.player2?.username" :label="match.player2?.username"
-                        :image="match.player2?.avatar_url" class="mr-1" />
-                </div>
-                <div v-if="match.winner_id" class="mt-2 text-green-500 font-semibold flex items-center gap-2">
-                    🏆 Gagnant :
-                    <Chip v-if="getWinner(match)?.username" :label="getWinner(match)?.username"
-                        :image="getWinner(match)?.avatar_url" class="mr-1" />
-                </div>
-                <Form v-else @submit="setWinner(match, winnerId)" class="flex flex-col gap-4 w-full md:w-56">
-                    <div class="flex flex-col gap-1">
-                        <Select name="winner" v-model="winnerId" :options="[
-                            { id: match.player1.id, user_id: match.player1.user_id, name: match.player1.username },
-                            { id: match.player2.id, user_id: match.player2.user_id, name: match.player2.username }
-                        ]" optionLabel="name" optionValue="user_id" placeholder="Sélectionner le vainqueur" fluid />
+    <div v-if="brackets.length">
+        <Fieldset legend="Brackets">
+            <div v-for="(bracket, index) in brackets" :key="index">
+                <h3 class="text-lg font-semibold mb-3">Tour {{ bracket.round_number }}</h3>
+                <div v-if="bracket.matches && bracket.matches.length">
+                    <div v-for="match in bracket.matches" :key="match.id">
+                        <div v-if="match.player1 && match.player2" class="flex justify-center items-center my-4">
+                            <Chip v-if="match.player1.username" :label="match.player1?.username"
+                                :image="match.player1.avatar_url" class="mr-1" />
+                            <p class="mx-2">vs</p>
+                            <Chip v-if="match.player2.username" :label="match.player2?.username"
+                                :image="match.player2.avatar_url" class="mr-1" />
+                        </div>
+
+                        <div v-if="match.winner_id" class="mt-2 text-green-500 font-semibold flex items-center gap-2">
+                            🏆 Gagnant :
+                            <Chip v-if="match.winner_id"
+                                :label="match.winner_id === match.player1.user_id ? match.player1.username : match.player2.username"
+                                :image="match.winner_id === match.player1.user_id ? match.player1.avatar_url : match.player2.avatar_url"
+                                class="mr-1" />
+                        </div>
+                        <Form v-else @submit="setWinnerHandler(match.id, winnerId)"
+                            class="flex flex-col gap-4 w-full md:w-56">
+                            <div class="flex flex-col gap-1">
+                                <Select name="winner" v-model="winnerId" :options="[{
+                                    id: match.player1.id,
+                                    user_id: match.player1.user_id,
+                                    username: match.player1.username
+                                }, {
+                                    id: match.player2.id,
+                                    user_id: match.player2.user_id,
+                                    username: match.player2.username
+                                }]" optionLabel="username" optionValue="user_id"
+                                    placeholder="Sélectionner le vainqueur" fluid />
+                            </div>
+                            <Button type="submit" severity="secondary" label="Valider" :disabled="!winnerId" />
+                        </Form>
+
                     </div>
-                    <Button type="submit" severity="secondary" label="Valider" />
-                </Form>
+                </div>
             </div>
-        </div>
-    </Fieldset>
-    <p v-if="loading">Chargement...</p>
+        </Fieldset>
+    </div>
     <Toast position="bottom-right" />
 </template>

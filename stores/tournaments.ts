@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { CircleX, Check } from 'lucide-vue-next';
-import type { Tournament, NewTournament, Participant, Match } from '~/types/tournaments';
+import type { Tournament, NewTournament, Participant, Match, Bracket } from '~/types/tournaments';
 import type { Organizer } from '~/types/tournaments';
 import type { Game } from '~/types/games';
 
@@ -12,7 +12,6 @@ export const useTournamentStore = defineStore('tournament', () => {
     const userStore = useUserStore();
     const participationStore = useParticipationStore();
     const gameStore = useGameStore();
-    const matches = ref([]);
 
     // Récupérer tous les tournois
     async function fetchTournaments() {
@@ -81,70 +80,6 @@ export const useTournamentStore = defineStore('tournament', () => {
             throw new Error(`Le jeu du tournoi ${id} n'a pas pu être récupéré.`);
         }
         return { tournament, organizer, participants, game };
-    }
-
-    // Fonction pour charger les brackets
-    async function getBrackets(tournamentId: number) {
-        try {
-            const { data, error } = await supabase
-                .from('brackets')
-                .select('*')
-                .eq('tournament_id', tournamentId)
-                .order('round_number', { ascending: true });
-
-            if (error) throw new Error(error.message);
-            return data;
-
-        } catch (error) {
-            console.error('Erreur lors de la récupération des brackets:', error.message);
-        }
-    }
-
-    // Fonction pour charger les matchs d'un bracket
-    async function getMatches(bracketId: number, tournamentId: number) {
-        const participants = await participationStore.getParticipants(tournamentId);
-
-        try {
-            const { data, error } = await supabase
-                .from('matches')
-                .select('*')
-                .eq('bracket_id', bracketId)
-                .order('match_index', { ascending: true });
-
-            if (error) throw new Error(error.message);
-
-            data.forEach((match) => {
-                const player1 = participants.find(p => String(p.user_id) === String(match.player1_id));
-                const player2 = participants.find(p => String(p.user_id) === String(match.player2_id));
-                match.player1 = player1;
-                match.player2 = player2;
-            });
-
-            return data;
-
-        } catch (error) {
-            console.error('Erreur lors de la récupération des matchs:', error.message);
-            return [];
-        }
-    }
-
-    async function setWinner(match: Match, winnerId: string,) {
-        try {
-            const { data, error } = await supabase
-                .from('matches')
-                .update({ winner_id: winnerId })
-                .eq('id', match.id)
-                .select();
-
-            if (error) throw new Error(error.message);
-
-            if (data && data.length) {
-                match.winner_id = data[0].winner_id;
-                console.log(`Gagnant mis à jour pour le match ID: ${match.id} avec winner_id: ${data[0].winner_id}`);
-            }
-        } catch (error) {
-            console.error('Erreur lors de la mise à jour du gagnant:', error.message);
-        }
     }
 
     // Récupérer un organisateur
@@ -277,10 +212,6 @@ export const useTournamentStore = defineStore('tournament', () => {
         deleteTournament,
         getTournamentsByOrganizer,
         getOrganizer,
-        getBrackets,
-        matches,
-        getMatches,
-        setWinner,
     };
 });
 
@@ -467,5 +398,149 @@ export const useParticipationStore = defineStore('participation', () => {
         getParticipants,
         joinTournament,
         leaveTournament,
+    };
+});
+
+export const useBracketStore = defineStore('brackets', () => {
+    const supabase = useSupabaseClient();
+    const participationStore = useParticipationStore();
+    const userStore = useUserStore();
+
+    // Fonction pour mélanger aléatoirement un tableau (algorithme de Fisher-Yates)
+    function shuffleArray<T>(array: T[]): T[] {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    // Fonction pour créer un bracket en fonction du nombre de participants
+    async function createBracket(participants: Participant[], tournamentId: number): Promise<Bracket[]> {
+        const numRounds = Math.ceil(Math.log2(participants.length));
+        const rounds: Bracket[] = [];
+        let remainingParticipants = shuffleArray([...participants]);
+
+        for (let round = 0; round < numRounds; round++) {
+            const roundMatches: Match[] = [];
+
+            for (let i = 0; i < remainingParticipants.length; i += 2) {
+                const player1 = remainingParticipants[i];
+                const player2 = remainingParticipants[i + 1] || null;
+
+                const [profile1, profile2] = await Promise.all([
+                    userStore.getProfileByUserId(player1.user_id),
+                    player2 ? userStore.getProfileByUserId(player2.user_id) : Promise.resolve(null),
+                ]);
+
+                const match: Match = {
+                    player1: profile1 || undefined,
+                    player2: profile2 || undefined,
+                    round: round + 1,
+                    index: i / 2 + 1,
+                    winner_id: player2 ? null : player1?.user_id || null,
+                };
+
+                roundMatches.push(match);
+            }
+
+            rounds.push({
+                tournament_id: tournamentId,
+                matches: roundMatches,
+                is_losers_bracket: false,
+            });
+
+            remainingParticipants = roundMatches
+                .map(match => participants.find(p => p.user_id === match.winner_id) || null)
+                .filter((participant): participant is Participant => participant !== null);
+        }
+
+        if (rounds.length === 0) {
+            throw new Error('Aucun bracket à insérer.');
+        }
+
+        try {
+            const { data, error } = await supabase
+                .from('brackets')
+                .insert(rounds)
+
+            if (error) throw new Error(error.message);
+
+            return data || [];
+
+        } catch (error: any) {
+            console.error('Erreur lors de la création des brackets:', error.message);
+            throw new Error('Erreur lors de la création des brackets.');
+        }
+    }
+
+    // Fonction pour charger les brackets
+    async function getBrackets(tournamentId: number) {
+        try {
+            const { data, error } = await supabase
+                .from('brackets')
+                .select('*')
+                .eq('tournament_id', tournamentId)
+
+            if (error) throw new Error(error.message);
+            return data;
+
+        } catch (error) {
+            console.error('Erreur lors de la récupération des brackets:', error.message);
+        }
+    }
+
+    // Fonction pour charger les matchs d'un bracket
+    async function getMatches(bracketId: number, tournamentId: number) {
+        const participants = await participationStore.getParticipants(tournamentId);
+
+        try {
+            const { data, error } = await supabase
+                .from('matches')
+                .select('*')
+                .eq('bracket_id', bracketId)
+                .order('index', { ascending: true });
+
+            if (error) throw new Error(error.message);
+
+            data.forEach((match: Match) => {
+                const player1 = participants.find(p => String(p.user_id) === String(match.player1_id));
+                const player2 = participants.find(p => String(p.user_id) === String(match.player2_id));
+                match.player1 = player1;
+                match.player2 = player2;
+            });
+
+            return data;
+
+        } catch (error) {
+            console.error('Erreur lors de la récupération des matchs:', error.message);
+            return [];
+        }
+    }
+
+    async function setWinner(match: Match, winnerId: string,) {
+        try {
+            const { data, error } = await supabase
+                .from('matches')
+                .update({ winner_id: winnerId })
+                .eq('id', match.id)
+                .select();
+
+            if (error) throw new Error(error.message);
+
+            if (data && data.length) {
+                match.winner_id = data[0].winner_id;
+                console.log(`Gagnant mis à jour pour le match ID: ${match.id} avec winner_id: ${data[0].winner_id}`);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la mise à jour du gagnant:', error.message);
+        }
+    }
+
+    return {
+        createBracket,
+        getBrackets,
+        getMatches,
+        setWinner,
     };
 });

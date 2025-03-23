@@ -19,14 +19,19 @@ export interface Tournament {
 }
 
 export interface Match {
-    id: number;
-    bracket_id: number;
-    player1_id: string;
-    player2_id: string;
+    bracket_id?: number;
     winner_id: string | null;
-    match_index: number;
+    index: number;
+    round: number,
     player1?: Participant;
     player2?: Participant;
+}
+
+export interface Bracket {
+    id?: number;
+    tournament_id: number;
+    matches: Match[];
+    is_losers_bracket: boolean;
 }
 
 export interface NewTournament {

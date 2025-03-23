@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Organizer, Tournament, Participant, Match } from '~/types/tournaments';
+import type { Profile } from '~/types/profiles';
 import type { Game } from '~/types/games';
 import { CalendarDays, Coins, User, Quote, Gamepad2 } from 'lucide-vue-next';
 import { format } from 'date-fns';
@@ -8,6 +9,7 @@ import { fr } from 'date-fns/locale';
 const route = useRoute();
 const tournamentStore = useTournamentStore();
 const participationStore = useParticipationStore();
+const bracketStore = useBracketStore();
 const userStore = useUserStore();
 const visible = ref(false);
 const tournament = ref<Tournament | null>(null);
@@ -18,6 +20,7 @@ const id = Number(route.params.id);
 const toast = useToast();
 const brackets = ref([]);
 const winnerId = ref('');
+const rounds = ref<{ matches: Match[] }[]>([]);
 const formattedDate = computed(() => {
     return tournament.value ? format(new Date(tournament.value.date), 'd MMMM yyyy à HH:mm', { locale: fr }) : '';
 });
@@ -36,13 +39,24 @@ async function loadTournament() {
 };
 
 async function loadBrackets() {
-    const bracketsData = await tournamentStore.getBrackets(id) || [];
-    for (const bracket of bracketsData) {
-        bracket.matches = await tournamentStore.getMatches(bracket.id, id);
-    }
-    brackets.value = bracketsData;
+    const bracketData = await bracketStore.getBrackets(id);
+    console.log("Brackets récupérés :", bracketData);
+    rounds.value = (bracketData ?? []).map(round => ({
+        ...(typeof round === 'object' && round !== null ? round : {}),
+        matches: Array.isArray(round.matches) ? round.matches : []
+    }));
+}
 
-    return brackets.value;
+async function createBracket() {
+    try {
+        const newBracket = await bracketStore.createBracket(participants.value, id);
+        brackets.value.push(newBracket);
+        toast.add({ severity: 'success', summary: 'Bracket créé', detail: 'Le bracket a été créé avec succès.' });
+        await loadTournament();
+    } catch (error) {
+        console.error('Erreur lors de la création du bracket:', error);
+        toast.add({ severity: 'error', summary: 'Erreur', detail: 'La création du bracket a échoué.' });
+    }
 }
 
 async function setWinnerHandler(matchId: number, winnerId: string) {
@@ -54,7 +68,7 @@ async function setWinnerHandler(matchId: number, winnerId: string) {
             break;
         }
     }
-    await tournamentStore.setWinner(match, winnerId);
+    await bracketStore.setWinner(match, winnerId);
     match.winner_id = winnerId;
     await loadBrackets();
 }
@@ -69,16 +83,8 @@ async function leaveTournament() {
     await loadTournament();
 }
 
-
 onMounted(async () => {
     await loadTournament();
-    try {
-        const data = await loadBrackets();
-        brackets.value = data;
-    } catch (error) {
-        console.error("Erreur lors du chargement des données :", error);
-    }
-    participants.value = await participationStore.getParticipants(id);
 });
 
 const saveTournament = async () => {
@@ -110,6 +116,8 @@ const tournamentFormats = [
         title: "Battle Royale",
     },
 ];
+
+
 </script>
 
 <template>
@@ -148,10 +156,13 @@ const tournamentFormats = [
 
     <!-- Actions -->
     <div class="flex items-center gap-2 mb-4" v-if="tournament">
-        <Button v-if="tournament && userStore.profile?.user_id === tournament.organizer_id"
-            label="Valider le tournoi" />
-        <Button v-if="tournament && userStore.profile?.user_id === tournament.organizer_id" @click="visible = true"
-            severity="info" variant="text" label="Modifier le tournoi" />
+
+        <!-- Affichage des participants et autres sections -->
+        <div v-if="tournament && !brackets.length && userStore.profile?.user_id === tournament.organizer_id">
+            <Button @click="createBracket" label="Créer un bracket" />
+            <Button @click="visible = true" severity="info" variant="text" label="Modifier le tournoi" />
+        </div>
+
         <Dialog v-model:visible="visible" modal header="Modifier le tournoi" :style="{ width: '25rem' }">
             <!-- Titre -->
             <InputGroup class="my-4">
@@ -196,7 +207,7 @@ const tournamentFormats = [
     </div>
 
     <!-- Participants -->
-    <Fieldset legend="Participants" class="mb-4">
+    <Fieldset v-if="!brackets.length" legend="Participants" class="mb-4">
         <template v-if="participants?.length">
             <NuxtLink v-for="p in participants" :key="p.id" :to="`/@${p.username}`">
                 <Chip v-tooltip.bottom="'Voir le profil'" :label="p.username" :image="p.avatar_url" class="mr-1" />
@@ -210,20 +221,20 @@ const tournamentFormats = [
         <Button v-else @click="joinTournament()" severity="succes" label="Participer" variant="outlined" />
     </div>
 
-    <!-- Brackets -->
-    <div v-if="brackets.length">
-        <Fieldset legend="Brackets">
-            <div v-for="(bracket, index) in brackets" :key="index">
-                <h3 class="text-lg font-semibold mb-3">Tour {{ bracket.round_number }}</h3>
-                <div v-if="bracket.matches && bracket.matches.length">
-                    <div v-for="match in bracket.matches" :key="match.id">
-                        <div v-if="match.player1 && match.player2" class="flex justify-center items-center my-4">
-                            <Chip v-if="match.player1.username" :label="match.player1?.username"
-                                :image="match.player1.avatar_url" class="mr-1" />
-                            <p class="mx-2">vs</p>
-                            <Chip v-if="match.player2.username" :label="match.player2?.username"
-                                :image="match.player2.avatar_url" class="mr-1" />
-                        </div>
+    <Fieldset v-if="!brackets.length" legend="Bracket">
+        <div v-for="round in rounds" :key="round.id">
+            <h3>Round {{ round.matches.length > 0 ? round.matches[0].round : 'N/A' }}</h3>
+            <ul v-if="round.matches.length > 0">
+                <li v-for="match in round.matches" :key="match.id">
+                    Match {{ match.index }}:
+                    <!-- <pre>{{ match }}</pre> -->
+                    <!-- Affichage des informations des joueurs -->
+                    <div v-if="match.player1 && match.player2" class="flex justify-center items-center my-4">
+                        <Chip v-if="match.player1.username" :label="match.player1.username"
+                            :image="match.player1.avatar_url" />
+                        <p class="mx-2">vs</p>
+                        <Chip v-if="match.player2.username" :label="match.player2.username"
+                            :image="match.player2.avatar_url" />
 
                         <div v-if="match.winner_id" class="mt-2 text-green-500 font-semibold flex items-center gap-2">
                             🏆 Gagnant :
@@ -248,11 +259,10 @@ const tournamentFormats = [
                             </div>
                             <Button type="submit" severity="secondary" label="Valider" :disabled="!winnerId" />
                         </Form>
-
                     </div>
-                </div>
-            </div>
-        </Fieldset>
-    </div>
-    <Toast position="bottom-right" />
+                </li>
+            </ul>
+            <div v-else>Aucun match pour ce round.</div>
+        </div>
+    </Fieldset>
 </template>

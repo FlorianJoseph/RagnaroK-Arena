@@ -190,6 +190,21 @@ export const useUserStore = defineStore('user', () => {
         return data
     }
 
+    async function getProfileByUserId(userId: string) {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', userId)
+            .single()
+
+        if (error) {
+            console.error('Utilisateur non trouvé :', error.message)
+            return null
+        }
+
+        return data
+    }
+
     return {
         profile,
         createUserProfile,
@@ -198,5 +213,6 @@ export const useUserStore = defineStore('user', () => {
         getProfileByUsername,
         updateProfile,
         uploadAvatar,
+        getProfileByUserId,
     };
 });

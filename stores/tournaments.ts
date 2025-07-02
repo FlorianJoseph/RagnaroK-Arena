@@ -421,8 +421,26 @@ export const useBracketStore = defineStore('brackets', () => {
         const rounds: Bracket[] = [];
         let remainingParticipants = shuffleArray([...participants]);
 
-        for (let round = 0; round < numRounds; round++) {
+        // Vérifier si des brackets existent déjà pour ce tournoi
+        const { data: existingBrackets, error: existingBracketsError } = await supabase
+            .from('brackets')
+            .select('id')
+            .eq('tournament_id', tournamentId);
+
+        if (existingBracketsError) {
+            throw new Error('Erreur lors de la vérification des brackets existants.');
+        }
+
+        if (existingBrackets && existingBrackets.length > 0) {
+            return existingBrackets as Bracket[];
+        }
+
+        // Créer les rounds
+        let round = 1;
+
+        while (remainingParticipants.length > 1) {
             const roundMatches: Match[] = [];
+            const nextRoundParticipants: Participant[] = [];
 
             for (let i = 0; i < remainingParticipants.length; i += 2) {
                 const player1 = remainingParticipants[i];
@@ -433,12 +451,18 @@ export const useBracketStore = defineStore('brackets', () => {
                     player2 ? userStore.getProfileByUserId(player2.user_id) : Promise.resolve(null),
                 ]);
 
+                if (!player2) {
+                // Le joueur passe automatiquement au prochain tour
+                    remainingParticipants.push(player1);
+                    continue;
+                }
+
                 const match: Match = {
                     player1: profile1 || undefined,
                     player2: profile2 || undefined,
-                    round: round + 1,
+                    round,
                     index: i / 2 + 1,
-                    winner_id: player2 ? null : player1?.user_id || null,
+                    winner_id: null, 
                 };
 
                 roundMatches.push(match);
@@ -450,13 +474,15 @@ export const useBracketStore = defineStore('brackets', () => {
                 is_losers_bracket: false,
             });
 
-            remainingParticipants = roundMatches
-                .map(match => participants.find(p => p.user_id === match.winner_id) || null)
-                .filter((participant): participant is Participant => participant !== null);
+            // Met à jour les participants pour le round suivant
+            remainingParticipants = nextRoundParticipants;
+            round++;
         }
 
-        if (rounds.length === 0) {
-            throw new Error('Aucun bracket à insérer.');
+        if (remainingParticipants.length === 1) {
+            const winner = remainingParticipants[0];
+            console.log(`Vainqueur du tournoi : ${winner.username}`);
+            // Tu peux stocker ce vainqueur dans un état global ou l'enregistrer dans la base
         }
 
         try {
@@ -490,35 +516,7 @@ export const useBracketStore = defineStore('brackets', () => {
         }
     }
 
-    // Fonction pour charger les matchs d'un bracket
-    async function getMatches(bracketId: number, tournamentId: number) {
-        const participants = await participationStore.getParticipants(tournamentId);
-
-        try {
-            const { data, error } = await supabase
-                .from('matches')
-                .select('*')
-                .eq('bracket_id', bracketId)
-                .order('index', { ascending: true });
-
-            if (error) throw new Error(error.message);
-
-            data.forEach((match: Match) => {
-                const player1 = participants.find(p => String(p.user_id) === String(match.player1_id));
-                const player2 = participants.find(p => String(p.user_id) === String(match.player2_id));
-                match.player1 = player1;
-                match.player2 = player2;
-            });
-
-            return data;
-
-        } catch (error) {
-            console.error('Erreur lors de la récupération des matchs:', error.message);
-            return [];
-        }
-    }
-
-    async function setWinner(match: Match, winnerId: string,) {
+    async function setWinner(match: Match, winnerId: string) {
         try {
             const { data, error } = await supabase
                 .from('matches')
@@ -528,9 +526,17 @@ export const useBracketStore = defineStore('brackets', () => {
 
             if (error) throw new Error(error.message);
 
-            if (data && data.length) {
-                match.winner_id = data[0].winner_id;
-                console.log(`Gagnant mis à jour pour le match ID: ${match.id} avec winner_id: ${data[0].winner_id}`);
+            if (data && data.length > 0) {
+                const updatedMatch = data[0];
+                match.winner_id = updatedMatch.winner_id; // Mise à jour du match localement avec le winner_id
+
+                // Log ou notification pour confirmer la mise à jour
+                console.log(`Gagnant mis à jour pour le match ID: ${match.id} avec winner_id: ${updatedMatch.winner_id}`);
+
+                // Retourner éventuellement les données mises à jour (si tu veux les utiliser ailleurs)
+                return updatedMatch;
+            } else {
+                throw new Error('Match non trouvé ou mise à jour échouée');
             }
         } catch (error) {
             console.error('Erreur lors de la mise à jour du gagnant:', error.message);
@@ -540,7 +546,6 @@ export const useBracketStore = defineStore('brackets', () => {
     return {
         createBracket,
         getBrackets,
-        getMatches,
         setWinner,
     };
 });

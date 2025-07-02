@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Organizer, Tournament, Participant, Match } from '~/types/tournaments';
-import type { Profile } from '~/types/profiles';
 import type { Game } from '~/types/games';
 import { CalendarDays, Coins, User, Quote, Gamepad2 } from 'lucide-vue-next';
 import { format } from 'date-fns';
@@ -59,19 +58,73 @@ async function createBracket() {
     }
 }
 
-async function setWinnerHandler(matchId: number, winnerId: string) {
-    let match = null;
+const setWinnerHandler = (matchId: number, winnerId: string) => {
+    const match = rounds.value.flatMap(r => r.matches).find(m => m.index === matchId);
+    if (match) {
+        match.winner_id = winnerId;
+    }
 
-    for (const bracket of brackets.value) {
-        match = bracket.matches.find(m => m.id === matchId);
-        if (match) {
-            break;
+    // Vérifie si tous les matchs du round actuel ont un gagnant
+    const currentRound = rounds.value.find(r => r.matches.some(m => m.index === matchId));
+    if (currentRound && currentRound.matches.every(m => m.winner_id)) {
+        createNextRound(currentRound);
+    }
+
+    winnerId = '';
+    // await loadBrackets();
+};
+
+const createNextRound = (previousRound) => {
+    const winners = previousRound.matches.map(m => m.winner_id).filter(Boolean);
+    if (winners.length < 2) return;
+
+    const newMatches = [];
+    for (let i = 0; i < winners.length; i += 2) {
+        // Si un joueur est seul (cas impair), il passe automatiquement au round suivant
+        if (winners[i + 1]) {
+            newMatches.push({
+                index: newMatches.length + 1,
+                round: previousRound.matches[0].round + 1,
+                player1: getPlayerById(winners[i]),
+                player2: getPlayerById(winners[i + 1]),
+                winner_id: null
+            });
+        } else {
+            // Si un seul joueur reste, il passe automatiquement au round suivant
+            newMatches.push({
+                index: newMatches.length + 1,
+                round: previousRound.matches[0].round + 1,
+                player1: getPlayerById(winners[i]),
+                player2: null,  // Pas d'adversaire
+                winner_id: winners[i]  // Ce joueur gagne automatiquement
+            });
         }
     }
-    await bracketStore.setWinner(match, winnerId);
-    match.winner_id = winnerId;
-    await loadBrackets();
-}
+
+    if (winners.length % 2 !== 0) {
+        // Ajouter un match avec un joueur seul, ce joueur gagne directement
+        newMatches.push({
+            index: newMatches.length + 1,
+            round: previousRound.matches[0].round + 1,
+            player1: getPlayerById(winners[winners.length - 1]),
+            player2: null,  // Il n'y a pas d'adversaire
+            winner_id: winners[winners.length - 1]  // Le joueur passe automatiquement
+        });
+    }
+
+    rounds.value.push({
+        id: rounds.value.length + 1,
+        matches: newMatches
+    });
+};
+
+const getPlayerById = (userId: string) => {
+    return rounds.value
+        .flatMap(r => r.matches)
+        .flatMap(m => [m.player1, m.player2])
+        .find(p => p?.user_id === userId);
+};
+
 
 async function joinTournament() {
     await participationStore.joinTournament(id);
@@ -155,10 +208,10 @@ const tournamentFormats = [
     </Fieldset>
 
     <!-- Actions -->
-    <div class="flex items-center gap-2 mb-4" v-if="tournament">
+    <div class="flex items-center gap-2 mb-4" v-if="tournament && !rounds.length">
 
         <!-- Affichage des participants et autres sections -->
-        <div v-if="tournament && !brackets.length && userStore.profile?.user_id === tournament.organizer_id">
+        <div v-if="userStore.profile?.user_id === tournament.organizer_id">
             <Button @click="createBracket" label="Créer un bracket" />
             <Button @click="visible = true" severity="info" variant="text" label="Modifier le tournoi" />
         </div>
@@ -207,61 +260,62 @@ const tournamentFormats = [
     </div>
 
     <!-- Participants -->
-    <Fieldset v-if="!brackets.length" legend="Participants" class="mb-4">
+    <Fieldset v-if="!rounds.length" legend="Participants" class="mb-4">
         <template v-if="participants?.length">
             <NuxtLink v-for="p in participants" :key="p.id" :to="`/@${p.username}`">
-                <Chip v-tooltip.bottom="'Voir le profil'" :label="p.username" :image="p.avatar_url" class="mr-1" />
+                <Chip v-tooltip.bottom="'Voir le profil'" :label="p.username" :image="p.avatar_url" class="mx-0.5" />
             </NuxtLink>
         </template>
         <p v-else class="text-gray-500 dark:text-gray-400">Aucun participant pour le moment.</p>
     </Fieldset>
-    <div class="mb-4">
+    <div v-if="!rounds.length" class="mb-4">
         <Button v-if="isUserParticipant" @click="leaveTournament()" severity="danger" label="Désinscription au tournoi"
             variant="outlined" />
         <Button v-else @click="joinTournament()" severity="succes" label="Participer" variant="outlined" />
     </div>
 
-    <Fieldset v-if="!brackets.length" legend="Bracket">
-        <div v-for="round in rounds" :key="round.id">
-            <h3>Round {{ round.matches.length > 0 ? round.matches[0].round : 'N/A' }}</h3>
-            <ul v-if="round.matches.length > 0">
-                <li v-for="match in round.matches" :key="match.id">
-                    Match {{ match.index }}:
-                    <!-- <pre>{{ match }}</pre> -->
-                    <!-- Affichage des informations des joueurs -->
-                    <div v-if="match.player1 && match.player2" class="flex justify-center items-center my-4">
-                        <Chip v-if="match.player1.username" :label="match.player1.username"
-                            :image="match.player1.avatar_url" />
-                        <p class="mx-2">vs</p>
-                        <Chip v-if="match.player2.username" :label="match.player2.username"
-                            :image="match.player2.avatar_url" />
+    <!-- Bracket -->
+    <Fieldset v-if="rounds.length" legend="Bracket">
+        <div v-for="(round, index) in rounds" :key="index">
+            <Card v-if="round.matches.length > 0">
+                <template #title>Round {{ round.matches.length > 0 ? round.matches[0].round : 'N/A' }}</template>
+                <template #content>
+                    <ul>
+                        <li v-for="match in round.matches.filter(m => m.player1 && m.player2)" :key="match.index">
+                            <Card>
+                                <template #title>Match {{ match.index }}:</template>
+                                <template #content>
 
-                        <div v-if="match.winner_id" class="mt-2 text-green-500 font-semibold flex items-center gap-2">
-                            🏆 Gagnant :
-                            <Chip v-if="match.winner_id"
-                                :label="match.winner_id === match.player1.user_id ? match.player1.username : match.player2.username"
-                                :image="match.winner_id === match.player1.user_id ? match.player1.avatar_url : match.player2.avatar_url"
-                                class="mr-1" />
-                        </div>
-                        <Form v-else @submit="setWinnerHandler(match.id, winnerId)"
-                            class="flex flex-col gap-4 w-full md:w-56">
-                            <div class="flex flex-col gap-1">
-                                <Select name="winner" v-model="winnerId" :options="[{
-                                    id: match.player1.id,
-                                    user_id: match.player1.user_id,
-                                    username: match.player1.username
-                                }, {
-                                    id: match.player2.id,
-                                    user_id: match.player2.user_id,
-                                    username: match.player2.username
-                                }]" optionLabel="username" optionValue="user_id"
-                                    placeholder="Sélectionner le vainqueur" fluid />
-                            </div>
-                            <Button type="submit" severity="secondary" label="Valider" :disabled="!winnerId" />
-                        </Form>
-                    </div>
-                </li>
-            </ul>
+                                    <!-- Affichage des informations des joueurs -->
+                                    <div v-if="match.player1 && match.player2"
+                                        class="flex flex-col items-center my-4 gap-2">
+                                        <div class="flex items-center gap-2">
+                                            <Tag :class="['cursor-pointer', match.winner_id === match.player1.user_id ? 'bg-green-500 text-white' : '']"
+                                                @click="setWinnerHandler(match.index, match.player1.user_id)">
+                                                {{ match.player1.username }}
+                                            </Tag>
+
+                                            <span class="text-gray-600">vs</span>
+
+                                            <Tag :class="['cursor-pointer', match.winner_id === match.player2.user_id ? 'bg-green-500 text-white' : '']"
+                                                @click="setWinnerHandler(match.index, match.player2.user_id)">
+                                                {{ match.player2.username }}
+                                            </Tag>
+                                        </div>
+                                        <div v-if="match.winner_id">
+                                            <Tag severity="success" value="Success">
+                                                {{ match.winner_id === match.player1.user_id ?
+                                                    match.player1.username : match.player2.username }}
+                                            </Tag>
+                                        </div>
+                                    </div>
+
+                                </template>
+                            </Card>
+                        </li>
+                    </ul>
+                </template>
+            </Card>
             <div v-else>Aucun match pour ce round.</div>
         </div>
     </Fieldset>
